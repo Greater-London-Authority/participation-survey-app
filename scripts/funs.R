@@ -53,7 +53,7 @@ scrape_and_write_survey_data <- function(release_year) {
 }
 
 
-generate_regional_plot <- function(survey_path, release_year, sheet_letter, sheet_number) {
+generate_regional_plot <- function(survey_path, release_year, question) {
   
   #' @description 
   #' Generates interactive bar chart for regional comparison of survey results
@@ -66,16 +66,21 @@ generate_regional_plot <- function(survey_path, release_year, sheet_letter, shee
   #' @param sheet_number Number of Excel sheet
   #'
   #' @noRd
-  print(paste0("Scraping ", release_year," Participation Survey from web and writing to file"))
+  #print(paste0("Scraping ", release_year," Participation Survey from web and writing to file"))
   
   # survey_path <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_tables__Oct_2024_.ods"
   # release_year <- '2023_24'
   # sheet_letter <- 'A'
   # sheet_number <- 2
-  
+  # 
+  # 
+  # survey_path <- SURVEY_PATH
+  # release_year <- RELEASE_YEAR
+  # question <- list('code'=REGION_QUESTION_LIST[[1]][11],'theme'=REGION_QUESTION_LIST[[2]][11], 'color'=REGION_QUESTION_LIST[[3]][11])
+
   # Load table
   if (file.exists(survey_path)) {
-    df <- read_ods(survey_path, sheet=paste0('Table_', sheet_letter, sheet_number), skip=3)
+    df <- read_ods(survey_path, sheet=paste0('Table_', question[['code']]), skip=3)
   }
   else {
     stop(
@@ -83,16 +88,20 @@ generate_regional_plot <- function(survey_path, release_year, sheet_letter, shee
     )
   }
   
-  # Extract title and subtitle
-  title <- gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])
-  subtitle <- "Percentage of respondents"
-  if (nchar(gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))>1) {
-    subtitle <- paste0(subtitle," who ", gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))
-  }
-  
   # Define colour palette
-  pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1))
+  pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours=question[['color']])
   
+  
+  # Extract title and subtitle
+  title <- paste0('<span style="color:',pal[1],'">', question[['theme']],'</span>')
+  subtitle <- paste0('Percentage (%) of respondents who ', sub(".*: ", "", tolower(gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question']))))))
+  # title <- gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))
+  # subtitle <- "Percentage of respondents (%)"
+  # if (nchar(gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))>1) {
+  #   subtitle <- paste0(subtitle," who ", gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))
+  # }
+  
+
   # Summarise into plotting frame
   df_plot <- df %>% 
     select(
@@ -105,7 +114,7 @@ generate_regional_plot <- function(survey_path, release_year, sheet_letter, shee
     ) %>%
     filter(grepl('ITL1', level)) %>%
     mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
-    mutate(across(contains('resp'),~ round(.x,1))) %>%
+    mutate(across(contains('resp'),~ round(as.numeric(as.character(.x,1))))) %>%
     mutate(region = fct_reorder(region, -prop_resp)) %>%
     arrange(region) 
   
@@ -185,7 +194,7 @@ generate_regional_plot <- function(survey_path, release_year, sheet_letter, shee
     ) %>%
     hc_plotOptions(
       bar = list(
-        pointWidth=50
+        pointWidth=52
       ),
       errorbar=list(
         stemWidth= 1,
@@ -195,7 +204,7 @@ generate_regional_plot <- function(survey_path, release_year, sheet_letter, shee
     ) %>%
     hc_tooltip(
       valueSuffix= '%',
-      borderWidth=3,
+      borderWidth=2.6,
       style=list(fontSize='1.35vh'),
       shape='callout',
       useHTML = TRUE, 
@@ -326,7 +335,7 @@ generate_borough_plot <- function(survey_path, bounds_path, release_year, sheet_
     ) %>%
     hc_tooltip(
       valueSuffix= '%',
-      borderWidth=3,
+      borderWidth=2.6,
       shared=T,
       style=list(fontSize='1.35vh'),
       shape='callout',
