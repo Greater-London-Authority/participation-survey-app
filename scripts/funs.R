@@ -74,11 +74,13 @@ generate_regional_plot <- function(survey_path, release_year, question) {
   # sheet_number <- 2
   # 
   # 
-  # survey_path <- SURVEY_PATH
-  # release_year <- RELEASE_YEAR
-  # question <- list('code'=REGION_QUESTION_LIST[[1]][11],'theme'=REGION_QUESTION_LIST[[2]][11], 'color'=REGION_QUESTION_LIST[[3]][11])
+  survey_path <- SURVEY_PATH
+  release_year <- RELEASE_YEAR
+  question <- list('code'=REGION_QUESTION_LIST[[1]][1],'theme'=REGION_QUESTION_LIST[[2]][1], 'color'=REGION_QUESTION_LIST[[3]][1])
 
   # Load table
+  print(question)
+  #browser()
   if (file.exists(survey_path)) {
     df <- read_ods(survey_path, sheet=paste0('Table_', question[['code']]), skip=3)
   }
@@ -101,7 +103,7 @@ generate_regional_plot <- function(survey_path, release_year, question) {
   #   subtitle <- paste0(subtitle," who ", gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))
   # }
   
-
+  #browser()
   # Summarise into plotting frame
   df_plot <- df %>% 
     select(
@@ -116,26 +118,29 @@ generate_regional_plot <- function(survey_path, release_year, question) {
     mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
     mutate(across(contains('resp'),~ round(as.numeric(as.character(.x,1))))) %>%
     mutate(region = fct_reorder(region, -prop_resp)) %>%
-    arrange(region) 
+    arrange(region) %>%
+    mutate(drilldown=tolower(region))
   
   # Plot
   plot <- highchart() %>%
    hc_chart(spacingBottom= 50) %>%
     hc_add_series(
+      id='central',
       type='bar', 
       name='Central estimate',
       showInLegend=F,
       data=df_plot, 
-      hcaes(x = region, y = round(prop_resp,1), color=color)
+      hcaes(name=region, x = factor(region), y = round(prop_resp,1), color=color)
     ) %>%
     hc_add_series(
+      id='confidence',
       type='errorbar',
       name='Lower-Upper estimate',
       data=df_plot,
       hcaes(x=region, low=prop_resp_lb, high=prop_resp_ub)
     ) %>%
     hc_xAxis(
-      categories=levels(df_plot$region),
+      type='category',
       title=list(enabled=F),
       labels = list(
         align='left',
@@ -192,7 +197,7 @@ generate_regional_plot <- function(survey_path, release_year, question) {
         color='#9b9b9b'
       )
     ) %>%
-    hc_plotOptions(
+    hc_plotOptions(  #48-45
       bar = list(
         pointWidth=52
       ),
@@ -207,10 +212,25 @@ generate_regional_plot <- function(survey_path, release_year, question) {
       borderWidth=2.6,
       style=list(fontSize='1.35vh'),
       shape='callout',
-      useHTML = TRUE, 
-      headerFormat = "",
-      pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
-    ) 
+      shared=T,
+      useHTML = TRUE#,
+      #headerFormat = ""#,
+      #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+    ) %>%
+    hc_drilldown(
+      allowPointDrilldown = TRUE,
+      series = list(
+        list(
+          id = "london",
+          data = list_parse2(
+            data.frame(
+              name = c("b1", "b2", "b3", "b4", "b5"),
+              value = c(4, 3, 1, 2, 1)
+            )
+          )
+        )
+      )
+    )
    
   return(plot)
 }
@@ -355,4 +375,80 @@ generate_borough_plot <- function(survey_path, bounds_path, release_year, sheet_
 }
 
 
-#772x587
+
+
+generate_regional_proxy <- function(survey_path, release_year, question) {
+  
+  #' @description 
+  #' Generates interactive bar chart for regional comparison of survey results
+  #' 
+  #' @details  
+  #' 
+  #' @param survey_path String path to survey data. Defined in global `SURVEY_PATH`. 
+  #' @param release_year String data release year (e.g. 2022_23). Defined in global `RELEASE_YEAR`.
+  #' @param sheet_letter Letter of Excel sheet
+  #' @param sheet_number Number of Excel sheet
+  #'
+  #' @noRd
+  #print(paste0("Scraping ", release_year," Participation Survey from web and writing to file"))
+  
+  # survey_path <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_tables__Oct_2024_.ods"
+  # release_year <- '2023_24'
+  # sheet_letter <- 'A'
+  # sheet_number <- 2
+  # 
+  # 
+  # survey_path <- SURVEY_PATH
+  # release_year <- RELEASE_YEAR
+  # question <- list('code'=REGION_QUESTION_LIST[[1]][11],'theme'=REGION_QUESTION_LIST[[2]][11], 'color'=REGION_QUESTION_LIST[[3]][11])
+  
+  # Load table
+  print(question)
+  #browser()
+  if (file.exists(survey_path)) {
+    df <- read_ods(survey_path, sheet=paste0('Table_', question[['code']]), skip=3)
+  }
+  else {
+    stop(
+      'Aborting procedure - survey data does not exist in user specified path'
+    )
+  }
+  
+  # Define colour palette
+  pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours=question[['color']])
+  
+  
+  # Extract title and subtitle
+  title <- paste0('<span style="color:',pal[1],'">', question[['theme']],'</span>')
+  subtitle <- paste0('Percentage (%) of respondents who ', sub(".*: ", "", tolower(gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question']))))))
+  # title <- gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))
+  # subtitle <- "Percentage of respondents (%)"
+  # if (nchar(gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))>1) {
+  #   subtitle <- paste0(subtitle," who ", gsub("\\(([^()]*)\\)|.", "\\1", df[1, 'Question'], perl=T))
+  # }
+  
+  #browser()
+  # Summarise into plotting frame
+  df_plot <- df %>% 
+    select(
+      level=Question,
+      region=`Response Breakdown`,
+      prop_resp=paste0('Percentage of respondents ',gsub('_', '/', release_year)),
+      prop_resp_lb=paste0('Percentage of respondents ',gsub('_', '/', release_year), ' Lower estimate'),
+      prop_resp_ub=paste0('Percentage of respondents ',gsub('_', '/', release_year), ' Upper estimate'),
+      num_resp=paste0(gsub('_', '/', release_year), ' No. of respondents')
+    ) %>%
+    filter(grepl('ITL1', level)) %>%
+    mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
+    mutate(across(contains('resp'),~ round(as.numeric(as.character(.x,1))))) %>%
+    mutate(region = fct_reorder(region, -prop_resp)) %>%
+    arrange(region) 
+  
+  
+  return(list(subtitle, df_plot))
+  
+ 
+  
+  return(plot)
+}
+

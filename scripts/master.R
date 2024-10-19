@@ -14,6 +14,9 @@ library(tidyverse)
 library(geojsonio)
 library(gglaplot)
 library(highcharter)
+library(here)
+library(shinyglide)
+
 #'[Source Paths]
 source('scripts/funs.R')
 #'[Global Options]
@@ -22,6 +25,8 @@ DOWNLOAD_LATEST_DATA <- F
 
 SURVEY_PATH <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_tables__Oct_2024_.ods"
 RELEASE_YEAR <- '2023_24'
+
+REGION_QUESTION_NUM <- 1:12
 #G2 not working
 REGION_QUESTION_LIST <- list( 
   code=c(
@@ -51,6 +56,8 @@ REGION_QUESTION_LIST <- list(
 
 
 
+
+
 #'[____________________________________________________________________________]
 
 if (DOWNLOAD_LATEST_DATA==T) {
@@ -59,26 +66,17 @@ if (DOWNLOAD_LATEST_DATA==T) {
 
 output_list <- lapply(
   1:length(REGION_QUESTION_LIST[[1]]), function(q) {
-    print(q)
+    #print(q)
     generate_regional_plot(
-      SURVEY_PATH, RELEASE_YEAR, 
+      SURVEY_PATH, RELEASE_YEAR,
       list('code'=REGION_QUESTION_LIST[[1]][q],'theme'=REGION_QUESTION_LIST[[2]][q], 'color'=REGION_QUESTION_LIST[[3]][q])
     )
   }
 )
 
 
-output_list[[5]]
 
 
 
-
-
-
-
-
-for (q in 1:length(REGION_QUESTION_LIST[[1]])) {
-  
-}
 
 
