@@ -4,13 +4,15 @@ date: "[Matthew Tibbles](mailto:matthew.tibbles@london.gov.uk), `r format(Sys.Da
 runtime: shiny
 output:
   html_document:
-    toc: true
-    toc_float: true
+
     css:  !expr "here::here('FORMATTING','GLAstyle.css')"
     includes:
       in_header: !expr "here::here('FORMATTING','favicon.html')"
       before_body: !expr "here::here('FORMATTING','header.html')"
       after_body: !expr "here::here('FORMATTING','footer.html')"
+editor_options: 
+  markdown: 
+    wrap: 78
 ---
 
 ```{r setup, include=FALSE}
@@ -29,340 +31,248 @@ library(here)
 library(shinyglide)
 library(shinyjs)
 library(bslib)
+library(shinyWidgets)
 source(here('scripts/master.R'))
 
 
-art_choices <- 1:4
-art_proxy_list <- lapply(
-  art_choices, function(q) {
-    #print(q)
-    generate_regional_proxy(
-      SURVEY_PATH, RELEASE_YEAR,
-      list('code'=REGION_QUESTION_LIST[[1]][q],'theme'=REGION_QUESTION_LIST[[2]][q], 'color'=REGION_QUESTION_LIST[[3]][q])
-    )
-  }
-)
-useShinyjs()
+
+# art_proxy_list <- lapply(
+#   art_choices, function(q) {
+#     #print(q)
+#     generate_regional_proxy(
+#       SURVEY_PATH, RELEASE_YEAR,
+#       list('code'=REGION_QUESTION_LIST[[1]][q],'theme'=REGION_QUESTION_LIST[[2]][q], 'color'=REGION_QUESTION_LIST[[3]][q])
+#     )
+#   }
+# )
+
 
 
 
 
 ```
 
-```{js, echo=F}
-// JS width changes
-// R Markdown is using Bootstrap 3.3.5, see legacy documentation here
-// https://getbootstrap.com/docs/3.3/css/#grid
-
-// TOC column
-const TOC_col = document.querySelector('div.row>div:not(div+div)');  // First div element under div.row
-TOC_col.classList.replace('col-sm-4', 'col-sm-2');  // sm: Change TOC column width from 33% to 17% of total
-TOC_col.classList.replace('col-md-3', 'col-md-2');  // md: Change TOC column width from 25% to 17% of total
-
-// Main column
-const main_col = document.querySelector('div.row>div+div');  // Second (and last) div element under div.row
-main_col.classList.replace('col-sm-8', 'col-sm-10');  // sm: Change main column width from 67% to 83% of total
-main_col.classList.replace('col-md-9', 'col-md-10');  // md: Change main column width from 75% to 83% of total
-main_col.classList.add('col-sm-offset-2', 'col-md-offset-2')  // sm+md: offset main column by width of TOC (for CSS styling below)
-```
-
-```{css, echo=FALSE}
-/* CSS width changes */
-
-/* Entire page - make wider, default setting is much too narrow */
-/* https://stackoverflow.com/questions/38367392/override-rmarkdown-theme-in-order-to-change-html-page-width/54348996#54348996 */
-div.main-container {
-  width: 1280px !important;
-}
-/* TOC column - move to left edge */
-/* https://medium.com/@TheAtlasTeam/fixed-width-sidebars-in-bootstrap-6bd83db75669 */
-div.row>div:not(div+div) {
-  position: fixed;
-  left: 0px;
-}
-/* TOC container within the TOC column - make narrower */
-#TOC {
-  max-width: 200px !important;
-  width: 200px !important;
-}
-```
 
 <hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
+
 <!-- Summary of findings - MANUALLY ADJUST -->
+
 <br/>
 
 ::: {.quotebox .quote_symbol}
-
-Insert
-<br><br> 
-Some text
-<br><br> 
-about the 
-<br><br> 
-participation survey 
-<br><br> 
-
-
+Insert <br><br> Some text <br><br> about the <br><br> participation survey <br><br>
 :::
-
 
 <hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
 
 <br/>
 
-# Arts 
-<br/>
-
-
+## Arts
 
 ```{r, echo=F}
-#fluidRow(
-  #highchartOutput('art_plot', height='65vh'),
-  shinyjs::hidden(uiOutput("art_select_btn"))#,
-  highchartOutput('art_plot', height='75vh')
-  uiOutput("art_previous_btn")#,
-  uiOutput("art_next_btn")
-#)
+# Arts UI
+fluidPage(
+  useShinyjs(rmd=T),
+  div(class='section-ui',
+    shinyjs::hidden(
+      pickerInput(
+        inputId="arts_select",
+        label="Question",
+        choices = ARTS_QUESTIONS,
+        selected=1,
+        multiple=F
+      )
+    ),
+    highchartOutput('arts_plot', height='75vh'),
+    fluidRow(
+      column(3),
+      column(2, uiOutput("arts_previous_btn")),
+      column(5),
+      column(2, uiOutput("arts_next_btn"))
+      
+    )
+  )
+)
 
-
-
-# div(class='glide-screen',
-# shinyglide:: glide(
-#   screen(
-#     navset_card_tab(
-#       title='Comparison level',
-#       nav_panel(
-#         "Regional comparison", align='left',
-#         highchartOutput('plot1', height='65vh')
-#       )
-#     )
-#   ),
-#   screen(
-#     navset_card_tab(
-#       title='Comparison level',
-#       nav_panel(
-#         "Regional comparison", align='left',
-#         highchartOutput('plot2', height='65vh')
-#       )
-#     )
-#   )
-# )
-# )
-
-
-
-
-
-  
 ```
 
+```{r, context="server", echo=F}
+# Arts server
+# output$arts_select_btn <- renderUI({
+#   selectInput(
+#     inputId="arts_select",
+#     label="Question",
+#     choices = ARTS_QUESTIONS,
+#     selected=1,
+#     multiple=F,
+#     selectize=T
+#   )
+# })
+  useShinyjs()
+output$arts_previous_btn <- renderUI({
+  actionButton(
+    "arts_previous", 
+    "Previous",
+    icon=icon("backward")
+  )
+})
+output$arts_next_btn <- renderUI({
+  actionButton(
+    "arts_next", 
+    "Next",
+    icon=icon("forward")
+  )
+})
+# output$selected <- renderText({
+#   paste0('You have selected ', input$arts_select)
+# })
+output$arts_plot <- renderHighchart({
+  generate_drilldown_plot(input$arts_select, df_list)
+})
+observeEvent(input$arts_previous, {
+  current <- which(ARTS_QUESTIONS == input$arts_select)
+  if(current > 1) {
+    updateSelectInput(
+      session, "arts_select",
+      selected = ARTS_QUESTIONS[current - 1]
+    )
+    update_drilldown_plot(input$arts_select, df_list, "arts_plot")
+  }
+  }, ignoreInit=T
+  )
+# 
+observeEvent(input$arts_next, {
+  current <- which(ARTS_QUESTIONS == input$arts_select)
+  if(current < length(ARTS_QUESTIONS)){
+    updateSelectInput(
+      session, "arts_select",
+      selected = ARTS_QUESTIONS[current + 1]
+    )
+    update_drilldown_plot(input$arts_select, df_list, "arts_plot")
+  }
+  }, ignoreInit=T
+  )
+```
+
+<br/> <br/> <a href="#top">Back to top</a>
+
+<hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
+
+<br/>
+
+## Libraries
+
+```{r, echo=F}
+# Arts UI
+#fluidRow(
+  #highchartOutput('art_plot', height='65vh'),
+  shinyjs::hidden(div(id='libraries_selector', uiOutput("libraries_select_btn")))#,
+  #textOutput('selected')
+  highchartOutput('libraries_plot', height='75vh', width='53vw')
+  uiOutput("libraries_previous_btn")#,
+  uiOutput("libraries_next_btn")
+#)
+
+```
 
 ```{r, context="server", echo=F}
-
-output$selected <- renderText({
-  paste0('You have selected ', input$art_select)
-})
-
-output$art_select_btn <- renderUI({
+# libraries server
+output$libraries_select_btn <- renderUI({
   selectInput(
-    inputId="art_select",
+    inputId="libraries_select",
     label="Question",
-    choices = art_choices,
+    choices = LIBRARIES_QUESTIONS,
     selected=1,
     multiple=F,
     selectize=T
   )
 })
-
-output$t <- renderUI({textOutput(input$art_select)})
-
-output$art_previous_btn <- renderUI({
+output$libraries_previous_btn <- renderUI({
   actionButton(
-    "art_previous", 
+    "libraries_previous", 
     label = "Previous"
   )
 })
-output$art_next_btn <- renderUI({
+output$libraries_next_btn <- renderUI({
   actionButton(
-    "art_next", 
+    "libraries_next", 
     label = "Next"
   )
 })
+# output$selected <- renderText({
+#   paste0('You have selected ', input$libraries_select)
+# })
 
-output$art_plot <- renderHighchart({
-  output_list[[1]]
+output$libraries_plot <- renderHighchart({
+  generate_drilldown_plot(input$libraries_select, df_list)
 })
 
-observeEvent(input$art_previous, {
-  current <- which(art_choices == input$art_select)
+observeEvent(input$libraries_previous, {
+  current <- which(LIBRARIES_QUESTIONS == input$libraries_select)
   if(current > 1) {
     updateSelectInput(
-      session, "art_select",
-      selected = art_choices[current - 1]
+      session, "libraries_select",
+      selected = LIBRARIES_QUESTIONS[current - 1]
     )
-    
-    highchartProxy("art_plot") %>%
-    hcpxy_update_series(
-      id = "central",
-      data=data.frame(art_proxy_list[[as.numeric(input$art_select)-1]][2])$prop_resp
-    ) %>%
-    hcpxy_update_series(
-      id = "confidence",
-      data=list_parse2(
-        data.frame(
-          low=data.frame(art_proxy_list[[as.numeric(input$art_select)-1]][2])$prop_resp_lb,
-          high=data.frame(art_proxy_list[[as.numeric(input$art_select)-1]][2])$prop_resp_ub
-        )
-      )
-    ) %>%
-    hcpxy_update(
-      subtitle = list(text=art_proxy_list[[as.numeric(input$art_select)-1]][1])#,
-    #   tooltip = list(
-    #     pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span    style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
-    # ) 
-    ) 
-
-    # hcpxy_update_series(
-    #   id = "confidence",
-    #   data=list(
-    #     low=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2])$prop_resp_lb,
-    #     high=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2])$prop_resp_ub
-    #   )
-    # hcpxy_set_data(
-    #   type='bar',
-    #   data=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2]),
-    #   mapping = hcaes(x = region, y = round(prop_resp,1), color=color),
-    #   redraw = FALSE,
-    #   animation = list(enabled=T),
-    #   updatePoints = TRUE
-    # ) %>%
-    # hcpxy_set_data(
-    #   type='errorbar',
-    #   data=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2]),
-    #   mapping = hcaes(x=region, low=prop_resp_lb, high=prop_resp_ub),
-    #   redraw = FALSE,
-    #   animation = list(enabled=T),
-    #   updatePoints = TRUE
-    # ) 
-      #hcaes(x = region, y = round(prop_resp,1), color=color)
-      #hcaes(x = region, y = round(prop_resp,1), color=color)
-    #)
-    # hcpxy_update_series(
-    #   id = "confidence",
-    #   data=art_proxy_list[[as.numeric(input$art_select)]][2], 
-    #   hcaes(x=region, low=prop_resp_lb, high=prop_resp_ub)
-    # ) 
-    
+  update_drilldown_plot(input$arts_select, df_list, "libraries_plot")
   }
-}, ignoreNULL = T, ignoreInit = F)
-
-observeEvent(input$art_next, {
-  current <- which(art_choices == input$art_select)
-  if(current < length(art_choices)){
+  }, ignoreInit=T
+  )
+# 
+observeEvent(input$libraries_next, {
+  current <- which(LIBRARIES_QUESTIONS == input$arts_select)
+  if(current < length(LIBRARIES_QUESTIONS)){
     updateSelectInput(
-      session, "art_select",
-      selected = art_choices[current + 1]
+      session, "libraries_select",
+      selected = LIBRARIES_QUESTIONS[current + 1]
     )
-    
-    highchartProxy("art_plot") %>%
-    hcpxy_update_series(
-      id = "central",
-      data=data.frame(art_proxy_list[[as.numeric(input$art_select)+1]][2])$prop_resp
-    ) %>%
-    hcpxy_update_series(
-      id = "confidence",
-      data=list_parse(
-        data.frame(
-          low=data.frame(art_proxy_list[[as.numeric(input$art_select)+1]][2])$prop_resp_lb,
-          high=data.frame(art_proxy_list[[as.numeric(input$art_select)+1]][2])$prop_resp_ub
-        )
-      )
-    ) %>%
-    hcpxy_update(
-      subtitle = list(text=art_proxy_list[[as.numeric(input$art_select)+1]][1])#,
-    #   tooltip = list(
-    #     valueSuffix= '%',
-    #     borderWidth=2.6,
-    #     style=list(fontSize='1.35vh'),
-    #     shape='callout',
-    #     useHTML = TRUE,
-    #     headerFormat = "",
-    #     pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span    style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
-    # ) 
-    )
- #%>%
-    # hcpxy_update_series(
-    #   id = "confidence",
-    #   data=list(
-    #     low=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2])$prop_resp_lb,
-    #     high=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2])$prop_resp_ub
-    #   )
-    #)
-    # hcpxy_set_data(
-    #   type='bar',
-    #   data=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2]),
-    #   mapping = hcaes(x = region, y = round(prop_resp,1), color=color),
-    #   redraw = FALSE,
-    #   animation = list(enabled=T),
-    #   updatePoints = TRUE
-    # ) %>%
-    # hcpxy_set_data(
-    #   type='errorbar',
-    #   data=data.frame(art_proxy_list[[as.numeric(input$art_select)]][2]),
-    #   mapping = hcaes(x=region, low=prop_resp_lb, high=prop_resp_ub),
-    #   redraw = FALSE,
-    #   animation = list(enabled=T),
-    #   updatePoints = TRUE
-    # ) 
-    # %>%
-    # hcpxy_update_series(
-    #   id = "confidence",
-    #   data=art_proxy_list[[as.numeric(input$art_select)]][2], 
-    #   hcaes(x=region, low=prop_resp_lb, high=prop_resp_ub)
-    # ) 
+    update_drilldown_plot(input$arts_select, df_list, "libraries_plot")
   }
-}, ignoreNULL = T, ignoreInit = F)
-
-
-
-
-
+  }, ignoreInit=T
+  )
 ```
 
-
-<a href="#top">Back to top</a>
-
-<hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
-
-<br/>
-
-
+<br/> <br/> <a href="#top">Back to top</a>
 
 <hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
 
 <br/>
 
-### Change on previous year, regions
+## Libraries
 
-<a href="#top">Back to top</a>
+**blah blah blah**
+
+<br/> <br/> <a href="#top">Back to top</a>
 
 <hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
 
 <br/>
 
-more 
-### more
+## Libraries
 
-### even more
+**blah blah blah**
 
-### even more of more
+<br/> <br/> <a href="#top">Back to top</a>
 
-
-# Measuring the labour market
+<hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
 
 <br/>
 
-The ONS has published its latest [labour market update](https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes) covering Labour Force Survey (LFS) data for the three months ending  and real-time information (RTI) data up to This bulletin presents the latest headline labour market estimates for London.
+## Libraries
+
+**blah blah blah**
+
+<br/> <br/> <a href="#top">Back to top</a>
+
+<hr  width="100%" style="background-color: rgb(134,139,142);height: 1.0px;margin: 0;"/>
+
+<br/>
+
+## Libraries
+
+**blah blah blah**
+
+The ONS has published its latest [labour market update](https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes) covering Labour Force Survey (LFS) data for the three months ending and real-time information (RTI) data up to This bulletin presents the latest headline labour market estimates for London.
 
 Please note:
 
@@ -376,8 +286,6 @@ More information on the data used and a glossary of terms can be found on the [O
 
 <a href="#top">Back to top</a>
 
-
 </font>
 
-::: {.tocify-extend-page data-unique="tocify-extend-page" style="height: 0;"}
-:::
+

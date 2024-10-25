@@ -154,9 +154,8 @@ p.caption{
 
 /* Headers */
 h1,h2,h3,h4,h5,h6{
-  font-size: 20pt;
+  font-size: 7vh;
   font-family: Arial;
-  color: rgb(53,61,66);
 }
 
 
@@ -193,12 +192,17 @@ a {
   font-size: 30px;
 }
 
-
-.glide-screen {
-  80vh
+.section-ui {
+  width:60vw;
 }
 
-.glidetrack {
+#section-arts {
+  color: #6da7de !important;
 }
 
-.glide__slides {}
+.btn-default {
+  min-width: 8vw;
+  max-width: 8vw;
+  background-color: #337ab7;
+  color:white;
+}
