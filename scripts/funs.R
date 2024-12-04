@@ -489,9 +489,9 @@ generate_region_frame <- function(survey_path, release_year, question) {
     )
   }
   #title <- paste0('<span style="color:',pal[1],'">', question[['theme']],'</span>')
-  subtitle <- paste0(sub(".*: ", "", gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))),' (%)')
+  subtitle <- paste0(sub(".*: ", "", gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))))
   # Define colour palette
-    pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours=question[['color']])
+  pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours=question[['color']])
   df_region <- df %>% 
     select(
       level=Question,
@@ -503,10 +503,11 @@ generate_region_frame <- function(survey_path, release_year, question) {
     ) %>%
     filter(grepl('ITL1', level)) %>%
     mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
-    mutate(across(contains('resp'),~ round(as.numeric(as.character(.x,1))))) %>%
+    mutate(across(contains('resp'),~ round(as.numeric(as.character(.x)),1))) %>%
     mutate(region = fct_reorder(region, -prop_resp)) %>%
     arrange(region) %>%
-    mutate(code = question[['code']])
+    mutate(code = question[['code']]) %>%
+    mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=","))
   
   # create drilldown_central and drilldown_error as london-central and london-error, or "" 
   # entirely where Question_lisrt drilldown is 0
@@ -552,7 +553,8 @@ generate_borough_frame <- function(survey_path, release_year, question) {
     mutate(across(contains('resp'),~ round(.x,1))) %>%
     mutate(borough = fct_reorder(borough, -prop_resp)) %>%
     arrange(borough) %>%
-    mutate(code = question[['code']]) #%>% 
+    mutate(code = question[['code']]) %>% 
+    mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=","))
     #mutate(drilldown=case_when(region=='London'~'london',T~''))
   
   return(list('dataframe'=df_borough))
@@ -563,22 +565,19 @@ generate_borough_frame <- function(survey_path, release_year, question) {
 
 
 
-generate_drilldown_plot <- function(question, df_list) {
+generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, color, drilldown_central)
+    select(region, prop_resp, num_resp, color, drilldown_central)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)
   subtitle <-  df_list[[question ]][['region']][['title']]
   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
-  max_borough <- max(df_borough$prop_resp_ub)
   
-  plot <- highchart() %>%
-    hc_chart(
-      spacingBottom= 50,
-      backgroundColor='white'
-      
-    ) %>%
+  
+  #max_borough <- max(df_borough$prop_resp_ub)
+  #browser()
+  chart <- highchart() %>%
     hc_add_series(
       name='Central estimate',
       id='region-central',
@@ -610,6 +609,9 @@ generate_drilldown_plot <- function(question, df_list) {
           align='right'
         )
       ),
+      activeAxisLabelStyle = list(
+        color='black'
+      ),
       #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/breadcrumbs/format
       series = list(
         list(
@@ -620,7 +622,8 @@ generate_drilldown_plot <- function(question, df_list) {
           data = list_parse2(
             data.frame(
               borough=df_borough$borough,
-              prop_resp=df_borough$prop_resp
+              prop_resp=df_borough$prop_resp,
+              num_resp=df_borough$num_resp
             )
           )
         ),
@@ -635,7 +638,7 @@ generate_drilldown_plot <- function(question, df_list) {
               prop_resp_lb=df_borough$prop_resp_lb,
               prop_resp_ub=df_borough$prop_resp_ub
             )
-            
+
           )
         )
       )
@@ -664,7 +667,7 @@ generate_drilldown_plot <- function(question, df_list) {
       title =list(enabled=F),
       gridLineWidth=0,
       tickInterval=10,
-      max=max_borough,
+      #max=max_borough,
       labels=list(
         format="{value}%",
         style=list(
@@ -674,34 +677,73 @@ generate_drilldown_plot <- function(question, df_list) {
           fontWeight='300'
         )
       )
+      ,
+      plotLines=list(
+        list(
+          value=-10,
+          color='#d82222',
+          zIndex=99
+        )
+      )
+      ,
+      plotBands=list(
+        list(
+          from=0,
+          to=0,
+          # from=0,
+          # to=0,
+          zIndex=98, 
+          color='#d822221F'
+        )
+      )
+      # ,
+      # plotBands=list(
+      #   list(
+      #     id='region-plotBand',
+      #     from=mean(df_region_error$prop_resp_lb),
+      #     to=mean(df_region_error$prop_resp_ub),
+      #     color='#eeeeee4D',
+      #     zIndex=98
+      #   )
+      # )
     ) %>%
     hc_plotOptions(  #48-45
       bar = list(
-        pointWidth=32
+        pointWidth=browser_height/19
       ),
       errorbar=list(
         stemWidth= 1,
         whiskerWidth=1,
-        whiskerLength= 30
+        whiskerLength= browser_height/19.5
       )
+      #,
+      # series=list(
+      #   events=list(
+      #     # get drilldown level
+      #     drilldown=JS(
+      #       "function() {Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);}"
+      #     )
+      #   )
+      # )
     ) %>%
-    hc_title(
-      text=subtitle,
-      align='left',
-      style = list(
-        fontSize ="3.8vh",color = '#353d42', 
-        fontFamily = "Arial", fontWeight = "450"
-      )
-    ) %>%
-    hc_subtitle(
-      text="Click to drilldown into London by Borough",
-      align='left',
-      style = list(
-        fontSize ="2.4vh",color = '#353d42', 
-        fontFamily = "Arial", fontWeight = "250",
-        fontStyle='italic'
-      )
-    ) %>%
+    # hc_title(
+    #   text=subtitle,
+    #   align='left',
+    #   margin=60,
+    #   style = list(
+    #     fontSize ="3.8vh",color = '#353d42', 
+    #     fontFamily = "Arial", fontWeight = "450"
+    #   )
+    # ) %>%
+    # hc_subtitle(
+    #   text="Click to drilldown into London by Borough",
+    #   align='left',
+    #   style = list(
+    #     fontSize ="2.4vh",color = '#353d42', 
+    #     fontFamily = "Arial", fontWeight = "250",
+    #     fontStyle='italic'
+    #   )
+    # ) %>%
     hc_credits(
       enabled=T,
       useHTML=T,
@@ -722,18 +764,99 @@ generate_drilldown_plot <- function(question, df_list) {
       style=list(fontSize='1.35vh'),
       shape='callout',
       shared=T,
-      useHTML = TRUE
-      #headerFormat = ""#,
+      useHTML = TRUE,
+      headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.num_resp})</span><br>"
       #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
     ) %>%
     hc_exporting(
       enabled=T
+    ) %>%
+    hc_legend(
+      enabled=F
+    ) %>%
+    hc_chart(
+      spacingBottom= browser_height/12, # needs to be adjusted
+      #backgroundColor='#fafafa',
+      events=list(
+        drilldown=JS(
+          paste0(
+            "
+            function() {
+            Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+            }
+            "
+          # paste0(
+          #   "
+          #   function() {
+          #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+          #   }
+          #   "
+          
+          
+          
+          # paste0(
+          #   "
+          #   function() {
+          #     this.yAxis[0].removePlotLine('region-plotLine');
+          #     this.yAxis[0].addPlotLine(
+          #       {
+          #         id:'borough-plotLine',
+          #         value:",mean(df_borough$prop_resp),",
+          #         color:'#d82222',
+          #         zIndex:99
+          #       }
+          #     );
+          #     Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+          #   }
+          #   "
+          )
+        )
+        ,
+        drillup=JS(
+          # paste0(
+          #   "
+          #   function() {
+          #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+          #   }
+          #   "
+          paste0(
+            "
+            function() {
+            Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+            }
+
+            "
+            
+            # "
+            # function() {
+            # this.yAxis[0].removePlotLine('borough-plotLine');
+            #   this.yAxis[0].addPlotLine(
+            #     {
+            #       id:'region-plotLine',
+            #       value:",mean(df_region_central$prop_resp),",
+            #       color:'#d82222',
+            #       zIndex:99
+            #     }
+            #   );
+            #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+            # }
+            # "
+          )
+        )
+      )
     )
-  return(plot)
+  #chart
+  
+  # Add the line(s) -or try
+  # If not add England bar, optional add or remove ci lines maybe
+  # then revisit fucking tooltip n on drilldown
+  # bulleted text - bvasically done
+  
+  return(chart)
 }
 
 
-update_drilldown_plot <- function(question, df_list, plot) {
+update_drilldown_chart <- function(question, df_list, chart) {
   
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
@@ -742,9 +865,9 @@ update_drilldown_plot <- function(question, df_list, plot) {
     select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
   subtitle <-  df_list[[question ]][['region']][['title']]
   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
-  max_borough <- max(df_borough$prop_resp_ub)
+  #max_borough <- max(df_borough$prop_resp_ub)
   
-  highchartProxy(plot) %>%
+  highchartProxy(chart) %>%
     hcpxy_update_series(
       id='region-central',
       data = df_region_central$prop_resp
@@ -787,6 +910,293 @@ update_drilldown_plot <- function(question, df_list, plot) {
         )
       )
     )
-  
-  return(plot)
 }
+
+
+
+generate_drilldown_map <- function(question, df_list, theme, question_list, bounds_region, bounds_borough) {
+  question <- as.numeric(question)
+  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    mutate(
+      value = prop_resp,
+      drilldown=case_when(region=='London'~'london-drilldown',T~'')
+    )
+  subtitle <-  df_list[[question ]][['region']][['title']]
+  df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    mutate(value = prop_resp)
+  #max_borough <- max(df_borough$prop_resp_ub)
+  
+  
+  pal <- gla_pal(gla_theme = "default", palette_type = "quantitative", palette_name='core', n = 20, main_colours=question_list[['region']][['color']][question])
+  #min <- min(df_region$prop_resp)
+  #max <- max(df_region$prop_resp)
+  
+  df_region_rest <- df_region %>% filter(region != 'London')
+  df_region_ldn <- df_region %>% filter(region == 'London')
+  bounds_region_ldn <- list('type'=bounds_region$type, 'features'=list(bounds_region$features[[7]]))
+  
+  
+  #browser()
+  
+  map <- highchart(type='map') %>%
+    hc_add_dependency("modules/drilldown.js") %>%
+    hc_add_dependency("modules/highmaps.js") %>%
+    # hc_add_series_map(bounds_pfa, df_pfa_nonselect, name="Number of stop-searches", value = "numberOfSearches", joinBy=c("pfa16nm", "pfaName"),
+    #                   borderColor='#FAFAFA', borderWidth=.1, dataLabels = list(enabled = TRUE, format = "{point.pfaName}",
+    #                                                                            style=list(fontSize='10'))) %>%
+    # hc_add_series_map(bounds_pfa_select, df_pfa_select, name="Number of stop-searches", value = "numberOfSearches", joinBy=c("pfa16nm", "pfaName"),
+    #                   borderColor='#323232', borderWidth=2, dataLabels = list(enabled = F, format = "{point.pfaName}",
+    #                                                                           style=list(fontSize='9'))) %>%
+    # 
+    # 
+    #hc_chart(spacingBottom= 50) %>%
+    hc_add_series(id='regions', mapData=bounds_region, data=list_parse(df_region_rest), joinBy=c("EER13NM", "region"), name="{point.EER13NM}",borderColor='#FAFAFA', borderWidth=0.1) %>%
+    hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="{point.EER13NM}",borderColor='black', borderWidth=1.25) %>% 
+    
+    hc_colorAxis(
+      minColor = pal[20], #pal[20],#'#eff4f9'
+      maxColor = pal[1] #pal[1] # '#252C35'
+    ) %>%
+    # hc_title(
+    #   text=subtitle,
+    #   align='left',
+    #   margin=60,
+    #   style = list(
+    #     fontSize ="3.8vh",color = '#353d42', 
+    #     fontFamily = "Arial", fontWeight = "450"
+    #   )
+    # ) %>%
+    # hc_subtitle(
+    #   text="Click to drilldown into London by Borough",
+    #   align='left',
+    #   style = list(
+    #     fontSize ="2.4vh",color = '#353d42', 
+    #     fontFamily = "Arial", fontWeight = "250",
+    #     fontStyle='italic'
+    #   )
+    # ) %>%
+    hc_credits(
+      enabled=T,
+      useHTML=T,
+      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>&#x2022',
+      position=list(
+        align='left',
+        x=10,
+        y=-10 
+      ),
+      style =list(
+        fontSize='1.7vh',
+        color='#9b9b9b'
+      )
+    ) %>%
+      hc_legend(
+        valueDecimals = 0,
+        format = "{value}%"
+      ) %>%
+      hc_tooltip(
+        valueSuffix= '%',
+        borderWidth=2.6,
+        shared=T,
+        style=list(fontSize='1.35vh'),
+        shape='callout',
+        useHTML = TRUE,
+        headerFormat = "",
+        pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.EER13NM}</span><br>Central estimate: <b>{point.value}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+      ) %>%
+      hc_mapView(
+        projection=list(
+          name='WebMercator'
+        )
+      ) %>%
+      #,
+      #   zoom=5.7#,
+      #   #center=rev(c(51.51279, -0.09184))
+      #  ) %>%
+    hc_drilldown(
+      activeAxisLabelStyle = list(
+        color='black'
+      ),
+      series=list(
+        list(
+          id='london-drilldown',
+          mapData=bounds_borough$features,
+          data=list_parse(df_borough),
+          joinBy=c("name", "borough"),
+          name="{point.name}"
+        )
+      ),
+      # mapZooming=list(
+      #   enabled=T
+      # )
+      mapZooming=list(enabled=T)
+      
+      
+      # activeDataLabelStyle = list(
+      #   color =  'red',
+      #   textDecoration = 'none'
+      # )
+    ) %>%
+    hc_chart(
+      spacingBottom= 35,
+      backgroundColor='#ffffff'
+        ,
+      events=list(
+        drilldown=JS(
+          paste0(
+            "
+            function() {
+            Shiny.onInputChange('",theme,"_currLevelMap', [this.series[0].options._levelNumber]);
+            }
+            " 
+          )
+        )
+        ,
+        drillup=JS(
+          paste0(
+            "
+            function() {
+            Shiny.onInputChange('",theme,"_currLevelMap', [this.series[0].options._levelNumber]);
+            }
+            
+            "
+          )
+        )
+      )
+    )
+  #map
+    # hc_mapView(
+    #   projection=list(
+    #     name='WebMercator'
+    #   ),
+    #   zoom=9.7,
+    #   center=rev(c(51.51279, -0.09184))
+    # )
+  return(map)
+}
+
+
+update_drilldown_map <- function(question, df_list, map) {
+  
+  question <- as.numeric(question)
+  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    mutate(
+      value = prop_resp,
+      drilldown=case_when(region=='London'~'london-drilldown',T~'')
+    )
+  subtitle <-  df_list[[question ]][['region']][['title']]
+  df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    mutate(value = prop_resp)
+  #max_borough <- max(df_borough$prop_resp_ub)
+  pal <- gla_pal(gla_theme = "default", palette_type = "quantitative", palette_name='core', n = 20, main_colours='blue')
+  #min <- min(df_region$prop_resp)
+  #max <- max(df_region$prop_resp)
+  
+  highchartProxy(map) %>%
+    hcpxy_update_series(
+      id='regions',
+      data = df_region$value
+    ) %>%
+    hcpxy_update(
+      drilldown=list(
+        series=list(
+          list(
+            id='london-drilldown',
+            data=list_parse2(
+              data.frame(
+                value=df_borough$value
+              )
+            )
+          )
+        )
+      )
+    )
+}
+
+generate_region_text <- function(question, df_list) {
+  
+  question <- as.numeric(question)
+  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp, color, drilldown_central)
+  question_text <- tolower(df_list[[question ]][['region']][['title']])
+  
+  lnd_mean <- round(df_region$prop_resp[df_region$region=='London'],1)
+  eng_mean <- round(mean(df_region$prop_resp),1)
+  eng_ldn_dif <- round(eng_mean - lnd_mean,1)
+  eng_ldn_dif_text <- 
+    ifelse(eng_ldn_dif>0, paste0(eng_ldn_dif, ' points more than'),
+      ifelse(eng_ldn_dif<0, paste0(eng_ldn_dif, ' points less than'),
+        'the same as'
+      )
+    )
+  df_region$rank <- scales::ordinal(rank(df_region$prop_resp, ties.method='min'))
+  ldn_rank <- df_region$rank[df_region$region=='London']
+  
+  headline <- paste0(
+    HTML(paste0('<span style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;">',df_region$prop_resp[df_region$region=='London'],'%</span><br><span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>')),
+    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=85),collapse = "<br>")),
+    HTML('<hr width="90%" color="#ffffff" />')
+  )
+
+  list <- HTML(
+    paste0(
+      "
+      <div style='height:-1vh'></div>
+      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <ul>
+      <li>The regional average in England is ",eng_mean,"%, which is ",eng_ldn_dif_text," the London average</li>
+      <li>This ranks London ",ldn_rank," out of the 9 regions in England</li>
+      </ul>
+      </span>
+      "
+    )
+  )
+  return(HTML(paste0(headline,list)))
+}
+
+
+generate_borough_text <- function(question, df_list) {
+  
+  question <- as.numeric(question)
+  df_borough <- df_list[[question ]][['borough']][['dataframe']] 
+  
+  high1_name <- as.character(df_borough$borough[which(df_borough$prop_resp==max(df_borough$prop_resp))])
+  high2_name <- as.character(df_borough$borough[which(df_borough$prop_resp==max(df_borough$prop_resp[df_borough$prop_resp!=max(df_borough$prop_resp)]))])
+  low1_name <- as.character(df_borough$borough[which(df_borough$prop_resp==min(df_borough$prop_resp))])
+  low2_name <- as.character(df_borough$borough[which(df_borough$prop_resp==min(df_borough$prop_resp[df_borough$prop_resp!=min(df_borough$prop_resp)]))])
+  high1_val <- max(df_borough$prop_resp)
+  high2_val <- max(df_borough$prop_resp[df_borough$prop_resp!=max(df_borough$prop_resp)])
+  low1_val <- min(df_borough$prop_resp)
+  low2_val <- min(df_borough$prop_resp[df_borough$prop_resp!=min(df_borough$prop_resp)])
+  
+  list <- HTML(
+    paste0(
+      "
+      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <ul>
+      <li>The two boroughs that score the highest are ", high1_name, " and ", high2_name ,", at ", high2_val,"% and ",high2_val,"% respectively</li>
+      <li>The two boroughs that score the lowest are ", low1_name, " and ", low2_name ,", at ", low1_val,"% and ",low2_val,"% respectively</li>
+      </ul>
+      </span>
+      "
+    )
+  )                                
+  return(list)
+  
+
+}
+
+# Bullet x% of Londoners question
+# This is x points higher/lower than the national average of x %
+# X and Z are the Boroughs that scores the highest, with x% and z% respectively
+# I and J are the Boroughs that score the lowest, with i% and j% respectively
+
+
+
+# gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours='green')
+# '#d82222'
+# '#5ea15d'
+
