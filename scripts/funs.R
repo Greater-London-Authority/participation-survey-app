@@ -776,21 +776,31 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
     ) %>%
     hc_chart(
       spacingBottom= browser_height/12, # needs to be adjusted
+      spacingTop=20,
       #backgroundColor='#fafafa',
       events=list(
+        
+        # load=JS(
+        #   "
+        #   function() {
+        #   levDrillDown = -1;
+        #   levDrillUp=0;
+        #   "
+        #   ),
+        
         drilldown=JS(
           paste0(
+            # "
+            # function(e) {
+            # Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+            # }
+            # "
             "
             function() {
-            Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+            Shiny.onInputChange('",theme,"_currLevel',  0);
             }
             "
-          # paste0(
-          #   "
-          #   function() {
-          #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-          #   }
-          #   "
+
           
           
           
@@ -821,12 +831,12 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
           #   "
           paste0(
             "
-            function() {
-            Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+            function(e) {
+            Shiny.onInputChange('",theme,"_currLevel',  1);
             }
 
             "
-            
+
             # "
             # function() {
             # this.yAxis[0].removePlotLine('borough-plotLine');
@@ -843,10 +853,44 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
             # "
           )
         )
+        #,
+        # drillupAll=JS(
+        #   # paste0(
+        #   #   "
+        #   #   function() {
+        #   #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+        #   #   }
+        #   #   "
+        #   paste0(
+        #     "
+        #     function(e) {
+        #     Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+        #     }
+        # 
+        #     "
+        #     
+        #     # "
+        #     # function() {
+        #     # this.yAxis[0].removePlotLine('borough-plotLine');
+        #     #   this.yAxis[0].addPlotLine(
+        #     #     {
+        #     #       id:'region-plotLine',
+        #     #       value:",mean(df_region_central$prop_resp),",
+        #     #       color:'#d82222',
+        #     #       zIndex:99
+        #     #     }
+        #     #   );
+        #     #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+        #     # }
+        #     # "
+        #   )
+        # )
       )
     )
   #chart
   
+  # TODO Add tooltip to plotline and plotband https://jsfiddle.net/BlackLabel/nx0uo1rk/
+  # or dummy series using https://jsfiddle.net/BlackLabel/2Ln05yes/
   # Add the line(s) -or try
   # If not add England bar, optional add or remove ci lines maybe
   # then revisit fucking tooltip n on drilldown
