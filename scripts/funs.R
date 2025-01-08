@@ -606,12 +606,18 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
           fontSize='2.2vh'
         ),
         position=list(
-          align='right'
+          align='right',
+          y=-47
         )
       ),
       activeAxisLabelStyle = list(
         color='black'
       ),
+      # TODO not working!!!
+      # tooltip = list(
+      #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.num_resp})</span><br>"
+      #   
+      # ),
       #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/breadcrumbs/format
       series = list(
         list(
@@ -629,7 +635,7 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         ),
         list(
           id='london-error',
-          mame='Lower-Upper estimate',
+          name='Lower-Upper estimate',
           type='errorbar',
           showInLegend=F,
           data=list_parse2(
@@ -977,13 +983,15 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
   #min <- min(df_region$prop_resp)
   #max <- max(df_region$prop_resp)
   
+  #browser()
+  
   df_region_rest <- df_region %>% filter(region != 'London')
   df_region_ldn <- df_region %>% filter(region == 'London')
   bounds_region_ldn <- list('type'=bounds_region$type, 'features'=list(bounds_region$features[[7]]))
   
-  
-  #browser()
-  
+  # Rename to East of England (from Eastern)
+  bounds_region$features[[6]]$properties$EER13NM <- 'East of England'
+
   map <- highchart(type='map') %>%
     hc_add_dependency("modules/drilldown.js") %>%
     hc_add_dependency("modules/highmaps.js") %>%
@@ -996,8 +1004,8 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
     # 
     # 
     #hc_chart(spacingBottom= 50) %>%
-    hc_add_series(id='regions', mapData=bounds_region, data=list_parse(df_region_rest), joinBy=c("EER13NM", "region"), name="{point.EER13NM}",borderColor='#FAFAFA', borderWidth=0.1) %>%
-    hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="{point.EER13NM}",borderColor='black', borderWidth=1.25) %>% 
+    hc_add_series(id='regions', mapData=bounds_region, data=list_parse(df_region_rest), joinBy=c("EER13NM", "region"), name="{point.EER13NM}", borderColor='#FAFAFA', borderWidth=0.1) %>%
+    hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="{point.EER13NM}", borderColor='black', borderWidth=1.8) %>% 
     
     hc_colorAxis(
       minColor = pal[20], #pal[20],#'#eff4f9'
@@ -1040,14 +1048,14 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
         format = "{value}%"
       ) %>%
       hc_tooltip(
-        valueSuffix= '%',
+        #valueSuffix= '%',
         borderWidth=2.6,
         shared=T,
         style=list(fontSize='1.35vh'),
         shape='callout',
         useHTML = TRUE,
-        headerFormat = "",
-        pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.EER13NM}</span><br>Central estimate: <b>{point.value}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+        headerFormat = "<span style='font-size:1.6vh;'><span style='color:{point.color}'>\u25CF</span> {point.key}</span>", #<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.EER13NM}</span><br>
+        pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'> {point.EER13NM}</span><br>Central estimate: <b>{point.value}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
       ) %>%
       hc_mapView(
         projection=list(
@@ -1059,6 +1067,19 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
       #   #center=rev(c(51.51279, -0.09184))
       #  ) %>%
     hc_drilldown(
+      breadcrumbs=list(
+        showFullPath=F,
+        useHTML=T,
+        format= '&#x25c0; Back to Regions',
+        style=list(
+          fontSize='2.2vh'
+        ),
+        position=list(
+          align='right',
+          y=-47,
+          x=-20
+        )
+      ),
       activeAxisLabelStyle = list(
         color='black'
       ),
@@ -1068,7 +1089,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
           mapData=bounds_borough$features,
           data=list_parse(df_borough),
           joinBy=c("name", "borough"),
-          name="{point.name}"
+          name="{point.borough}"
         )
       ),
       # mapZooming=list(
@@ -1082,6 +1103,20 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
       #   textDecoration = 'none'
       # )
     ) %>%
+    hc_exporting(
+      enabled=T#,
+      # navigation=list(
+      #   buttonOptions=list(
+      #     align='center'
+      #   )
+      # )
+      # buttons=list(
+      #   exportButton=list(
+      #     align='right',
+      #     x=-300
+      #   )
+      # )
+    ) %>%
     hc_chart(
       spacingBottom= 35,
       backgroundColor='#ffffff'
@@ -1091,7 +1126,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
           paste0(
             "
             function() {
-            Shiny.onInputChange('",theme,"_currLevelMap', [this.series[0].options._levelNumber]);
+            Shiny.onInputChange('",theme,"_currLevelMap', 0);
             }
             " 
           )
@@ -1101,7 +1136,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
           paste0(
             "
             function() {
-            Shiny.onInputChange('",theme,"_currLevelMap', [this.series[0].options._levelNumber]);
+            Shiny.onInputChange('",theme,"_currLevelMap', 1);
             }
             
             "

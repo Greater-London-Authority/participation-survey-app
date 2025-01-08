@@ -1,0 +1,12 @@
+name: ageeeen
+title: ageeeen
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13370758
+bundleId:
+url: https://matthew-tibbles-gla.shinyapps.io/ageeeen/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

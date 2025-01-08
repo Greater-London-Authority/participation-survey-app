@@ -1,0 +1,13 @@
+name: participation-survey-gla-testD
+title: participation-survey-gla-testD
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13386991
+bundleId: 9388123
+url: https://matthew-tibbles-gla.shinyapps.io/participation-survey-gla-testD/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|.Rprofile|01_LMU_markdown_content.Rmd|app/app.R|app-deploy-working.R|app-edited.R|app-other.R|app-test-deploy.R|arts_shiny.R|basicapp-test.R|minimal_version.rmd|participation_markdown.html|participation_markdown.Rmd|plots/partic_borough_example.svg|plots/partic_region_example.svg|README.md|render_toc.R|render_toc_example.Rmd|renv.lock|scripts/heritage_ui.R|shiny-components/next1.R|ui-in-tabset.R|other

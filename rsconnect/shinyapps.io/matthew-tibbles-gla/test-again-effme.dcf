@@ -1,0 +1,12 @@
+name: test-again-effme
+title: test-again-effme
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13370672
+bundleId:
+url: https://matthew-tibbles-gla.shinyapps.io/test-again-effme/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

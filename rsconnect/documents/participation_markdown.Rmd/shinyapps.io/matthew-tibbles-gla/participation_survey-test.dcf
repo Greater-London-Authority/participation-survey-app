@@ -1,0 +1,12 @@
+name: participation_survey-test
+title: participation_survey-test
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13337239
+bundleId:
+url: https://matthew-tibbles-gla.shinyapps.io/participation_survey-test/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

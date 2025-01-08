@@ -1,0 +1,13 @@
+name: participation-testnew
+title: participation-testnew
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13341197
+bundleId: 9363933
+url: https://matthew-tibbles-gla.shinyapps.io/participation-testnew/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app.R|arts_shiny.R|basicapp-test.R|plots/partic_borough_example.svg|plots/partic_region_example.svg|README.md|render_toc.R|render_toc_example.Rmd|shiny-components/next1.R|ui-in-tabset.R

@@ -1,0 +1,12 @@
+name: participation_markdown-test
+title: participation_markdown-test
+username: matthew-tibbles-gla
+account: matthew-tibbles-gla
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13337753
+bundleId: 9362284
+url: https://matthew-tibbles-gla.shinyapps.io/participation_markdown-test/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
