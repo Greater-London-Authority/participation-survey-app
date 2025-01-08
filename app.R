@@ -12,6 +12,7 @@ library(bslib)
 library(shinyBS)
 library(shinyWidgets)
 library(shinycssloaders)
+library(scrollrevealR)
 
 source('scripts/funs.R')
 
@@ -136,6 +137,7 @@ ui <- fluidPage(
   #=============================================================================
   # Arts UI
   #=============================================================================
+  div(id='arts_ui',
   fluidRow(
     column(7,
       div(class='tab-panel-ui',
@@ -255,11 +257,15 @@ ui <- fluidPage(
         )
       )
     )
+  )
   ),
   div(style='height:10vh;'),
+
+
   #=============================================================================
   # Libraries UI
   #=============================================================================
+  div(id='libraries_ui',
   fluidRow(
     column(7,
       div(class='tab-panel-ui',
@@ -376,11 +382,13 @@ ui <- fluidPage(
         )
       )
     )
+  )
   ),
   div(style='height:10vh;'),
   #=============================================================================
   # Heritage UI
   #=============================================================================
+  div(id='heritage_ui',
   fluidRow(
     column(7,
            div(class='tab-panel-ui',
@@ -498,11 +506,13 @@ ui <- fluidPage(
              )
            )
     )
+  )
   ),
-  div(style='height:10vh;'),
+  div(style='height:10vh;'), # 6vh originally
   #=============================================================================
   # Sport UI
   #=============================================================================
+  div(id='sport_ui',
   fluidRow(
     column(7,
            div(class='tab-panel-ui',
@@ -620,6 +630,9 @@ ui <- fluidPage(
            )
     )
   )
+  ),
+  # Set scroll reveal animation for each section - mwah!
+  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui"), duration=4000, distance="0%", delay=300)
 )
 
 
@@ -776,10 +789,12 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$arts_compOps, input$arts_currLevel,  input$arts_select), {
+  observeEvent(c(input$arts_compOps, input$arts_currLevel, input$arts_select), {
     
     # drillup event bug!!!
     # https://github.com/blacklabel/custom_events/issues/139
+    
+    
     
     print(paste0('Current drilldown level: ',input$arts_currLevel))
     # print(input$arts_currLevel)
@@ -809,14 +824,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -860,15 +876,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -915,14 +931,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -970,15 +987,15 @@ server <- function(input, output, session) {
                       zIndex:99,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -1028,7 +1045,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1081,7 +1099,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1188,7 +1207,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1238,7 +1258,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1289,7 +1310,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1428,26 +1450,22 @@ server <- function(input, output, session) {
       else  {
         shinyjs::hide('arts-text-drilldown')
       }
-      observeEvent(c(input$arts_select), {
+      observeEvent(c(input$arts_select, input$arts_tab), {
         shinyjs::hide('arts-text-drilldown')
       }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
 
-    if (input$arts_tab=='map') {
+    else {
       #browser()
       #delay(5000,
-        req(input$arts_currLevelMap)
-      #)
-      browser()
-      if (is.na(input$arts_currLevelMap)) {
-        #browser()
+      req(input$arts_currLevelMap)
+      if (input$arts_currLevelMap==0) {
         shinyjs::show('arts-text-drilldown')
       }
       else  {
-        #browser()
         shinyjs::hide('arts-text-drilldown')
       }
-      observeEvent(c(input$arts_select), {
+      observeEvent(c(input$arts_select, input$arts_tab), {
         shinyjs::hide('arts-text-drilldown')
       }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
