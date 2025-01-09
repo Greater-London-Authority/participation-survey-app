@@ -175,7 +175,8 @@ ui <- fluidPage(
             ),
             div(class='chart-buffer'),
             shinycssloaders::withSpinner(
-              highchartOutput('arts_chart', height='73vh')
+              highchartOutput('arts_chart', height='73vh'),
+              color = "#6da7ded9"
             )
           ),
           nav_panel(
@@ -191,7 +192,8 @@ ui <- fluidPage(
               )
             ),
             shinycssloaders::withSpinner(
-              highchartOutput('arts_map', height='72vh')
+              highchartOutput('arts_map', height='72vh'),
+              color = "#6da7ded9"
             )
           ),
           nav_spacer(),
@@ -201,7 +203,7 @@ ui <- fluidPage(
           nav_spacer(),
           nav_spacer(),
           nav_item(
-            uiOutput("arts_previous_btn") ,
+            shinyjs::hidden(uiOutput("arts_previous_btn")) ,
             bsTooltip(
               id = "arts_previous_btn",
               title = 'View previous "Arts" question',
@@ -238,7 +240,7 @@ ui <- fluidPage(
     ), 
     column(5,
       fluidRow(
-        h2('Arts', style='color:#6da7ded9 !important; font-size: 16vh; margin-top:1vh; right: 2vw; position:absolute')
+        h2('Arts', style='color:#6da7ded9 !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
       ),
       fluidRow(
         div(
@@ -259,7 +261,7 @@ ui <- fluidPage(
     )
   )
   ),
-  div(style='height:10vh;'),
+  div(style='height:6vh;'),
 
 
   #=============================================================================
@@ -301,7 +303,8 @@ ui <- fluidPage(
               )
             ),
             shinycssloaders::withSpinner(
-              highchartOutput('libraries_chart', height='72vh')
+              highchartOutput('libraries_chart', height='72vh'),
+              color = "#ff38ba"
             )
           ),
           nav_panel(
@@ -316,7 +319,8 @@ ui <- fluidPage(
               )
             ),
             shinycssloaders::withSpinner(
-              highchartOutput('libraries_map', height='72vh')
+              highchartOutput('libraries_map', height='72vh'),
+              color = "#ff38ba"
             )
           ),
           nav_spacer(),
@@ -326,7 +330,7 @@ ui <- fluidPage(
           nav_spacer(),
           nav_spacer(),
           nav_item(
-            uiOutput("libraries_previous_btn"),
+            shinyjs::hidden(uiOutput("libraries_previous_btn")),
             bsTooltip(
               id = "libraries_previous_btn",
               title = 'View previous "Libraries" question',
@@ -363,7 +367,7 @@ ui <- fluidPage(
     ),
     column(5,
       fluidRow(
-        h2('Libraries', style='color:#ff38ba !important; font-size: 16vh; margin-top:1vh; right: 2vw; position:absolute')
+        h2('Libraries', style='color:#ff38ba !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
       ),
       fluidRow(
         div(
@@ -384,7 +388,7 @@ ui <- fluidPage(
     )
   )
   ),
-  div(style='height:10vh;'),
+  div(style='height:6vh;'),
   #=============================================================================
   # Heritage UI
   #=============================================================================
@@ -424,7 +428,8 @@ ui <- fluidPage(
                        )
                    ),
                    shinycssloaders::withSpinner(
-                     highchartOutput('heritage_chart', height='72vh')
+                     highchartOutput('heritage_chart', height='72vh'),
+                     color = "#5ea15d"
                    )
                  ),
                  nav_panel(
@@ -439,7 +444,8 @@ ui <- fluidPage(
                        )
                    ),
                    shinycssloaders::withSpinner(
-                     highchartOutput('heritage_map', height='72vh')
+                     highchartOutput('heritage_map', height='72vh'),
+                     color = "#5ea15d"
                    )
                  ),
                  nav_spacer(),
@@ -449,7 +455,7 @@ ui <- fluidPage(
                  nav_spacer(),
                  nav_spacer(),
                  nav_item(
-                   uiOutput("heritage_previous_btn"),
+                   shinyjs::hidden(uiOutput("heritage_previous_btn")),
                    bsTooltip(
                      id = "heritage_previous_btn",
                      title = 'View previous "Heritage" question',
@@ -487,7 +493,7 @@ ui <- fluidPage(
     ),
     column(5,
            fluidRow(
-             h2('Heritage', style='color:#5ea15d !important; font-size: 16vh; margin-top:1vh; right: 2vw; position:absolute')
+             h2('Heritage', style='color:#5ea15d !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
            ),
            fluidRow(
              div(
@@ -508,7 +514,7 @@ ui <- fluidPage(
     )
   )
   ),
-  div(style='height:10vh;'), # 6vh originally
+  div(style='height:6vh;'), # 6vh originally
   #=============================================================================
   # Sport UI
   #=============================================================================
@@ -548,7 +554,8 @@ ui <- fluidPage(
                        )
                    ),
                    shinycssloaders::withSpinner(
-                     highchartOutput('sport_chart', height='72vh')
+                     highchartOutput('sport_chart', height='72vh'),
+                     color = "#d82222"
                    )
                  ),
                  nav_panel(
@@ -563,7 +570,8 @@ ui <- fluidPage(
                        )
                    ),
                    shinycssloaders::withSpinner(
-                     highchartOutput('sport_map', height='72vh')
+                     highchartOutput('sport_map', height='72vh'),
+                     color = "#d82222"
                    )
                  ),
                  nav_spacer(),
@@ -573,7 +581,7 @@ ui <- fluidPage(
                  nav_spacer(),
                  nav_spacer(),
                  nav_item(
-                   uiOutput("sport_previous_btn"),
+                   shinyjs::hidden(uiOutput("sport_previous_btn")),
                    bsTooltip(
                      id = "sport_previous_btn",
                      title = 'View previous "Sport" question',
@@ -610,7 +618,7 @@ ui <- fluidPage(
     ),
     column(5,
            fluidRow(
-             h2('Sport', style='color:#d82222 !important; font-size: 16vh; margin-top:1vh; right: 2vw; position:absolute')
+             h2('Sport', style='color:#d82222 !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
            ),
            fluidRow(
              div(
@@ -632,7 +640,7 @@ ui <- fluidPage(
   )
   ),
   # Set scroll reveal animation for each section - mwah!
-  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui"), duration=4000, distance="0%", delay=300)
+  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui"), duration=4000, distance="0%", delay=200)
 )
 
 
@@ -740,6 +748,25 @@ server <- function(input, output, session) {
   output$arts_borough_text <- renderUI({
     generate_borough_text(input$arts_select, df_list)
   })
+  
+  
+  observeEvent(input$arts_select, {
+    if (input$arts_select!=ARTS_QUESTIONS[1]) {
+      shinyjs::show('arts_previous_btn')
+    }
+    if (input$arts_select==ARTS_QUESTIONS[1]) {
+      shinyjs::hide('arts_previous_btn')
+    }
+    if (input$arts_select!=ARTS_QUESTIONS[length(ARTS_QUESTIONS)]) {
+      shinyjs::show('arts_next_btn')
+    }
+    if (input$arts_select==ARTS_QUESTIONS[length(ARTS_QUESTIONS)])  { 
+      shinyjs::hide('arts_next_btn')
+    }
+      
+      
+    }, ignoreInit=T)
+      
   
   
   observeEvent(input$arts_previous, {
@@ -1476,14 +1503,18 @@ server <- function(input, output, session) {
   
   #=============================================================================
   # Libraries Server
-  #============================================================================= 
+  #=============================================================================
   
   output$libraries_previous_btn <- renderUI({
+    # tooltip(
     actionButton(
       "libraries_previous", 
       "Previous",
       icon=icon("backward")
     )
+    #,
+    #'A fucking message'
+    #)
   })
   output$libraries_next_btn <- renderUI({
     actionButton(
@@ -1492,6 +1523,8 @@ server <- function(input, output, session) {
       icon=icon("forward")
     )
   })
+  
+  
   output$libraries_title_chart <- renderText({
     print(paste(df_list[[as.numeric(input$libraries_select)]][['region']][['title']]))
   })
@@ -1510,10 +1543,10 @@ server <- function(input, output, session) {
     }
   })
   output$libraries_subtitle_map <- renderText({
-    if (is.null(input$libraries_currLevel)) {
+    if (is.null(input$libraries_currLevelMap)) {
       print(paste("Click to drilldown into London by Borough"))
     }
-    else if (input$libraries_currLevel==0) {
+    else if (input$libraries_currLevelMap==0) {
       print(paste("Click 'Back to Regions' to drillup" ))
     }
     else {
@@ -1522,11 +1555,19 @@ server <- function(input, output, session) {
   })
   
   
+  # observeEvent(input$libraries_currLevel, {
+  #   
+  #   if (input$libraries_currLevel)
+  #   
+  #   
+  # })
+  
+  
   output$libraries_chart <- renderHighchart({
     generate_drilldown_chart(input$libraries_select, df_list, 'libraries', shinybrowser::get_height())
   })
   output$libraries_map <- renderHighchart({
-    generate_drilldown_map(input$libraries_select, df_list, QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(input$libraries_select, df_list, 'libraries', QUESTION_LIST, bounds_region, bounds_borough)
   })
   
   
@@ -1537,6 +1578,22 @@ server <- function(input, output, session) {
     generate_borough_text(input$libraries_select, df_list)
   })
   
+  observeEvent(input$libraries_select, {
+    if (input$libraries_select!=LIBRARIES_QUESTIONS[1]) {
+      shinyjs::show('libraries_previous_btn')
+    }
+    if (input$libraries_select==LIBRARIES_QUESTIONS[1]) {
+      shinyjs::hide('libraries_previous_btn')
+    }
+    if (input$libraries_select!=LIBRARIES_QUESTIONS[length(LIBRARIES_QUESTIONS)]) {
+      shinyjs::show('libraries_next_btn')
+    }
+    if (input$libraries_select==LIBRARIES_QUESTIONS[length(LIBRARIES_QUESTIONS)])  { 
+      shinyjs::hide('libraries_next_btn')
+    }
+    
+    
+  }, ignoreInit=T)
   
   observeEvent(input$libraries_previous, {
     current <- which(LIBRARIES_QUESTIONS == input$libraries_select)
@@ -1560,20 +1617,42 @@ server <- function(input, output, session) {
         session, "libraries_select",
         selected = LIBRARIES_QUESTIONS[current + 1]
       )
-      # delay(1000,
-      # update_drilldown_chart(input$libraries_select, df_list, "libraries_chart") 
-      # )
+      #update_drilldown_chart(input$libraries_select, df_list, "libraries_chart") 
       update_drilldown_map(input$libraries_select, df_list, "libraries_map")
       shinyjs::html(id = 'libraries_region_text', html = generate_region_text(input$libraries_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
-
+  
+  # 
+  # observeEvent(c(input$libraries_currLevel,input$libraries_currLevelMap), {
+  #   if (is.null(input$libraries_currLevel)) {
+  #     updateTextOutput(session, 'libraries_subtitle_text')
+  #   }
+  #    if (is.null(input$libraries_currLevelMap)) {
+  #      updateTextOutput(session, 'libraries_subtitle_text')
+  #    }
+  #   
+  #   input$libraries_currLevel
+  #   
+  # })
+  
+  observeEvent(input$libraries_currLevel, {
+    print('level change')
+  })
+  
+  
   observeEvent(c(input$libraries_compOps, input$libraries_currLevel, input$libraries_select), {
-
-    print(input$libraries_currLevel)
+    
+    # drillup event bug!!!
+    # https://github.com/blacklabel/custom_events/issues/139
+    
+    
+    
+    print(paste0('Current drilldown level: ',input$libraries_currLevel))
+    # print(input$libraries_currLevel)
     question <- as.numeric(input$libraries_select)
-    print(question)
+    # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
       select(region, prop_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
@@ -1584,8 +1663,8 @@ server <- function(input, output, session) {
       if (is.null(input$libraries_currLevel)) {
         #browser()
         #browser()
-               update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1598,15 +1677,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -1615,7 +1694,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1636,8 +1715,8 @@ server <- function(input, output, session) {
       }
       else if (input$libraries_currLevel==0) { # drill level
         #browser()
-               update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1649,16 +1728,16 @@ server <- function(input, output, session) {
                       color:'#d822221F',
                       zIndex:98,
                       label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        text: 'London',
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -1667,9 +1746,9 @@ server <- function(input, output, session) {
              "
                 )
               )
-        
+             
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1679,6 +1758,7 @@ server <- function(input, output, session) {
                       value:0,
                       color:'#ffffff00'',
                       zIndex:99
+
                     }]
                   });
                 console.log(chart);
@@ -1689,9 +1769,9 @@ server <- function(input, output, session) {
       }
       else { # top level
         #browser()
-       
-               update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        
+        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1704,15 +1784,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -1722,8 +1802,8 @@ server <- function(input, output, session) {
                 )
               )
         )
-
-        delay(1100,
+        
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1733,6 +1813,7 @@ server <- function(input, output, session) {
                       value:0,
                       color:'#ffffff00',
                       zIndex:99
+
                     }]
                   });
                 console.log(chart);
@@ -1746,8 +1827,8 @@ server <- function(input, output, session) {
       #browser()
       if (is.null(input$libraries_currLevel)) {
         #browser()
-               update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1759,15 +1840,15 @@ server <- function(input, output, session) {
                       zIndex:99,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -1776,7 +1857,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1796,10 +1877,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else if (input$libraries_currLevel==0) { # drill level
+      else if (input$libraries_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1810,14 +1891,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1829,7 +1911,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1849,10 +1931,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else { # top level
+      else if (input$libraries_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1870,7 +1952,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1882,7 +1965,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1902,12 +1985,64 @@ server <- function(input, output, session) {
               )
         )
       }
-
+      else {
+        #   update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
+        #   delay(500,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#libraries_chart').highcharts();
+        #             chart.yAxis[0].update({plotLines:
+        #               [{
+        #                 value:",mean(df_region_central$prop_resp),",
+        #                 color:'#d82222',
+        #                 zIndex:99,
+        #                 label: {
+        #                   text: 'England',
+        #           verticalAlign: 'top',
+        #           textAlign: 'center',
+        #           rotation:0,
+        #           y:-4,
+        #           style: {
+        #               color: '#d82222',
+        #               fontWeight: 'normal'
+        #           }
+        #           
+        #                 }
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
+        #   delay(500,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#libraries_chart').highcharts();
+        #             chart.yAxis[0].update({plotBands:
+        #               [{
+        #                 from:0,
+        #                 to:0,
+        #                 color:'#d822221F',
+        #                 zIndex:98
+        # 
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
+      }
+      
     }
+    
     else if ('mean'%in%input$libraries_compOps & 'error'%in%input$libraries_compOps) {
       if (is.null(input$libraries_currLevel)) {
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1925,7 +2060,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1936,7 +2072,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1957,7 +2093,7 @@ server <- function(input, output, session) {
       }
       else if (input$libraries_currLevel==0) {
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1968,14 +2104,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -1986,7 +2123,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2004,11 +2141,11 @@ server <- function(input, output, session) {
                 )
               )
         )
-
+        
       }
       else{
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2026,7 +2163,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2037,7 +2175,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2059,7 +2197,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-      delay(1100,
+      delay(500,
             shinyjs::runjs(
               "
                 var chart = $('#libraries_chart').highcharts();
@@ -2076,7 +2214,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(1100,
+      delay(500,
             shinyjs::runjs(
               "
                 var chart = $('#libraries_chart').highcharts();
@@ -2092,12 +2230,12 @@ server <- function(input, output, session) {
              "
             )
       )
-
+      
       #browser()
     }
-  }, ignoreInit=F, ignoreNULL=T, priority=0)
-
-
+  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  
+  
   
   observeEvent(
     c(input$libraries_currLevel), {
@@ -2115,8 +2253,6 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        #highchartProxy
-        
       }
       else {
         updateAwesomeCheckboxGroup(
@@ -2140,41 +2276,72 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        highchartProxy('libraries_chart') %>%
-          hcpxy_update(
-            subtitle=list(
-              text='Click to drilldown into London by Borough'
-            )
-          )
+        
       }, ignoreInit=T, ignoreNULL=T, priority=-4)
     }, ignoreInit=T, ignoreNULL=F, priority=-3
   )
-  observeEvent(c(input$libraries_currLevel, input$currLevelMap), {
+  
+  observe({
+    print(input$libraries_tab)
+  })
+  
+  observe({
+    print(paste0('my level =', input$libraries_currLevelMap))
+  })
+  
+  
+  observeEvent(c(input$libraries_currLevel, input$libraries_currLevelMap, input$libraries_tab), {
     
-    req(input$libraries_currLevel)
-    if (input$libraries_currLevel==0) {
-      shinyjs::show('libraries-text-drilldown')
+    req(input$libraries_tab) # still don't really understand req() but is required 
+    #browser()
+    if (input$libraries_tab=='chart') {
+      req(input$libraries_currLevel)
+      #browser()
+      if (input$libraries_currLevel==0) {
+        shinyjs::show('libraries-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('libraries-text-drilldown')
+      }
+      observeEvent(c(input$libraries_select, input$libraries_tab), {
+        shinyjs::hide('libraries-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    else  {
-      shinyjs::hide('libraries-text-drilldown')
+    
+    else {
+      #browser()
+      #delay(5000,
+      req(input$libraries_currLevelMap)
+      if (input$libraries_currLevelMap==0) {
+        shinyjs::show('libraries-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('libraries-text-drilldown')
+      }
+      observeEvent(c(input$libraries_select, input$libraries_tab), {
+        shinyjs::hide('libraries-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    observeEvent(c(input$libraries_select), {
-      shinyjs::hide('libraries-text-drilldown')
-    }, ignoreInit=T, ignoreNULL=T, priority=-2)
+    
+    
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
   
   
   #=============================================================================
   # Heritage Server
-  #============================================================================= 
+  #=============================================================================
   
   output$heritage_previous_btn <- renderUI({
+    # tooltip(
     actionButton(
       "heritage_previous", 
       "Previous",
       icon=icon("backward")
     )
+    #,
+    #'A fucking message'
+    #)
   })
   output$heritage_next_btn <- renderUI({
     actionButton(
@@ -2183,6 +2350,8 @@ server <- function(input, output, session) {
       icon=icon("forward")
     )
   })
+  
+  
   output$heritage_title_chart <- renderText({
     print(paste(df_list[[as.numeric(input$heritage_select)]][['region']][['title']]))
   })
@@ -2201,10 +2370,10 @@ server <- function(input, output, session) {
     }
   })
   output$heritage_subtitle_map <- renderText({
-    if (is.null(input$heritage_currLevel)) {
+    if (is.null(input$heritage_currLevelMap)) {
       print(paste("Click to drilldown into London by Borough"))
     }
-    else if (input$heritage_currLevel==0) {
+    else if (input$heritage_currLevelMap==0) {
       print(paste("Click 'Back to Regions' to drillup" ))
     }
     else {
@@ -2213,11 +2382,19 @@ server <- function(input, output, session) {
   })
   
   
+  # observeEvent(input$heritage_currLevel, {
+  #   
+  #   if (input$heritage_currLevel)
+  #   
+  #   
+  # })
+  
+  
   output$heritage_chart <- renderHighchart({
-    generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
+    generate_drilldown_chart(input$heritage_select, df_list, 'libraries', shinybrowser::get_height())
   })
   output$heritage_map <- renderHighchart({
-    generate_drilldown_map(input$heritage_select, df_list, QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(input$heritage_select, df_list, 'libraries', QUESTION_LIST, bounds_region, bounds_borough)
   })
   
   
@@ -2227,6 +2404,23 @@ server <- function(input, output, session) {
   output$heritage_borough_text <- renderUI({
     generate_borough_text(input$heritage_select, df_list)
   })
+  
+  observeEvent(input$heritage_select, {
+    if (input$heritage_select!=HERITAGE_QUESTIONS[1]) {
+      shinyjs::show('heritage_previous_btn')
+    }
+    if (input$heritage_select==HERITAGE_QUESTIONS[1]) {
+      shinyjs::hide('heritage_previous_btn')
+    }
+    if (input$heritage_select!=HERITAGE_QUESTIONS[length(HERITAGE_QUESTIONS)]) {
+      shinyjs::show('heritage_next_btn')
+    }
+    if (input$heritage_select==HERITAGE_QUESTIONS[length(HERITAGE_QUESTIONS)])  { 
+      shinyjs::hide('heritage_next_btn')
+    }
+    
+    
+  }, ignoreInit=T)
   
   
   observeEvent(input$heritage_previous, {
@@ -2251,20 +2445,42 @@ server <- function(input, output, session) {
         session, "heritage_select",
         selected = HERITAGE_QUESTIONS[current + 1]
       )
-      # delay(1000,
-      # update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
-      # )
+      #update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
       update_drilldown_map(input$heritage_select, df_list, "heritage_map")
       shinyjs::html(id = 'heritage_region_text', html = generate_region_text(input$heritage_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
   
+  # 
+  # observeEvent(c(input$heritage_currLevel,input$heritage_currLevelMap), {
+  #   if (is.null(input$heritage_currLevel)) {
+  #     updateTextOutput(session, 'heritage_subtitle_text')
+  #   }
+  #    if (is.null(input$heritage_currLevelMap)) {
+  #      updateTextOutput(session, 'heritage_subtitle_text')
+  #    }
+  #   
+  #   input$heritage_currLevel
+  #   
+  # })
+  
+  observeEvent(input$heritage_currLevel, {
+    print('level change')
+  })
+  
+  
   observeEvent(c(input$heritage_compOps, input$heritage_currLevel, input$heritage_select), {
     
-    print(input$heritage_currLevel)
+    # drillup event bug!!!
+    # https://github.com/blacklabel/custom_events/issues/139
+    
+    
+    
+    print(paste0('Current drilldown level: ',input$heritage_currLevel))
+    # print(input$heritage_currLevel)
     question <- as.numeric(input$heritage_select)
-    print(question)
+    # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
       select(region, prop_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
@@ -2276,7 +2492,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2289,15 +2505,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -2306,7 +2522,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2328,7 +2544,7 @@ server <- function(input, output, session) {
       else if (input$heritage_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2340,16 +2556,16 @@ server <- function(input, output, session) {
                       color:'#d822221F',
                       zIndex:98,
                       label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        text: 'London',
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -2360,7 +2576,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2383,7 +2599,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2396,15 +2612,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -2415,7 +2631,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2440,27 +2656,27 @@ server <- function(input, output, session) {
       if (is.null(input$heritage_currLevel)) {
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
                 var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
+                  chart.yAxis[0].update({plotLines:s
                     [{
                       value:",mean(df_region_central$prop_resp),",
                       color:'#d82222',
                       zIndex:99,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color: '#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color: '#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -2469,7 +2685,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2489,10 +2705,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else if (input$heritage_currLevel==0) { # drill level
+      else if (input$heritage_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2503,14 +2719,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2522,7 +2739,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2542,10 +2759,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else { # top level
+      else if (input$heritage_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2563,7 +2780,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2575,7 +2793,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2594,13 +2812,65 @@ server <- function(input, output, session) {
                 )
               )
         )
+      }
+      else {
+        #   update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+        #   delay(500,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#heritage_chart').highcharts();
+        #             chart.yAxis[0].update({plotLines:
+        #               [{
+        #                 value:",mean(df_region_central$prop_resp),",
+        #                 color:'#d82222',
+        #                 zIndex:99,
+        #                 label: {
+        #                   text: 'England',
+        #           verticalAlign: 'top',
+        #           textAlign: 'center',
+        #           rotation:0,
+        #           y:-4,
+        #           style: {
+        #               color: '#d82222',
+        #               fontWeight: 'normal'
+        #           }
+        #           
+        #                 }
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
+        #   delay(500,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#heritage_chart').highcharts();
+        #             chart.yAxis[0].update({plotBands:
+        #               [{
+        #                 from:0,
+        #                 to:0,
+        #                 color:'#d822221F',
+        #                 zIndex:98
+        # 
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
       }
       
     }
+    
     else if ('mean'%in%input$heritage_compOps & 'error'%in%input$heritage_compOps) {
       if (is.null(input$heritage_currLevel)) {
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2618,7 +2888,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2629,7 +2900,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2650,7 +2921,7 @@ server <- function(input, output, session) {
       }
       else if (input$heritage_currLevel==0) {
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2661,14 +2932,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2679,7 +2951,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2701,7 +2973,7 @@ server <- function(input, output, session) {
       }
       else{
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2719,7 +2991,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color: '#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -2730,7 +3003,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(500,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2752,7 +3025,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-      delay(1100,
+      delay(500,
             shinyjs::runjs(
               "
                 var chart = $('#heritage_chart').highcharts();
@@ -2769,7 +3042,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(1100,
+      delay(500,
             shinyjs::runjs(
               "
                 var chart = $('#heritage_chart').highcharts();
@@ -2788,7 +3061,7 @@ server <- function(input, output, session) {
       
       #browser()
     }
-  }, ignoreInit=F, ignoreNULL=T, priority=0)
+  }, ignoreInit=F, ignoreNULL=F, priority=0)
   
   
   
@@ -2808,8 +3081,6 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        #highchartProxy
-        
       }
       else {
         updateAwesomeCheckboxGroup(
@@ -2833,31 +3104,56 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        highchartProxy('heritage_chart') %>%
-          hcpxy_update(
-            subtitle=list(
-              text='Click to drilldown into London by Borough'
-            )
-          )
+        
       }, ignoreInit=T, ignoreNULL=T, priority=-4)
     }, ignoreInit=T, ignoreNULL=F, priority=-3
   )
-  observeEvent(c(input$heritage_currLevel, input$currLevelMap), {
+  
+  observe({
+    print(input$heritage_tab)
+  })
+  
+  observe({
+    print(paste0('my level =', input$heritage_currLevelMap))
+  })
+  
+  
+  observeEvent(c(input$heritage_currLevel, input$heritage_currLevelMap, input$heritage_tab), {
     
-    req(input$heritage_currLevel)
-    if (input$heritage_currLevel==0) {
-      shinyjs::show('heritage-text-drilldown')
+    req(input$heritage_tab) # still don't really understand req() but is required 
+    #browser()
+    if (input$heritage_tab=='chart') {
+      req(input$heritage_currLevel)
+      #browser()
+      if (input$heritage_currLevel==0) {
+        shinyjs::show('libraries-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('libraries-text-drilldown')
+      }
+      observeEvent(c(input$heritage_select, input$heritage_tab), {
+        shinyjs::hide('libraries-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    else  {
-      shinyjs::hide('heritage-text-drilldown')
+    
+    else {
+      #browser()
+      #delay(5000,
+      req(input$heritage_currLevelMap)
+      if (input$heritage_currLevelMap==0) {
+        shinyjs::show('libraries-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('libraries-text-drilldown')
+      }
+      observeEvent(c(input$heritage_select, input$heritage_tab), {
+        shinyjs::hide('libraries-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    observeEvent(c(input$heritage_select), {
-      shinyjs::hide('heritage-text-drilldown')
-    }, ignoreInit=T, ignoreNULL=T, priority=-2)
+    
+    
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
-  
-  
   
   #=============================================================================
   # Sport Server
@@ -2921,6 +3217,23 @@ server <- function(input, output, session) {
   output$sport_borough_text <- renderUI({
     generate_borough_text(input$sport_select, df_list)
   })
+  
+  observeEvent(input$sport_select, {
+    if (input$sport_select!=SPORT_QUESTIONS[1]) {
+      shinyjs::show('sport_previous_btn')
+    }
+    if (input$sport_select==SPORT_QUESTIONS[1]) {
+      shinyjs::hide('sport_previous_btn')
+    }
+    if (input$sport_select!=SPORT_QUESTIONS[length(SPORT_QUESTIONS)]) {
+      shinyjs::show('sport_next_btn')
+    }
+    if (input$sport_select==SPORT_QUESTIONS[length(SPORT_QUESTIONS)])  { 
+      shinyjs::hide('sport_next_btn')
+    }
+    
+    
+  }, ignoreInit=T)
   
   
   observeEvent(input$sport_previous, {

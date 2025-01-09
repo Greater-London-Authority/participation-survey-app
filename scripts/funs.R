@@ -967,14 +967,14 @@ update_drilldown_chart <- function(question, df_list, chart) {
 generate_drilldown_map <- function(question, df_list, theme, question_list, bounds_region, bounds_borough) {
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
     mutate(
       value = prop_resp,
       drilldown=case_when(region=='London'~'london-drilldown',T~'')
     )
   subtitle <-  df_list[[question ]][['region']][['title']]
   df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
-    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
+    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
     mutate(value = prop_resp)
   #max_borough <- max(df_borough$prop_resp_ub)
   
@@ -1054,7 +1054,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
         style=list(fontSize='1.35vh'),
         shape='callout',
         useHTML = TRUE,
-        headerFormat = "<span style='font-size:1.6vh;'><span style='color:{point.color}'>\u25CF</span> {point.key}</span>", #<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.EER13NM}</span><br>
+        headerFormat = "<span style='font-size:1.6vh;'><span style='color:{point.color}'>\u25CF</span> {point.key} (n={point.point.num_resp})</span>", #<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.EER13NM}</span><br>
         pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'> {point.EER13NM}</span><br>Central estimate: <b>{point.value}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
       ) %>%
       hc_mapView(
