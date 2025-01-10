@@ -566,6 +566,13 @@ generate_borough_frame <- function(survey_path, release_year, question) {
 
 
 generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
+  
+  # #
+  # question <- SPORT_QUESTIONS[2]
+  # theme <- 'Sport'
+  # browser_height <- 950
+  
+  
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp, num_resp, color, drilldown_central)
@@ -965,28 +972,55 @@ update_drilldown_chart <- function(question, df_list, chart) {
 
 
 generate_drilldown_map <- function(question, df_list, theme, question_list, bounds_region, bounds_borough) {
+  
+  # question <- 11
+  # theme <- 'Sport'
+  # question_list <- QUESTION_LIST
+  #browser()
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
+    select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
     mutate(
       value = prop_resp,
       drilldown=case_when(region=='London'~'london-drilldown',T~'')
     )
   subtitle <-  df_list[[question ]][['region']][['title']]
-  df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
-    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
-    mutate(value = prop_resp)
+  #browser()
+  if (question_list$borough$code[question]!="") {
+    df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+      select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
+      mutate(value = prop_resp)
+  }
   #max_borough <- max(df_borough$prop_resp_ub)
   
   
-  pal <- gla_pal(gla_theme = "default", palette_type = "quantitative", palette_name='core', n = 20, main_colours=question_list[['region']][['color']][question])
+  #pal <- gla_pal(gla_theme = "default", palette_type = "quantitative", palette_name='core', n = 20, main_colours=question_list[['region']][['color']][question])
+  
+  #browser()
+  # mid_col <- unique(df_region$color[df_region$color!='#cccccc'])
+  # min_col <- tinter::tinter(mid_col, direction='tints', steps=5)[1]
+  # max_col <- tinter::tinter(mid_col, direction='shades', steps=5)[5]
+  # pal <- colorRampPalette(c(min_col, mid_col, max_col))
+  #pal_vec <- pal(11)
+  max_col <- unique(df_region$color[df_region$color!='#cccccc'])
+  min_col <- tinter::tinter(max_col, direction='tints', steps=9)[1]
+  mid_col <- tinter::tinter(max_col, direction='tints', steps=9)[5]
+  pal <- colorRampPalette(c(min_col, mid_col, max_col))
+  pal_vec <- pal(11)
+  
+  # image(seq(1, 1000), 1, matrix(seq(1,1000), 1000,1), 
+  #       col = greekIslandsColours(1000),
+  #       axes = FALSE, ann = FALSE)
+  
+
+  
   #min <- min(df_region$prop_resp)
   #max <- max(df_region$prop_resp)
   
   #browser()
   
-  df_region_rest <- df_region %>% filter(region != 'London')
-  df_region_ldn <- df_region %>% filter(region == 'London')
+  df_region_rest <- df_region %>% filter(region != 'London') %>% select(-color)
+  df_region_ldn <- df_region %>% filter(region == 'London') %>% select(-color)
   bounds_region_ldn <- list('type'=bounds_region$type, 'features'=list(bounds_region$features[[7]]))
   
   # Rename to East of England (from Eastern)
@@ -1008,9 +1042,15 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
     hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="{point.EER13NM}", borderColor='black', borderWidth=1.8) %>% 
     
     hc_colorAxis(
-      minColor = pal[20], #pal[20],#'#eff4f9'
-      maxColor = pal[1] #pal[1] # '#252C35'
+      stops = list(
+        list(0.1, pal_vec[1]),
+        list(0.5, pal_vec[6]),
+        list(0.9, pal_vec[11])
+      )
     ) %>%
+    #   minColor = pal[20], #pal[20],#'#eff4f9'
+    #   maxColor = pal[1] #pal[1] # '#252C35'
+    # ) %>%
     # hc_title(
     #   text=subtitle,
     #   align='left',
@@ -1062,47 +1102,6 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
           name='WebMercator'
         )
       ) %>%
-      #,
-      #   zoom=5.7#,
-      #   #center=rev(c(51.51279, -0.09184))
-      #  ) %>%
-    hc_drilldown(
-      breadcrumbs=list(
-        showFullPath=F,
-        useHTML=T,
-        format= '&#x25c0; Back to Regions',
-        style=list(
-          fontSize='2.2vh'
-        ),
-        position=list(
-          align='right',
-          y=-47,
-          x=-20
-        )
-      ),
-      activeAxisLabelStyle = list(
-        color='black'
-      ),
-      series=list(
-        list(
-          id='london-drilldown',
-          mapData=bounds_borough$features,
-          data=list_parse(df_borough),
-          joinBy=c("name", "borough"),
-          name="{point.borough}"
-        )
-      ),
-      # mapZooming=list(
-      #   enabled=T
-      # )
-      mapZooming=list(enabled=T)
-      
-      
-      # activeDataLabelStyle = list(
-      #   color =  'red',
-      #   textDecoration = 'none'
-      # )
-    ) %>%
     hc_exporting(
       enabled=T#,
       # navigation=list(
@@ -1144,14 +1143,56 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
         )
       )
     )
-  #map
-    # hc_mapView(
-    #   projection=list(
-    #     name='WebMercator'
-    #   ),
-    #   zoom=9.7,
-    #   center=rev(c(51.51279, -0.09184))
-    # )
+  
+  if (question_list$borough$code[question]!="") {
+     map <- map %>%
+       #,
+       #   zoom=5.7#,
+       #   #center=rev(c(51.51279, -0.09184))
+       #  ) %>%
+       hc_drilldown(
+         breadcrumbs=list(
+           showFullPath=F,
+           useHTML=T,
+           format= '&#x25c0; Back to Regions',
+           style=list(
+             fontSize='2.2vh'
+           ),
+           position=list(
+             align='right',
+             y=-47,
+             x=-20
+           )
+         ),
+         activeAxisLabelStyle = list(
+           color='black'
+         ),
+         series=list(
+           list(
+             id='london-drilldown',
+             mapData=bounds_borough$features,
+             data=list_parse(df_borough),
+             joinBy=c("name", "borough"),
+             name="{point.borough}",
+             borderColor='#FAFAFA',
+             borderWidth=0.1
+           )
+         ),
+         # mapZooming=list(
+         #   enabled=T
+         # )
+         mapZooming=list(enabled=T)
+         
+         
+         # activeDataLabelStyle = list(
+         #   color =  'red',
+         #   textDecoration = 'none'
+         # )
+       )
+    
+  }
+  #browser()
+  #print ('yo')
   return(map)
 }
 

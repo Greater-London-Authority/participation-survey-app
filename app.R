@@ -13,6 +13,7 @@ library(shinyBS)
 library(shinyWidgets)
 library(shinycssloaders)
 library(scrollrevealR)
+library(tinter)
 
 source('scripts/funs.R')
 
@@ -24,7 +25,7 @@ BOUNDS_REGION_PATH <- "data/regions-simplified3-topo.json"
 BOUNDS_BOROUGH_PATH <- "data/boroughs-simplified3-topo.json"
 RELEASE_YEAR <- '2023_24'
 
-REGION_QUESTION_NUM <- 1:12
+REGION_QUESTION_NUM <- 1:13
 #G2 not working
 REGION_QUESTION_LIST <- list( 
   code=c(
@@ -48,8 +49,8 @@ REGION_QUESTION_LIST <- list(
     'pink','pink',
     'green','green','green','green',
     'red','red',
-    'purple',
-    'orange','orange','orange','orange','orange','orange','orange'
+    'orange',
+    'purple','purple','purple','purple','purple','purple','purple'
   )
 )
 
@@ -84,6 +85,7 @@ ARTS_QUESTIONS <- 1:4
 LIBRARIES_QUESTIONS <- 5:6
 HERITAGE_QUESTIONS <- 7:10
 SPORT_QUESTIONS <- 11:12
+TOURISM_QUESTIONS <- 13
 `%ni%` <- Negate(`%in%`)
 
 #'[____________________________________________________________________________]
@@ -95,7 +97,7 @@ options("scipen"=100, "digits"=4)
 
 df_list <- lapply(
   #1:length(QUESTION_LIST[['region']][['code']]), function(q) {
-  1:12, function(q) {
+  1:13, function(q) {
     
     df_region <- generate_region_frame(
       SURVEY_PATH, 
@@ -639,8 +641,132 @@ ui <- fluidPage(
     )
   )
   ),
+  #=============================================================================
+  # Tourism UI
+  #=============================================================================
+  div(id='tourism_ui',
+      fluidRow(
+        column(7,
+               div(class='tab-panel-ui',
+                   shinyjs::hidden(
+                     pickerInput(
+                       inputId="tourism_select",
+                       label="Question",
+                       choices = TOURISM_QUESTIONS,
+                       selected = TOURISM_QUESTIONS[1],
+                       multiple=F
+                     )
+                   ),
+                   navset_bar(
+                     nav_panel(
+                       'Chart view', 
+                       div(style='height:15vh',
+                           div(style='height: .5vh'),
+                           div(class='chart-title-buffer',
+                               div(textOutput('tourism_title_chart'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                           ),
+                           div(class='chart-subtitle-buffer',
+                               div(textOutput('tourism_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+                           ),
+                           shinyWidgets::awesomeCheckboxGroup(
+                             inputId='tourism_compOps',
+                             label='',
+                             choices=c(
+                               'England mean'='mean',
+                               'England error (95% CI)'='error'
+                             ),
+                             selected=c('mean'),
+                             inline=T
+                           )
+                       ),
+                       shinycssloaders::withSpinner(
+                         highchartOutput('tourism_chart', height='72vh'),
+                         color = "#d82222"
+                       )
+                     ),
+                     nav_panel(
+                       'Map view',
+                       div(style='height:16vh',
+                           div(style='height: .5vh'),
+                           div(class='chart-title-buffer',
+                               div(textOutput('tourism_title_map'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                           ),
+                           div(class='chart-subtitle-buffer',
+                               div(textOutput('tourism_subtitle_map'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+                           )
+                       ),
+                       shinycssloaders::withSpinner(
+                         highchartOutput('tourism_map', height='72vh'),
+                         color = "#eb861e"
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_item(
+                       shinyjs::hidden(uiOutput("tourism_previous_btn")),
+                       bsTooltip(
+                         id = "tourism_previous_btn",
+                         title = 'View previous "Tourism" question',
+                         placement = "bottom",
+                         trigger = "hover"
+                       )
+                     ),
+                     nav_item(
+                       shinyjs::hidden(uiOutput("tourism_next_btn")),
+                       bsTooltip(
+                         id = "tourism_next_btn",
+                         title = 'View next "Sport" question',
+                         placement = "bottom",
+                         trigger = "hover"
+                       )
+                     ),
+                     nav_item(
+                       shinyjs::hidden(
+                         pickerInput(
+                           inputId = "hidden1",
+                           choices = list(
+                             Group1 = c("1"),
+                             Group2 = c("A")
+                           )
+                         )
+                       )
+                     ),
+                     fluidRow(
+                       column(3),
+                       column(5)#,
+                     )
+                   )
+               )
+        ),
+        column(5,
+               fluidRow(
+                 h2('Tourism', style='color:#eb861e !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
+               ),
+               fluidRow(
+                 div(
+                   style = "background-color:#eb861e !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
+                   div(class='text-ui',
+                       div(style='height:2vh'),
+                       htmlOutput("tourism_region_text"),
+                       shinyjs::hidden(
+                         div(id='tourism-text-drilldown',
+                             icon('arrow-down-long'),
+                             div(style='height:1.4vh'),
+                             htmlOutput("tourism_borough_text")
+                         )
+                       )
+                   )
+                 )
+               )
+        )
+      )
+  ),
   # Set scroll reveal animation for each section - mwah!
-  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui"), duration=4000, distance="0%", delay=200)
+  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "tourism_ui"), duration=4000, distance="0%", delay=200)
 )
 
 
@@ -856,7 +982,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -908,7 +1034,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -963,7 +1089,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1019,7 +1145,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1071,7 +1197,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1125,7 +1251,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1178,7 +1304,7 @@ server <- function(input, output, session) {
       #           rotation:0,
       #           y:-4,
       #           style: {
-      #               color: '#d82222',
+      #               color:'#d82222',
       #               fontWeight: 'normal'
       #           }
       #           
@@ -1233,7 +1359,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1284,7 +1410,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1336,7 +1462,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1682,7 +1808,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1734,7 +1860,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1789,7 +1915,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1845,7 +1971,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -1897,7 +2023,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -1951,7 +2077,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2004,7 +2130,7 @@ server <- function(input, output, session) {
         #           rotation:0,
         #           y:-4,
         #           style: {
-        #               color: '#d82222',
+        #               color:'#d82222',
         #               fontWeight: 'normal'
         #           }
         #           
@@ -2059,7 +2185,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2110,7 +2236,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2162,7 +2288,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2510,7 +2636,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -2562,7 +2688,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -2617,7 +2743,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -2661,7 +2787,7 @@ server <- function(input, output, session) {
                 paste0(
                   "
                 var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:s
+                  chart.yAxis[0].update({plotLines:
                     [{
                       value:",mean(df_region_central$prop_resp),",
                       color:'#d82222',
@@ -2673,7 +2799,7 @@ server <- function(input, output, session) {
                         rotation:0,
                         y:-4,
                         style: {
-                            color: '#d82222',
+                            color:'#d82222',
                             fontWeight: 'normal',
                             fontSize: '1.35vh'
                         }
@@ -2725,7 +2851,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2779,7 +2905,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2832,7 +2958,7 @@ server <- function(input, output, session) {
         #           rotation:0,
         #           y:-4,
         #           style: {
-        #               color: '#d82222',
+        #               color:'#d82222',
         #               fontWeight: 'normal'
         #           }
         #           
@@ -2887,7 +3013,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2938,7 +3064,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -2971,7 +3097,7 @@ server <- function(input, output, session) {
         )
         
       }
-      else{
+      else {
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
         delay(500,
               shinyjs::runjs(
@@ -2990,7 +3116,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal',
                             fontSize: '1.35vh'
                 }
@@ -3179,35 +3305,44 @@ server <- function(input, output, session) {
   output$sport_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
   })
+  
   output$sport_subtitle_chart <- renderText({
-    if (is.null(input$sport_currLevel)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$sport_currLevel==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
-    }
+   # if (is.null(input$sport_currLevel)) {
+      print(paste("Drilldown is not available due to absence of data at Borough level"))
+   # }
   })
+  
   output$sport_subtitle_map <- renderText({
-    if (is.null(input$sport_currLevel)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$sport_currLevel==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
-    }
+    # if (is.null(input$sport_currLevel)) {
+    print(paste("Drilldown is not available due to absence of data at Borough level"))
+    # }
   })
   
-  
+  #   else if (input$sport_currLevel==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
+  # output$sport_subtitle_map <- renderText({
+  #   if (is.null(input$sport_currLevel)) {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  #   else if (input$sport_currLevel==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
+  # 
+  # 
   output$sport_chart <- renderHighchart({
     generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
   })
   output$sport_map <- renderHighchart({
-    generate_drilldown_map(input$sport_select, df_list, QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(input$sport_select, df_list, 'sport', QUESTION_LIST, bounds_region, bounds_borough)
   })
   
   
@@ -3244,7 +3379,7 @@ server <- function(input, output, session) {
         selected = SPORT_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
-      update_drilldown_map(input$sport_select, df_list, "sport_map")
+      #update_drilldown_map(input$sport_select, df_list, "sport_map")
       generate_region_text(input$sport_select, df_list)
       shinyjs::html(id = 'sport_region_text', html =  generate_region_text(input$sport_select, df_list))
     }
@@ -3252,6 +3387,7 @@ server <- function(input, output, session) {
   )
   # 
   observeEvent(input$sport_next, {
+    #browser()
     current <- which(SPORT_QUESTIONS == input$sport_select)
     if(current < length(SPORT_QUESTIONS)){
       updateSelectInput(
@@ -3261,7 +3397,8 @@ server <- function(input, output, session) {
       # delay(1000,
       # update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
       # )
-      update_drilldown_map(input$sport_select, df_list, "sport_map")
+      #update_drilldown_map(input$sport_select, df_list, "sport_map")
+      #browser()
       shinyjs::html(id = 'sport_region_text', html = generate_region_text(input$sport_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
@@ -3301,7 +3438,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3353,7 +3490,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3408,7 +3545,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3464,7 +3601,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3516,7 +3653,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3569,7 +3706,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3624,7 +3761,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3674,7 +3811,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3725,7 +3862,7 @@ server <- function(input, output, session) {
                 rotation:0,
                 y:-4,
                 style: {
-                    color: '#d82222',
+                    color:'#d82222',
                     fontWeight: 'normal'
                 }
                 
@@ -3888,6 +4025,752 @@ server <- function(input, output, session) {
     }, ignoreInit=T, ignoreNULL=T, priority=-2)
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
+  
+  #=============================================================================
+  # Tourism Server
+  #============================================================================= 
+  
+  output$tourism_previous_btn <- renderUI({
+    actionButton(
+      "tourism_previous", 
+      "Previous",
+      icon=icon("backward")
+    )
+  })
+  output$tourism_next_btn <- renderUI({
+    actionButton(
+      "tourism_next", 
+      "Next",
+      icon=icon("forward")
+    )
+  })
+  output$tourism_title_chart <- renderText({
+    print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
+  })
+  output$tourism_title_map <- renderText({
+    print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
+  })
+  
+  output$tourism_subtitle_chart <- renderText({
+    # if (is.null(input$tourism_currLevel)) {
+    print(paste("Drilldown is not available due to absence of data at Borough level"))
+    # }
+  })
+  
+  output$tourism_subtitle_map <- renderText({
+    # if (is.null(input$tourism_currLevel)) {
+    print(paste("Drilldown is not available due to absence of data at Borough level"))
+    # }
+  })
+  
+  #   else if (input$tourism_currLevel==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
+  # output$tourism_subtitle_map <- renderText({
+  #   if (is.null(input$tourism_currLevel)) {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  #   else if (input$tourism_currLevel==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
+  # 
+  # 
+  output$tourism_chart <- renderHighchart({
+    generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
+  })
+  output$tourism_map <- renderHighchart({
+    generate_drilldown_map(input$tourism_select, df_list, 'tourism', QUESTION_LIST, bounds_region, bounds_borough)
+  })
+  
+  
+  output$tourism_region_text <- renderUI({
+    generate_region_text(input$tourism_select, df_list)
+  })
+  output$tourism_borough_text <- renderUI({
+    generate_borough_text(input$tourism_select, df_list)
+  })
+  
+  observeEvent(input$tourism_select, {
+    if (input$tourism_select!=TOURISM_QUESTIONS[1]) {
+      shinyjs::hide('tourism_previous_btn')
+    }
+    if (input$tourism_select==TOURISM_QUESTIONS[1]) {
+      shinyjs::hide('tourism_previous_btn')
+    }
+    if (input$tourism_select!=TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)]) {
+      shinyjs::hide('tourism_next_btn')
+    }
+    if (input$tourism_select==TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)])  { 
+      shinyjs::hide('tourism_next_btn')
+    }
+    
+    
+  }, ignoreInit=T)
+  
+  
+  observeEvent(input$tourism_previous, {
+    current <- which(TOURISM_QUESTIONS == input$tourism_select)
+    if(current > 1) {
+      updateSelectInput(
+        session, "tourism_select",
+        selected = TOURISM_QUESTIONS[current - 1]
+      )
+      #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
+      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+      generate_region_text(input$tourism_select, df_list)
+      shinyjs::html(id = 'tourism_region_text', html =  generate_region_text(input$tourism_select, df_list))
+    }
+  }, ignoreInit=T, ignoreNULL=T, priority=2
+  )
+  # 
+  observeEvent(input$tourism_next, {
+    #browser()
+    current <- which(TOURISM_QUESTIONS == input$tourism_select)
+    if(current < length(TOURISM_QUESTIONS)){
+      updateSelectInput(
+        session, "tourism_select",
+        selected = TOURISM_QUESTIONS[current + 1]
+      )
+      # delay(1000,
+      # update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
+      # )
+      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+      #browser()
+      shinyjs::html(id = 'tourism_region_text', html = generate_region_text(input$tourism_select, df_list))
+    }
+  }, ignoreInit=T, ignoreNULL=T, priority=2
+  )
+  
+  observeEvent(c(input$tourism_compOps, input$tourism_currLevel, input$tourism_select), {
+    
+    print(input$tourism_currLevel)
+    question <- as.numeric(input$tourism_select)
+    print(question)
+    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+    df_borough <- df_list[[question ]][['borough']][['dataframe']]
+    if ('error'%in%input$tourism_compOps & 'mean'%ni%input$tourism_compOps) { #delay(110)
+      #browser()
+      if (is.null(input$tourism_currLevel)) {
+        #browser()
+        #browser()
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_region_error$prop_resp_lb),",
+                      to:",mean(df_region_error$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:0,
+                      color:'#ffffff00',
+                      zIndex:99
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      else if (input$tourism_currLevel==0) { # drill level
+        #browser()
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_borough$prop_resp_lb),",
+                      to:",mean(df_borough$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+             
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:0,
+                      color:'#ffffff00'',
+                      zIndex:99
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      else { # top level
+        #browser()
+        
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_region_error$prop_resp_lb),",
+                      to:",mean(df_region_error$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:0,
+                      color:'#ffffff00',
+                      zIndex:99
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+    }
+    else if ('mean'%in%input$tourism_compOps & 'error'%ni%input$tourism_compOps) {
+      #browser()
+      if (is.null(input$tourism_currLevel)) {
+        #browser()
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_region_central$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:0,
+                      to:0,
+                      color:'#d822221F',
+                      zIndex:98
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      else if (input$tourism_currLevel==0) { # drill level
+        #browser()
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_borough$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:0,
+                      to:0,
+                      color:'#d822221F',
+                      zIndex:98
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      else { # top level
+        #browser()
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_region_central$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:0,
+                      to:0,
+                      color:'#d822221F',
+                      zIndex:98
+
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      
+    }
+    else if ('mean'%in%input$tourism_compOps & 'error'%in%input$tourism_compOps) {
+      if (is.null(input$tourism_currLevel)) {
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_region_central$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_region_error$prop_resp_lb),",
+                      to:",mean(df_region_error$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+      else if (input$tourism_currLevel==0) {
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_borough$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_borough$prop_resp_lb),",
+                      to:",mean(df_borough$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        
+      }
+      else{
+        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:",mean(df_region_central$prop_resp),",
+                      color:'#d82222',
+                      zIndex:99,
+                      label: {
+                        text: 'England',
+                verticalAlign: 'top',
+                textAlign: 'center',
+                rotation:0,
+                y:-4,
+                style: {
+                    color:'#d82222',
+                    fontWeight: 'normal'
+                }
+                
+                      }
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+        delay(1100,
+              shinyjs::runjs(
+                paste0(
+                  "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:",mean(df_region_error$prop_resp_lb),",
+                      to:",mean(df_region_error$prop_resp_ub),",
+                      color:'#d822221F',
+                      zIndex:98
+                    }]
+                  });
+                console.log(chart);
+             "
+                )
+              )
+        )
+      }
+    }
+    else {
+      update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+      delay(1100,
+            shinyjs::runjs(
+              "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotBands:
+                    [{
+                      from:0,
+                      to:0,
+                      color:'#d822221F',
+                      zIndex:98
+
+                    }]
+                  });
+                console.log(chart);
+             "
+            )
+      )
+      delay(1100,
+            shinyjs::runjs(
+              "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      value:0,
+                      color:'#ffffff00',
+                      zIndex:99
+
+                    }]
+                  });
+                console.log(chart);
+             "
+            )
+      )
+      
+      #browser()
+    }
+  }, ignoreInit=F, ignoreNULL=T, priority=0)
+  
+  
+  
+  observeEvent(
+    c(input$tourism_currLevel), {
+      
+      #browser()
+      req(input$tourism_currLevel)
+      selected <- input$tourism_compOps
+      if (input$tourism_currLevel==0) {
+        updateAwesomeCheckboxGroup(
+          session, "tourism_compOps",
+          choices=c(
+            'London mean'='mean',
+            'London error (95% CI)'='error'
+          ),
+          selected=selected,
+          inline=T
+        )
+        shinyjs::runjs(
+          paste0(
+            "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      label: {
+                        text: 'London'
+                      }
+                    }]
+                  });
+            ")
+        )
+        
+      }
+      else {
+        updateAwesomeCheckboxGroup(
+          session, "tourism_compOps",
+          choices=c(
+            'England mean'='mean',
+            'England error (95% CI)'='error'
+          ),
+          selected=selected,
+          inline=T
+        )
+        shinyjs::runjs(
+          paste0(
+            "
+                var chart = $('#tourism_chart').highcharts();
+                  chart.yAxis[0].update({plotLines:
+                    [{
+                      label: {
+                        text: 'England'
+                      }
+                    }]
+                  });
+            ")
+        )
+      }
+      
+      observeEvent(c(input$tourism_select), {
+        updateAwesomeCheckboxGroup(
+          session, "tourism_compOps",
+          choices=c(
+            'England mean'='mean',
+            'England error (95% CI)'='error'
+          ),
+          selected=selected,
+          inline=T
+        )
+        highchartProxy('tourism_chart') %>%
+          hcpxy_update(
+            subtitle=list(
+              text='Click to drilldown into London by Borough'
+            )
+          )
+      }, ignoreInit=T, ignoreNULL=T, priority=-4)
+    }, ignoreInit=T, ignoreNULL=F, priority=-3
+  )
+  observeEvent(c(input$tourism_currLevel, input$currLevelMap), {
+    
+    req(input$tourism_currLevel)
+    if (input$tourism_currLevel==0) {
+      shinyjs::show('tourism-text-drilldown')
+    }
+    else  {
+      shinyjs::hide('tourism-text-drilldown')
+    }
+    observeEvent(c(input$tourism_select), {
+      shinyjs::hide('tourism-text-drilldown')
+    }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  }, ignoreInit=T, ignoreNULL=T, priority=-1
+  )
+  
   
    
 }
