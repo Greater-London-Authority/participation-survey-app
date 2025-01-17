@@ -14,6 +14,7 @@ library(shinyWidgets)
 library(shinycssloaders)
 library(scrollrevealR)
 library(tinter)
+library(countup)
 
 source('scripts/funs.R')
 
@@ -22,7 +23,7 @@ DOWNLOAD_LATEST_DATA <- F
 
 SURVEY_PATH <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_tables__Oct_2024_.ods"
 BOUNDS_REGION_PATH <- "data/regions-simplified3-topo.json"
-BOUNDS_BOROUGH_PATH <- "data/boroughs-simplified3-topo.json"
+BOUNDS_BOROUGH_PATH <- "data/london_421-simplify41.json"
 RELEASE_YEAR <- '2023_24'
 
 REGION_QUESTION_NUM <- 1:13
@@ -249,7 +250,10 @@ ui <- fluidPage(
           style = "background-color: #6da7ded9 !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
           div(class='text-ui',
             div(style='height:2vh'),
+            div(id='countUp-ui-arts'),
+            #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
             htmlOutput("arts_region_text"),
+            uiOutput("mouseOver_ui"),
             shinyjs::hidden(
               div(id='arts-text-drilldown',
                 icon('arrow-down-long'),
@@ -766,7 +770,7 @@ ui <- fluidPage(
       )
   ),
   # Set scroll reveal animation for each section - mwah!
-  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "tourism_ui"), duration=4000, distance="0%", delay=200)
+  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "#tourism_ui"), duration=4000, distance="0%", delay=200)
 )
 
 
@@ -797,6 +801,79 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  
+  
+  
+  reactive__countFromTo <- reactive({
+    
+    question <- as.numeric(input$arts_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+    
+  })
+  
+  reactiveVal__countFromTo <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromTo(),{
+      reactiveVal__countFromTo$countFrom <- reactiveVal__countFromTo$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromTo$countTo <- reactive__countFromTo()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countTo <- reactive({req(reactive__countFromTo());  reactive__countFromTo(); reactiveVal__countFromTo$countTo})
+  reactive__countFrom <- reactive({req(reactive__countFromTo()); reactive__countFromTo(); reactiveVal__countFromTo$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$arts_select,once=T, ignoreNULL=F, ignoreInit=F, {
+        insertUI(
+          selector = "#countUp-ui-arts",
+          where = "afterEnd",
+          ui = div(generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+          )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromTo$countTo, {
+    print('yo')
+    #browser()
+    print('yo')
+    countupProxy("countUp-arts") %>% 
+      countup_update(reactiveVal__countFromTo$countTo)
+  })
+  
+  # output$arts_countUp <- renderCountup({
+  #   question <- as.numeric(input$arts_select)
+  #   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #     select(region, prop_resp, color, drilldown_central)
+  #   countup(df_region$prop_resp[df_region$region=='London'], start_at=df_region$prop_resp[df_region$region=='London'], duration = 800, start = T, options=list(suffix='%'))
+  # })
+  # 
+  # observeEvent(input$arts_select, {
+  #   question <- as.numeric(input$arts_select)
+  #   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #     select(region, prop_resp, color, drilldown_central)
+  #   countupProxy("arts_countUp") %>% 
+  #     countup_update(df_region$prop_resp[df_region$region=='London'])
+  # })
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   #=============================================================================
   # Arts Server
@@ -868,12 +945,113 @@ server <- function(input, output, session) {
   })
   
   
+  # Mousover reactives
+  #-----------------------
+  reactive__arts_select <- reactive({req(input$arts_select)})
+  # reactive__region_name <- reactive({})
+  # reactive__region_val <- reactive({})
+  # reactive__region_dif <- reactive({})
+  reactive__mouseOver_arts <- reactiveValues()
+  observeEvent(input$arts_chart_mouseOver$name, {   
+    # Default
+    if(is.null(input$arts_chart_mouseOver$name)) {
+      reg_name <- 'London'
+      reg_val <- 
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        select(region, prop_resp) %>%
+        filter(region=='London') %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-  
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region=='London') %>%
+        select(mean) %>%
+        pull(1)
+      reg_eng_dif <- round(eng_val - reg_val,1)
+      reg_rank <- 
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region=='London') %>%
+        select(rank) %>%
+        pull(1)
+    }
+    # On mouseOver
+    else {
+      reg_name <- input$arts_chart_mouseOver$name
+      reg_val <- 
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        select(region, prop_resp) %>%
+        filter(region==input$arts_chart_mouseOver$name) %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-  
+        df_list[[as.numeric(1)]][['region']][['dataframe']] %>% 
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region==input$arts_chart_mouseOver$name) %>%
+        select(mean) %>%
+        pull(1)
+      #browser()
+      reg_eng_dif <- round(eng_val - reg_val,1)
+      reg_rank <- 
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region==input$arts_chart_mouseOver$name) %>%
+        select(rank) %>%
+        pull(1)
+    }
+    #browser()
+    reactive__mouseOver_arts$reg_name <- reg_name
+    reactive__mouseOver_arts$reg_val <- reg_val
+    reactive__mouseOver_arts$reg_eng_dif <- reg_eng_dif
+    reactive__mouseOver_arts$reg_rank <- reg_rank
+    # reactive__region_name <- reactive({reg_name})
+    # reactive__region_val <- reactive({reg_val})
+    # reactive__region_dif <- reactive({reg_eng_dif})
+    # add rank
+    #browser()
+  }, ignoreNULL=F, ignoreInit=F, priority=10
+  )
+  # reactive__region_nameu <- reactive({reactive__region_name()})
+  # reactive__region_valu <- reactive({reactive__region_val()})
+  # reactive__region_difu <- reactive({reactive__region_dif()})
+  
+  
+  # observeEvent(input$arts_chart_mouseOver$name, {   
+  #   reg_val <- 
+  #     df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+  #     select(region, prop_resp) %>%
+  #     filter(region==input$arts_chart_mouseOver$name) %>%
+  #     select(prop_resp) %>%
+  #     pull(1)
+  #   reg_eng_dif <- eng_val - reg_val
+  #   reactive__region_name <- reactiveVal(input$arts_chart_mouseOver$name)
+  #   reactive__region_val <- reactiveVal(reg_val)
+  #   reactive__region_dif <- reactiveVal(reg_eng_dif)
+  #   # add rank
+  #   # add arts suffix
+  # })
+  # 
+  #-----------------------------------------------------------------------------
+  # output$mouseOver_ui <- renderUI({
+  #   
+  #   if(is.null(input$arts_chart_mouseOver)) return()
+  #   
+  #   wellPanel("Coordinates of mouseOvered point: ",input$arts_chart_mouseOver$name, input$arts_chart_mouseOver$y)
+  #   
+  # })
+ 
   output$arts_region_text <- renderUI({
-    generate_region_text(input$arts_select, df_list)
+    generate_region_text(input$arts_select, df_list, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank)
   })
   output$arts_borough_text <- renderUI({
     generate_borough_text(input$arts_select, df_list)
   })
+  
+  
+
   
   
   observeEvent(input$arts_select, {

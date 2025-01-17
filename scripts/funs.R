@@ -760,7 +760,8 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
     hc_credits(
       enabled=T,
       useHTML=T,
-      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>&#x2022',
+      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      href="",
       position=list(
         align='left',
         x=10,
@@ -899,7 +900,8 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         #   )
         # )
       )
-    )
+    ) %>%
+    hc_add_event_point(event = "mouseOver")
   #chart
   
   # TODO Add tooltip to plotline and plotband https://jsfiddle.net/BlackLabel/nx0uo1rk/
@@ -1072,7 +1074,8 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
     hc_credits(
       enabled=T,
       useHTML=T,
-      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>&#x2022',
+      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      href="",
       position=list(
         align='left',
         x=10,
@@ -1236,28 +1239,52 @@ update_drilldown_map <- function(question, df_list, map) {
     )
 }
 
-generate_region_text <- function(question, df_list) {
+generate_countUp <- function(count_to, count_from, theme) {
+  
+  #print(count_to)
+  #print(as.numeric(count_to))
+  count_to <- as.numeric(count_to)
+  ops <- list(suffix='%', decimalPlaces=1, decimal='-')
+  # browser()
+  countup(
+    count = count_to,
+    start_at = count_from,
+    options=ops,
+    duration = 2.5,
+    start = TRUE,
+    width = NULL,
+    height = NULL,
+    elementId = paste0('countUp-',theme)
+  )
+  
+}
+
+
+
+
+generate_region_text <- function(question, df_list, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
   
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp, color, drilldown_central)
-  question_text <- tolower(df_list[[question ]][['region']][['title']])
+  question_text <- paste(
+    tolower(substr(df_list[[question ]][['region']][['title']], 1, 1)), 
+    substr(df_list[[question ]][['region']][['title']], 2, nchar(df_list[[question ]][['region']][['title']])), sep="")
   
-  lnd_mean <- round(df_region$prop_resp[df_region$region=='London'],1)
+  #browser()
   eng_mean <- round(mean(df_region$prop_resp),1)
-  eng_ldn_dif <- round(eng_mean - lnd_mean,1)
   eng_ldn_dif_text <- 
-    ifelse(eng_ldn_dif>0, paste0(eng_ldn_dif, ' points more than'),
-      ifelse(eng_ldn_dif<0, paste0(eng_ldn_dif, ' points less than'),
+    ifelse(reactive__region_dif>0, paste0(abs(reactive__region_dif), ' points more than'),
+      ifelse(reactive__region_dif<0, paste0(abs(reactive__region_dif), ' points less than'),
         'the same as'
       )
     )
-  df_region$rank <- scales::ordinal(rank(df_region$prop_resp, ties.method='min'))
-  ldn_rank <- df_region$rank[df_region$region=='London']
+
   
   headline <- paste0(
-    HTML(paste0('<span style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;">',df_region$prop_resp[df_region$region=='London'],'%</span><br><span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>')),
-    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=85),collapse = "<br>")),
+    #HTML(paste0('<span style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;">',df_region$prop_resp[df_region$region=='London'],'%</span><br><span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>')),
+    HTML('<span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>'),
+    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
     HTML('<hr width="90%" color="#ffffff" />')
   )
 
@@ -1267,8 +1294,8 @@ generate_region_text <- function(question, df_list) {
       <div style='height:-1vh'></div>
       <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
       <ul>
-      <li>The regional average in England is ",eng_mean,"%, which is ",eng_ldn_dif_text," the London average</li>
-      <li>This ranks London ",ldn_rank," out of the 9 regions in England</li>
+      <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
+      <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
       </ul>
       </span>
       "
