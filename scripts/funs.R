@@ -553,10 +553,9 @@ generate_borough_frame <- function(survey_path, release_year, question) {
     mutate(across(contains('resp'),~ round(.x,1))) %>%
     mutate(borough = fct_reorder(borough, -prop_resp)) %>%
     arrange(borough) %>%
-    mutate(code = question[['code']]) %>% 
-    mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=","))
-    #mutate(drilldown=case_when(region=='London'~'london',T~''))
-  
+    mutate(code = question[['code']]) #%>% 
+    #mutate(num_resp = as.character(format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=",")))
+
   return(list('dataframe'=df_borough))
   
   
@@ -572,27 +571,51 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
   # theme <- 'Sport'
   # browser_height <- 950
   
+
+
   
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, num_resp, color, drilldown_central)
+    select(region, prop_resp, color, drilldown_central, num_resp) #%>%
+    #rename(fname=num_resp)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)
+    select(region, prop_resp_lb, prop_resp_ub, drilldown_error, num_resp)#%>%
+    #rename(fname=num_resp)
   subtitle <-  df_list[[question ]][['region']][['title']]
-  df_borough <- df_list[[question ]][['borough']][['dataframe']] 
+  if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+      select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+  }
+  else {
+    df_borough <- data.frame()
+  }
   
+
+  #%>%
+    #rename(fname=num_resp)# %>%
+    #mutate(num_resp = as.character(as.numeric(num_resp)))
   
+  # 
+  # d <- df_borough %>% select(borough, prop_resp)
+  # d2 <- df_borough %>% select(borough, prop_resp_lb, prop_resp_ub)
+  #browser()
   #max_borough <- max(df_borough$prop_resp_ub)
   #browser()
-  chart <- highchart() %>%
+  # if (as.numeric(question)==1) {
+  #   browser()
+  # }
+  chart <- 
+    
+    highchart() %>%
     hc_add_series(
       name='Central estimate',
       id='region-central',
       type='bar', 
       showInLegend=F,
       data=df_region_central, 
-      hcaes(x = factor(region), y = round(prop_resp,1), 
-            color=color, drilldown=drilldown_central)
+      mapping=hcaes(x = factor(region), y = round(prop_resp,1), 
+            color=color, drilldown=drilldown_central),
+      pointWidth=browser_height/19
     ) %>%
     hc_add_series(
       name='Lower-Upper estimate',
@@ -600,8 +623,8 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
       type='errorbar',
       showInLegend=F,
       data=df_region_error,
-      hcaes(x=factor(region), low=prop_resp_lb, 
-            high=prop_resp_ub, drilldown=drilldown_error)
+      mapping=hcaes(x=factor(region), low=prop_resp_lb, 
+            high=prop_resp_ub, drilldown=drilldown_error)#,
     ) %>%
     hc_drilldown(
       allowPointDrilldown=F,
@@ -620,25 +643,38 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
       activeAxisLabelStyle = list(
         color='black'
       ),
+      # TODO COULD TRY THIS SHIT HERE
       # TODO not working!!!
-      # tooltip = list(
-      #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.num_resp})</span><br>"
-      #   
-      # ),
       #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/breadcrumbs/format
       series = list(
         list(
           id='london-central',
           name='Central estimate',
           type='bar',
+          #keys=c('x', 'y', 'color', 'drilldown', 'n'),
           showInLegend=F,
+          pointWidth=browser_height/19,
           data = list_parse2(
             data.frame(
               borough=df_borough$borough,
               prop_resp=df_borough$prop_resp,
               num_resp=df_borough$num_resp
             )
+            #d
           )
+          # ,
+          # tooltip = list(
+          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.prop_resp})</span><br>"
+          # )
+          #,
+          # tooltip=list(
+          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
+          # )
+          #,
+          # tooltip=list(
+          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.num_resp})</span><br>",
+          #   shared=T
+          # )
         ),
         list(
           id='london-error',
@@ -646,15 +682,26 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
           type='errorbar',
           showInLegend=F,
           data=list_parse2(
+            #d2
             data.frame(
-              borough=df_borough$borough,
-              prop_resp_lb=df_borough$prop_resp_lb,
-              prop_resp_ub=df_borough$prop_resp_ub
+              'borough'=df_borough$borough,
+              'prop_resp_lb'=df_borough$prop_resp_lb,
+              'prop_resp_ub'=df_borough$prop_resp_ub,
+              'number'=as.numeric(df_borough$num_resp)
             )
-
           )
+          #,
+          # tooltip=list(
+          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
+          # )
+          #,
+          # tooltip=list(
+          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.name})</span><br>",
+          #   shared=T
+          # )
         )
       )
+
     ) %>%
     hc_xAxis(
       type='category',
@@ -693,9 +740,21 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
       ,
       plotLines=list(
         list(
-          value=-10,
+          value=mean(df_region_central$prop_resp),
           color='#d82222',
-          zIndex=99
+          zIndex=99,
+          label=list(
+            text= 'England',
+            verticalAlign='top',
+            textAlign='center',
+            rotation=0,
+            y=-4,
+            style=list(
+              color='#d82222',
+              fontWeight='normal',
+              fontSize='1.35vh'
+            )
+          )
         )
       )
       ,
@@ -721,9 +780,9 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
       # )
     ) %>%
     hc_plotOptions(  #48-45
-      bar = list(
-        pointWidth=browser_height/19
-      ),
+      # bar = list(
+      #   pointWidth=browser_height/19
+      # ),
       errorbar=list(
         stemWidth= 1,
         whiskerWidth=1,
@@ -779,7 +838,13 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
       shape='callout',
       shared=T,
       useHTML = TRUE,
-      headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.num_resp})</span><br>"
+      headerFormat = "<span style='font-size:1.6vh;'> {point.key}</span><br>"  
+      #formatter = 
+        #JS(paste0()
+      #)
+      # 
+       
+      #point.point.options.num_resp
       #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
     ) %>%
     hc_exporting(
@@ -903,14 +968,14 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
     ) %>%
     hc_add_event_point(event = "mouseOver")
   #chart
-  
+  #browser()
   # TODO Add tooltip to plotline and plotband https://jsfiddle.net/BlackLabel/nx0uo1rk/
   # or dummy series using https://jsfiddle.net/BlackLabel/2Ln05yes/
   # Add the line(s) -or try
   # If not add England bar, optional add or remove ci lines maybe
   # then revisit fucking tooltip n on drilldown
   # bulleted text - bvasically done
-  
+  #print('yo')
   return(chart)
 }
 
@@ -919,24 +984,33 @@ update_drilldown_chart <- function(question, df_list, chart) {
   
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, color, drilldown_central)
+    select(region, prop_resp, num_resp, color, drilldown_central)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)
   subtitle <-  df_list[[question ]][['region']][['title']]
   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
   #max_borough <- max(df_borough$prop_resp_ub)
-  
+  #browser()
   highchartProxy(chart) %>%
     hcpxy_update_series(
       id='region-central',
-      data = df_region_central$prop_resp
+      data=#=df_region_central$prop_resp
+        list_parse2(
+          data.frame(
+            region=df_region_central$region,
+            prop_resp=df_region_central$prop_resp,
+            num_resp=df_region_central$num_resp
+          )
+      )
     ) %>%
     hcpxy_update_series(
       id='region-error',
       data=list_parse2(
         data.frame(
+          region=df_region_error$region,
           prop_resp_lb=df_region_error$prop_resp_lb,
-          prop_resp_ub=df_region_error$prop_resp_ub
+          prop_resp_ub=df_region_error$prop_resp_ub,
+          num_resp=df_region_error$num_resp
         )
       )
     ) %>%
@@ -945,26 +1019,30 @@ update_drilldown_chart <- function(question, df_list, chart) {
         series=list(
           list(
             id='london-central',
+            name='Central estimate',
             type='column',
+            pointWidth=shinybrowser::get_height()/19.5,
             data=list_parse2(
               data.frame(
                 borough=df_borough$borough,
-                prop_resp=df_borough$prop_resp
+                prop_resp=df_borough$prop_resp,
+                num_resp=df_borough$num_resp
               )
             )
           ),
           list(
             id='london-error',
+            name='Lower-Upper estimate',
             type='errorbar',
             data=list_parse2(
               data.frame(
                 borough=df_borough$borough,
                 prop_resp_lb=df_borough$prop_resp_lb,
-                prop_resp_ub=df_borough$prop_resp_ub
+                prop_resp_ub=df_borough$prop_resp_ub,
+                num_resp=df_borough$num_resp
                 
               )
             )
-            
           )
         )
       )
@@ -980,19 +1058,37 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
   # question_list <- QUESTION_LIST
   #browser()
   question <- as.numeric(question)
-  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
-    mutate(
-      value = prop_resp,
-      drilldown=case_when(region=='London'~'london-drilldown',T~'')
-    )
   subtitle <-  df_list[[question ]][['region']][['title']]
-  #browser()
-  if (question_list$borough$code[question]!="") {
+  if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+      select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
+      mutate(value = prop_resp, drilldown=case_when(region=='London'~'london-drilldown',T~''))
+   
     df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
       select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
       mutate(value = prop_resp)
   }
+  else {
+    
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+      select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
+      mutate(value = prop_resp)
+  }
+  
+  
+  # df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #   select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
+  #   mutate(
+  #     value = prop_resp,
+  #     drilldown=case_when(region=='London'~'london-drilldown',T~'')
+  #   )
+  # subtitle <-  df_list[[question ]][['region']][['title']]
+  # #browser()
+  # if (question_list$borough$code[question]!="") {
+  #   df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+  #     select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
+  #     mutate(value = prop_resp)
+  # }
   #max_borough <- max(df_borough$prop_resp_ub)
   
   
@@ -1040,8 +1136,40 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
     # 
     # 
     #hc_chart(spacingBottom= 50) %>%
-    hc_add_series(id='regions', mapData=bounds_region, data=list_parse(df_region_rest), joinBy=c("EER13NM", "region"), name="{point.EER13NM}", borderColor='#FAFAFA', borderWidth=0.1) %>%
-    hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="{point.EER13NM}", borderColor='black', borderWidth=1.8) %>% 
+    hc_add_series(id='regions', mapData=bounds_region, data=list_parse(df_region_rest), joinBy=c("EER13NM", "region"), name="Regions", borderColor='#FAFAFA', borderWidth=0.1,
+                  point=list(      
+                  events = list(
+                      mouseOver = JS(
+                        paste0("function() { 
+                         Shiny.onInputChange('",theme,"_map_mouseOver', this.EER13NM);
+                         
+                         
+                         }")
+                     ))
+                    )) %>%
+    # hc_plotOptions(
+    #   series = list(
+    #     point=list(
+    #       events = list(
+    #         mouseOver = JS(
+    #           paste0("function() { 
+    #                      Shiny.onInputChange('arts_map_mouseOver', this.name);
+    #                      
+    #                      
+    #                      }")
+    #         )
+    #       )
+    hc_add_series(id='regions_ldn', mapData=bounds_region_ldn, data=list_parse(df_region_ldn), joinBy=c("EER13NM", "region"), name="London", borderColor='black', borderWidth=1.8,
+                  point=list(      
+                    events = list(
+                      mouseOver = JS(
+                        paste0("function() { 
+                         Shiny.onInputChange('",theme,"_map_mouseOver', this.EER13NM);
+                         
+                         
+                         }")
+                      ))
+                  )) %>% 
     
     hc_colorAxis(
       stops = list(
@@ -1143,11 +1271,34 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
             
             "
           )
-        )
+        )#,
+      #   click=JS(
+      #     paste0(
+      #       "
+      #         function(e) {
+      #           Shiny.onInputChange('",theme,"_map_click', e.point.name);
+      #         }
+      #         "
+      #     )
+      #   )
+      #   
       )
     )
+        #e.properties.EER13NM
+        #e.point.EER13NM
+        
+        #- just need fucking right specification
+      #)
+    #) # WORKING
+  #https://shiny.posit.co/r/articles/build/communicating-with-js/
+    #hc_add_event_series(event = "mouseOver")
+    #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/maps/plotoptions/series-events-click/
+  #https://stackoverflow.com/questions/52066731/highcharter-change-highlight-color-on-hover/52075310#52075310
+    #hc_add_event_point(event = "mouseOver", series='series')
+
   
-  if (question_list$borough$code[question]!="") {
+  if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    
      map <- map %>%
        #,
        #   zoom=5.7#,
@@ -1176,7 +1327,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
              mapData=bounds_borough$features,
              data=list_parse(df_borough),
              joinBy=c("name", "borough"),
-             name="{point.borough}",
+             name="Boroughs",
              borderColor='#FAFAFA',
              borderWidth=0.1
            )
@@ -1244,13 +1395,15 @@ generate_countUp <- function(count_to, count_from, theme) {
   #print(count_to)
   #print(as.numeric(count_to))
   count_to <- as.numeric(count_to)
-  ops <- list(suffix='%', decimalPlaces=1, decimal='-')
+  #ops <- list()
   # browser()
   countup(
     count = count_to,
     start_at = count_from,
-    options=ops,
     duration = 2.5,
+    suffix='%',
+    decimalPlaces=1,
+    decimal='.',
     start = TRUE,
     width = NULL,
     height = NULL,
@@ -1262,7 +1415,11 @@ generate_countUp <- function(count_to, count_from, theme) {
 
 
 
-generate_region_text <- function(question, df_list, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
+generate_region_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
+  
+  #browser()
+  
+  #if (length(drill_level)==0) {
   
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
@@ -1301,8 +1458,70 @@ generate_region_text <- function(question, df_list, reactive__region_name=NULL, 
       "
     )
   )
-  return(HTML(paste0(headline,list)))
+  if(is.null(reactive__region_name)) {
+    return(HTML(headline))
+  }
+  # Else show loader
+  else {
+    return(HTML(paste0(headline,list)))
+  }
+
 }
+
+
+generate_region_headline_text <- function(question, df_list) {
+  
+  question <- as.numeric(question)
+  question_text <- paste(
+    tolower(substr(df_list[[question ]][['region']][['title']], 1, 1)), 
+    substr(df_list[[question ]][['region']][['title']], 2, nchar(df_list[[question ]][['region']][['title']])), sep=""
+  )
+  #browser()
+  headline <- paste0(
+    HTML('<span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>'),
+    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
+    HTML('<hr width="90%" color="#ffffff" />')
+  )
+  return(HTML(headline))
+  
+}
+
+
+generate_region_summary_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
+  
+  question <- as.numeric(question)
+  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp, color, drilldown_central)
+  eng_mean <- round(mean(df_region$prop_resp),1)
+  #browser()
+  eng_ldn_dif_text <- 
+    ifelse(reactive__region_dif>0, paste0(abs(reactive__region_dif), ' points more than'),
+      ifelse(reactive__region_dif<0, paste0(abs(reactive__region_dif), ' points less than'),'the same as'
+      )
+    )
+  list <- HTML(
+    paste0(
+      "
+      <div style='height:-1vh'></div>
+      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <ul>
+      <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
+      <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
+      </ul>
+      </span>
+      "
+    )
+  )
+  if(!is.null(reactive__region_name)) {
+    return(HTML(list))
+  }
+  else {
+    return('')
+  }
+  
+}
+
+
 
 
 generate_borough_text <- function(question, df_list) {

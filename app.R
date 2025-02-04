@@ -25,8 +25,8 @@ SURVEY_PATH <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_t
 BOUNDS_REGION_PATH <- "data/regions-simplified3-topo.json"
 BOUNDS_BOROUGH_PATH <- "data/london_421-simplify41.json"
 RELEASE_YEAR <- '2023_24'
-
 REGION_QUESTION_NUM <- 1:13
+
 #G2 not working
 REGION_QUESTION_LIST <- list( 
   code=c(
@@ -89,6 +89,8 @@ SPORT_QUESTIONS <- 11:12
 TOURISM_QUESTIONS <- 13
 `%ni%` <- Negate(`%in%`)
 
+# RANKING ASC/DESC LIST
+
 #'[____________________________________________________________________________]
 
 
@@ -133,9 +135,25 @@ df_list <- lapply(
 
 
 ui <- fluidPage(
-  includeCSS("FORMATTING/GLAstyle.css"),
+  includeCSS("www/GLAstyle.css"),
   useShinyjs(),
   shinybrowser::detect(),
+  
+  
+  #=============================================================================
+  # Header UI
+  #=============================================================================
+  div(id='header_ui',
+    includeHTML('header.html')
+  ),
+  
+  #=============================================================================
+  # Contents UI
+  #=============================================================================
+  div(id='contents_ui',
+      includeHTML('contents.html')
+  ),
+  
   
   #=============================================================================
   # Arts UI
@@ -252,8 +270,10 @@ ui <- fluidPage(
             div(style='height:2vh'),
             div(id='countUp-ui-arts'),
             #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
-            htmlOutput("arts_region_text"),
-            uiOutput("mouseOver_ui"),
+            htmlOutput("arts_region_headline_text"),
+            shinycssloaders::withSpinner(htmlOutput("arts_region_summary_text"),color='#ffffff', size=.5, proxy.height='25vh'),
+            #shinycssloaders::withSpinner(,color = "#ffffff"),
+            #uiOutput("mouseOver_ui"),
             shinyjs::hidden(
               div(id='arts-text-drilldown',
                 icon('arrow-down-long'),
@@ -268,133 +288,141 @@ ui <- fluidPage(
   )
   ),
   div(style='height:6vh;'),
-
-
+  
   #=============================================================================
   # Libraries UI
   #=============================================================================
   div(id='libraries_ui',
-  fluidRow(
-    column(7,
-      div(class='tab-panel-ui',
-        shinyjs::hidden(
-          pickerInput(
-            inputId="libraries_select",
-            label="Question",
-            choices = LIBRARIES_QUESTIONS,
-            selected = LIBRARIES_QUESTIONS[1],
-            multiple=F
-          )
+      fluidRow(
+        column(7,
+               div(class='tab-panel-ui',
+                   shinyjs::hidden(
+                     pickerInput(
+                       inputId="libraries_select",
+                       label="Question",
+                       choices = LIBRARIES_QUESTIONS,
+                       selected = LIBRARIES_QUESTIONS[1],
+                       multiple=F
+                     )
+                   ),
+                   bslib::navset_bar(
+                     id='libraries_tab',
+                     nav_panel(
+                       title='Chart view',
+                       value='chart',
+                       div(style='height:15vh',
+                           div(style='height: .5vh'),
+                           div(class='chart-title-buffer',
+                               div(textOutput('libraries_title_chart'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                           ),
+                           div(class='chart-subtitle-buffer',
+                               div(textOutput('libraries_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+                           ),
+                           shinyWidgets::awesomeCheckboxGroup(
+                             inputId='libraries_compOps',
+                             label='',
+                             choices=c(
+                               'England mean'='mean',
+                               'England error (95% CI)'='error'
+                             ),
+                             selected=c('mean'),
+                             inline=T
+                           )
+                       ),
+                       shinycssloaders::withSpinner(
+                         highchartOutput('libraries_chart', height='72vh'),
+                         color = "#ff38ba"
+                       )
+                     ),
+                     nav_panel(
+                       title='Map view',
+                       value='map',
+                       div(style='height:16vh',
+                           div(style='height: .5vh'),
+                           div(class='chart-title-buffer',
+                               div(textOutput('libraries_title_map'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                           ),
+                           div(class='chart-subtitle-buffer',
+                               div(textOutput('libraries_subtitle_map'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+                           )
+                       ),
+                       shinycssloaders::withSpinner(
+                         highchartOutput('libraries_map', height='72vh'),
+                         color = "#ff38ba"
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_item(
+                       shinyjs::hidden(uiOutput("libraries_previous_btn")),
+                       bsTooltip(
+                         id = "libraries_previous_btn",
+                         title = 'View previous "Libraries" question',
+                         placement = "bottom",
+                         trigger = "hover"
+                       )
+                     ),
+                     nav_item(
+                       uiOutput("libraries_next_btn"),
+                       bsTooltip(
+                         id = "libraries_next_btn",
+                         title = 'View next "Libraries" question',
+                         placement = "bottom",
+                         trigger = "hover"
+                       )
+                     ),
+                     nav_item(
+                       shinyjs::hidden(
+                         pickerInput(
+                           inputId = "hidden1",
+                           choices = list(
+                             Group1 = c("1"),
+                             Group2 = c("A")
+                           )
+                         )
+                       )
+                     ),
+                     fluidRow(
+                       column(3),
+                       column(5)#,
+                     )
+                   )
+               )
         ),
-        navset_bar(
-          nav_panel(
-            'Chart view', 
-            div(style='height:15vh',
-              div(style='height: .5vh'),
-              div(class='chart-title-buffer',
-                div(textOutput('libraries_title_chart'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
-              ),
-              div(class='chart-subtitle-buffer',
-                div(textOutput('libraries_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
-              ),
-              shinyWidgets::awesomeCheckboxGroup(
-                inputId='libraries_compOps',
-                label='',
-                choices=c(
-                  'England mean'='mean',
-                  'England error (95% CI)'='error'
-                ),
-                selected=c('mean'),
-                inline=T
-              )
-            ),
-            shinycssloaders::withSpinner(
-              highchartOutput('libraries_chart', height='72vh'),
-              color = "#ff38ba"
-            )
-          ),
-          nav_panel(
-            'Map view',
-            div(style='height:16vh',
-              div(style='height: .5vh'),
-              div(class='chart-title-buffer',
-                div(textOutput('libraries_title_map'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
-              ),
-              div(class='chart-subtitle-buffer',
-                div(textOutput('libraries_subtitle_map'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
-              )
-            ),
-            shinycssloaders::withSpinner(
-              highchartOutput('libraries_map', height='72vh'),
-              color = "#ff38ba"
-            )
-          ),
-          nav_spacer(),
-          nav_spacer(),
-          nav_spacer(),
-          nav_spacer(),
-          nav_spacer(),
-          nav_spacer(),
-          nav_item(
-            shinyjs::hidden(uiOutput("libraries_previous_btn")),
-            bsTooltip(
-              id = "libraries_previous_btn",
-              title = 'View previous "Libraries" question',
-              placement = "bottom",
-              trigger = "hover"
-            )
-          ),
-          nav_item(
-            uiOutput("libraries_next_btn"),
-            bsTooltip(
-              id = "libraries_next_btn",
-              title = 'View next "Libraries" question',
-              placement = "bottom",
-              trigger = "hover"
-            )
-          ),
-          nav_item(
-            shinyjs::hidden(
-              pickerInput(
-                inputId = "hidden1",
-                choices = list(
-                  Group1 = c("1"),
-                  Group2 = c("A")
-                )
-              )
-            )
-          ),
-          fluidRow(
-            column(3),
-            column(5)#,
-          )
+        column(5,
+               fluidRow(
+                 h2('Libraries', style='color:#ff38ba !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
+               ),
+               fluidRow(
+                 div(
+                   style = "background-color:#ff38ba !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
+                   div(class='text-ui',
+                       div(style='height:2vh'),
+                       div(id='countUp-ui-libraries'),
+                       #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
+                       htmlOutput("libraries_region_headline_text"),
+                       shinycssloaders::withSpinner(htmlOutput("libraries_region_summary_text"),color = "#ffffff"),
+                       shinyjs::hidden(
+                         div(id='libraries-text-drilldown',
+                             icon('arrow-down-long'),
+                             div(style='height:1.4vh'),
+                             htmlOutput("libraries_borough_text")
+                         )
+                       )
+                   )
+                 )
+               )
         )
       )
-    ),
-    column(5,
-      fluidRow(
-        h2('Libraries', style='color:#ff38ba !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
-      ),
-      fluidRow(
-        div(
-          style = "background-color:#ff38ba !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
-          div(class='text-ui',
-            div(style='height:2vh'),
-            htmlOutput("libraries_region_text"),
-            shinyjs::hidden(
-              div(id='libraries-text-drilldown',
-                icon('arrow-down-long'),
-                div(style='height:1.4vh'),
-                htmlOutput("libraries_borough_text")
-              )
-            )
-          )
-        )
-      )
-    )
-  )
   ),
   div(style='height:6vh;'),
+  
+  
+
   #=============================================================================
   # Heritage UI
   #=============================================================================
@@ -411,9 +439,11 @@ ui <- fluidPage(
                    multiple=F
                  )
                ),
-               navset_bar(
+               bslib::navset_bar(
+                 id='heritage_tab',
                  nav_panel(
-                   'Chart view', 
+                   title='Chart view',
+                   value='chart',
                    div(style='height:15vh',
                        div(style='height: .5vh'),
                        div(class='chart-title-buffer',
@@ -439,7 +469,8 @@ ui <- fluidPage(
                    )
                  ),
                  nav_panel(
-                   'Map view',
+                   title='Map view',
+                   value='map',
                    div(style='height:16vh',
                        div(style='height: .5vh'),
                        div(class='chart-title-buffer',
@@ -506,7 +537,10 @@ ui <- fluidPage(
                style = "background-color:#5ea15d !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
                div(class='text-ui',
                    div(style='height:2vh'),
-                   htmlOutput("heritage_region_text"),
+                   div(id='countUp-ui-heritage'),
+                   #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
+                   htmlOutput("heritage_region_headline_text"),
+                   shinycssloaders::withSpinner(htmlOutput("heritage_region_summary_text"),color = "#ffffff"),
                    shinyjs::hidden(
                      div(id='heritage-text-drilldown',
                          icon('arrow-down-long'),
@@ -537,9 +571,11 @@ ui <- fluidPage(
                    multiple=F
                  )
                ),
-               navset_bar(
+               bslib::navset_bar(
+                 id='sport_tab',
                  nav_panel(
-                   'Chart view', 
+                   title='Chart view',
+                   value='chart',
                    div(style='height:15vh',
                        div(style='height: .5vh'),
                        div(class='chart-title-buffer',
@@ -565,7 +601,8 @@ ui <- fluidPage(
                    )
                  ),
                  nav_panel(
-                   'Map view',
+                   title='Map view',
+                   value='map',
                    div(style='height:16vh',
                        div(style='height: .5vh'),
                        div(class='chart-title-buffer',
@@ -631,7 +668,10 @@ ui <- fluidPage(
                style = "background-color:#d82222 !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
                div(class='text-ui',
                    div(style='height:2vh'),
-                   htmlOutput("sport_region_text"),
+                   div(id='countUp-ui-sport'),
+                   #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
+                   htmlOutput("sport_region_headline_text"),
+                   shinycssloaders::withSpinner(htmlOutput("sport_region_summary_text"),color = "#ffffff"),
                    shinyjs::hidden(
                      div(id='sport-text-drilldown',
                          icon('arrow-down-long'),
@@ -661,9 +701,11 @@ ui <- fluidPage(
                        multiple=F
                      )
                    ),
-                   navset_bar(
+                   bslib::navset_bar(
+                     id='tourism_tab',
                      nav_panel(
-                       'Chart view', 
+                       title='Chart view',
+                       value='chart',
                        div(style='height:15vh',
                            div(style='height: .5vh'),
                            div(class='chart-title-buffer',
@@ -689,7 +731,8 @@ ui <- fluidPage(
                        )
                      ),
                      nav_panel(
-                       'Map view',
+                       title='Map view',
+                       value='map',
                        div(style='height:16vh',
                            div(style='height: .5vh'),
                            div(class='chart-title-buffer',
@@ -755,7 +798,10 @@ ui <- fluidPage(
                    style = "background-color:#eb861e !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
                    div(class='text-ui',
                        div(style='height:2vh'),
-                       htmlOutput("tourism_region_text"),
+                       div(id='countUp-ui-tourism'),
+                       #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
+                       htmlOutput("tourism_region_headline_text"),
+                       shinycssloaders::withSpinner(htmlOutput("tourism_region_summary_text"),color = "#ffffff"),
                        shinyjs::hidden(
                          div(id='tourism-text-drilldown',
                              icon('arrow-down-long'),
@@ -769,8 +815,15 @@ ui <- fluidPage(
         )
       )
   ),
+  #=============================================================================
+  # Header UI
+  #=============================================================================
+  div(id='footer_ui',
+      includeHTML('footer.html')
+  ),
+  
   # Set scroll reveal animation for each section - mwah!
-  scroll_reveal(target = c("#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "#tourism_ui"), duration=4000, distance="0%", delay=200)
+  scroll_reveal(target = c('#header_ui', '#contents_ui', "#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "#tourism_ui", '#header_ui', '#footer_ui'), duration=4000, distance="0%", delay=200)
 )
 
 
@@ -803,71 +856,50 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   
+  #=============================================================================
+  # Background Server
+  #=============================================================================
   
-  reactive__countFromTo <- reactive({
-    
-    question <- as.numeric(input$arts_select)
-    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
-    countTo <- df_region$prop_resp[df_region$region=='London']
-    
-  })
-  
-  reactiveVal__countFromTo <-  reactiveValues(countFrom=0, countTo=0)
-  
-  observeEvent( 
-    reactive__countFromTo(),{
-      reactiveVal__countFromTo$countFrom <- reactiveVal__countFromTo$countTo; 
-      #print(reactiveVal__countFromTo$countFrom)
-      reactiveVal__countFromTo$countTo <- reactive__countFromTo()
-      #print(reactiveVal__countFromTo$countTo)
-    }
+  insertUI(
+    selector="#background-glide-box",
+    where='beforeEnd',
+    ui=
+    tabsetPanel(type='pills',
+      tabPanel(
+        title='About the survey',
+        HTML(
+          '<h4 style="font-size:2.4vh"><i>The 2023/24 <i>Participation Survey</i> was Commissioned by the Department for 
+          Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
+          England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>, 
+          which ran for 16 continuous years, with its final publication in 2019/20. 
+          Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally 
+          representative sample of adults (aged 16 years and over)". However, while the
+          <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews, 
+          the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire." The most 
+          immediate benefit of this alternate approach to data collection is that DCMS is now able to obtain a boosted
+          respondent sample, allowing for the collection of reliable data at the Local Authority (LA) level; going forward, DCMS plan to 
+          obtain a boosted sample for the <i>Pariticipation Survey</i> every three years, starting with the latest (2023/24) publication.
+          Overall, the key takeaway for the GLA is that the 2023/24 <i>Pariticipation Survey</i> provides a uniquely rich source of information
+          on adult participation at the level of both Region and Borough.</i></h4>'
+        )
+      ),
+      tabPanel(
+        title='About this app',
+        HTML('This application ')
+      )
+    )
   )
-  
-  reactive__countTo <- reactive({req(reactive__countFromTo());  reactive__countFromTo(); reactiveVal__countFromTo$countTo})
-  reactive__countFrom <- reactive({req(reactive__countFromTo()); reactive__countFromTo(); reactiveVal__countFromTo$countFrom})
-  
-  
-  output$countTo <- renderPrint({reactive__countTo()})
-  output$countFrom <- renderPrint({ reactive__countFrom()})
-  
-  
-  observeEvent(
-    input$arts_select,once=T, ignoreNULL=F, ignoreInit=F, {
-        insertUI(
-          selector = "#countUp-ui-arts",
-          where = "afterEnd",
-          ui = div(generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
-          )
-    }
-  )
-  
-  observeEvent(reactiveVal__countFromTo$countTo, {
-    print('yo')
-    #browser()
-    print('yo')
-    countupProxy("countUp-arts") %>% 
-      countup_update(reactiveVal__countFromTo$countTo)
-  })
-  
-  # output$arts_countUp <- renderCountup({
-  #   question <- as.numeric(input$arts_select)
-  #   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-  #     select(region, prop_resp, color, drilldown_central)
-  #   countup(df_region$prop_resp[df_region$region=='London'], start_at=df_region$prop_resp[df_region$region=='London'], duration = 800, start = T, options=list(suffix='%'))
-  # })
-  # 
-  # observeEvent(input$arts_select, {
-  #   question <- as.numeric(input$arts_select)
-  #   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-  #     select(region, prop_resp, color, drilldown_central)
-  #   countupProxy("arts_countUp") %>% 
-  #     countup_update(df_region$prop_resp[df_region$region=='London'])
-  # })
+      
+
+    
   
   
   
   
+  
+  
+  
+                 
   
   
   
@@ -948,13 +980,9 @@ server <- function(input, output, session) {
   # Mousover reactives
   #-----------------------
   reactive__arts_select <- reactive({req(input$arts_select)})
-  # reactive__region_name <- reactive({})
-  # reactive__region_val <- reactive({})
-  # reactive__region_dif <- reactive({})
   reactive__mouseOver_arts <- reactiveValues()
-  observeEvent(input$arts_chart_mouseOver$name, {   
-    # Default
-    if(is.null(input$arts_chart_mouseOver$name)) {
+  observeEvent(c(input$arts_tab, input$arts_chart_mouseOver$name,input$arts_currLevel, input$arts_map_mouseOver,input$arts_currLevelMap, input$arts_select), { 
+    observeEvent(c(input$arts_tab, input$arts_select, input$arts_currLevel, input$arts_currLevelMap), {
       reg_name <- 'London'
       reg_val <- 
         df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
@@ -968,7 +996,7 @@ server <- function(input, output, session) {
         filter(region=='London') %>%
         select(mean) %>%
         pull(1)
-      reg_eng_dif <- round(eng_val - reg_val,1)
+      reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <- 
         df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
         select(region, prop_resp) %>%
@@ -976,43 +1004,221 @@ server <- function(input, output, session) {
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
+      }, ignoreInit=T, ignoreNULL=T)
+    if (input$arts_tab=='chart') {
+      if(is.null(input$arts_chart_mouseOver$name)) {
+        #browser()
+        reg_name <- 'London'
+        reg_val <- 
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-  
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <- 
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+        #browser()
+      }
+      # On mouseOver
+      else {
+        
+        if (is.null(input$arts_currLevel)) {
+          reg_name <- input$arts_chart_mouseOver$name
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          #browser()
+        }
+        else if (input$arts_currLevel==1) {
+          reg_name <- input$arts_chart_mouseOver$name
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          # TODO TRY HERE!!!!!!!!
+          #browser() 
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
     }
-    # On mouseOver
-    else {
-      reg_name <- input$arts_chart_mouseOver$name
-      reg_val <- 
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-        select(region, prop_resp) %>%
-        filter(region==input$arts_chart_mouseOver$name) %>%
-        select(prop_resp) %>%
-        pull(1)
-      eng_val <-  
-        df_list[[as.numeric(1)]][['region']][['dataframe']] %>% 
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region==input$arts_chart_mouseOver$name) %>%
-        select(mean) %>%
-        pull(1)
-      #browser()
-      reg_eng_dif <- round(eng_val - reg_val,1)
-      reg_rank <- 
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
-        filter(region==input$arts_chart_mouseOver$name) %>%
-        select(rank) %>%
-        pull(1)
+    if (input$arts_tab=='map') {
+      if(is.null(input$arts_map_mouseOver)) {
+       # browser()
+        reg_name <- 'London'
+        reg_val <- 
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-  
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <- 
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+      }
+      # On mouseOver
+      else {
+        if (is.null(input$arts_currLevelMap)) {
+          #browser()
+          reg_name <- input$arts_map_mouseOver
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else if (input$arts_currLevelMap==1) {
+          #browser()
+          reg_name <- input$arts_map_mouseOver
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$arts_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-  
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <- 
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
     }
-    #browser()
     reactive__mouseOver_arts$reg_name <- reg_name
     reactive__mouseOver_arts$reg_val <- reg_val
     reactive__mouseOver_arts$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_arts$reg_rank <- reg_rank
-    # reactive__region_name <- reactive({reg_name})
-    # reactive__region_val <- reactive({reg_val})
-    # reactive__region_dif <- reactive({reg_eng_dif})
-    # add rank
-    #browser()
-  }, ignoreNULL=F, ignoreInit=F, priority=10
+    # browser()
+    # print('yo')
+  }, ignoreNULL=F, ignoreInit=F
   )
   # reactive__region_nameu <- reactive({reactive__region_name()})
   # reactive__region_valu <- reactive({reactive__region_val()})
@@ -1043,9 +1249,13 @@ server <- function(input, output, session) {
   #   
   # })
  
-  output$arts_region_text <- renderUI({
-    generate_region_text(input$arts_select, df_list, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank)
+  output$arts_region_headline_text <- renderUI({
+    generate_region_headline_text(input$arts_select, df_list)
   })
+  output$arts_region_summary_text <- renderUI({
+    generate_region_summary_text(input$arts_select, df_list, input$arts_currLevel, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank)
+  })
+  
   output$arts_borough_text <- renderUI({
     generate_borough_text(input$arts_select, df_list)
   })
@@ -1132,9 +1342,9 @@ server <- function(input, output, session) {
     question <- as.numeric(input$arts_select)
     # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
+      select(region, prop_resp, num_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
     df_borough <- df_list[[question ]][['borough']][['dataframe']]
     if ('error'%in%input$arts_compOps & 'mean'%ni%input$arts_compOps) { #delay(110)
       #browser()
@@ -1142,7 +1352,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1172,7 +1382,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1194,7 +1404,7 @@ server <- function(input, output, session) {
       else if (input$arts_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1226,7 +1436,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1249,7 +1459,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1281,7 +1491,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1306,36 +1516,36 @@ server <- function(input, output, session) {
       if (is.null(input$arts_currLevel)) {
         #browser()
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(500,
+        # delay(0,
+        #       shinyjs::runjs(
+        #         paste0(
+        #           "
+        #         var chart = $('#arts_chart').highcharts();
+        #           chart.yAxis[0].update({plotLines:
+        #             [{
+        #               value:",mean(df_region_central$prop_resp),",
+        #               color:'#d82222',
+        #               zIndex:99,
+        #               label: {
+        #                 text: 'England',
+        #                 verticalAlign: 'top',
+        #                 textAlign: 'center',
+        #                 rotation:0,
+        #                 y:-4,
+        #                 style: {
+        #                     color:'#d82222',
+        #                     fontWeight: 'normal',
+        #                     fontSize: '1.35vh'
+        #                 }
+        #               }
+        #             }]
+        #           });
+        #         console.log(chart);
+        #      "
+        #         )
+        #       )
+        # )
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1358,7 +1568,7 @@ server <- function(input, output, session) {
       else if (input$arts_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1389,7 +1599,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1412,7 +1622,7 @@ server <- function(input, output, session) {
       else if (input$arts_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1443,7 +1653,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1465,7 +1675,7 @@ server <- function(input, output, session) {
       }
       else {
       #   update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-      #   delay(500,
+      #   delay(300,
       #         shinyjs::runjs(
       #           paste0(
       #             "
@@ -1494,7 +1704,7 @@ server <- function(input, output, session) {
       #           )
       #         )
       #   )
-      #   delay(500,
+      #   delay(300,
       #         shinyjs::runjs(
       #           paste0(
       #             "
@@ -1520,7 +1730,7 @@ server <- function(input, output, session) {
     else if ('mean'%in%input$arts_compOps & 'error'%in%input$arts_compOps) {
       if (is.null(input$arts_currLevel)) {
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1550,7 +1760,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1571,7 +1781,7 @@ server <- function(input, output, session) {
       }
       else if (input$arts_currLevel==0) {
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1601,7 +1811,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1623,7 +1833,7 @@ server <- function(input, output, session) {
       }
       else{
         update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1653,7 +1863,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1675,7 +1885,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#arts_chart').highcharts();
@@ -1692,7 +1902,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#arts_chart').highcharts();
@@ -1805,6 +2015,51 @@ server <- function(input, output, session) {
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
   
+  
+  
+  reactive__countFromToArts <- reactive({
+    question <- as.numeric(input$arts_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+  })
+  
+  reactiveVal__countFromToArts <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromToArts(),{
+      reactiveVal__countFromToArts$countFrom <- reactiveVal__countFromToArts$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromToArts$countTo <- reactive__countFromToArts()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countToArts <- reactive({req(reactive__countFromToArts());  reactive__countFromToArts(); reactiveVal__countFromToArts$countTo})
+  reactive__countFromArts <- reactive({req(reactive__countFromToArts()); reactive__countFromToArts(); reactiveVal__countFromToArts$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$arts_select,once=T, ignoreNULL=F, ignoreInit=F, {
+      insertUI(
+        selector = "#countUp-ui-arts",
+        where = "afterEnd",
+        ui = div(generate_countUp(reactiveVal__countFromToArts$countTo, reactiveVal__countFromToArts$countFrom, 'arts'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+      )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromToArts$countTo, {
+    countupProxy("countUp-arts") %>% 
+      countup_update(reactiveVal__countFromToArts$countTo)
+  })
+  
+  
+  
   #=============================================================================
   # Libraries Server
   #=============================================================================
@@ -1859,13 +2114,6 @@ server <- function(input, output, session) {
   })
   
   
-  # observeEvent(input$libraries_currLevel, {
-  #   
-  #   if (input$libraries_currLevel)
-  #   
-  #   
-  # })
-  
   
   output$libraries_chart <- renderHighchart({
     generate_drilldown_chart(input$libraries_select, df_list, 'libraries', shinybrowser::get_height())
@@ -1875,12 +2123,264 @@ server <- function(input, output, session) {
   })
   
   
-  output$libraries_region_text <- renderUI({
-    generate_region_text(input$libraries_select, df_list)
+  reactive__libraries_select <- reactive({req(input$libraries_select)})
+  reactive__mouseOver_libraries <- reactiveValues()
+  observeEvent(c(input$libraries_tab, input$libraries_chart_mouseOver$name,input$libraries_currLevel, input$libraries_map_mouseOver,input$libraries_currLevelMap, input$libraries_select), {
+    observeEvent(c(input$libraries_tab, input$libraries_select, input$libraries_currLevel, input$libraries_currLevelMap), {
+      reg_name <- 'London'
+      reg_val <-
+        df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        filter(region=='London') %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-
+        df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region=='London') %>%
+        select(mean) %>%
+        pull(1)
+      reg_eng_dif <- round(reg_val - eng_val ,1)
+      reg_rank <-
+        df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region=='London') %>%
+        select(rank) %>%
+        pull(1)
+
+    }, ignoreInit=T, ignoreNULL=T)
+    if (input$libraries_tab=='chart') {
+      if(is.null(input$libraries_chart_mouseOver$name)) {
+        #browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+        #browser()
+      }
+      # On mouseOver
+      else {
+
+        if (is.null(input$libraries_currLevel)) {
+          reg_name <- input$libraries_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          #browser()
+        }
+        else if (input$libraries_currLevel==1) {
+          reg_name <- input$libraries_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$libraries_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          # TODO TRY HERE!!!!!!!!
+          #browser()
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    if (input$libraries_tab=='map') {
+      if(is.null(input$libraries_map_mouseOver)) {
+        # browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+      }
+      # On mouseOver
+      else {
+        if (is.null(input$libraries_currLevelMap)) {
+          #browser()
+          reg_name <- input$libraries_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else if (input$libraries_currLevelMap==1) {
+          #browser()
+          reg_name <- input$libraries_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$libraries_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    reactive__mouseOver_libraries$reg_name <- reg_name
+    reactive__mouseOver_libraries$reg_val <- reg_val
+    reactive__mouseOver_libraries$reg_eng_dif <- reg_eng_dif
+    reactive__mouseOver_libraries$reg_rank <- reg_rank
+    # browser()
+    # print('yo')
+  }, ignoreNULL=F, ignoreInit=F
+  )
+  
+  
+  output$libraries_region_headline_text <- renderUI({
+    generate_region_headline_text(input$libraries_select, df_list)
   })
+  output$libraries_region_summary_text <- renderUI({
+    generate_region_summary_text(input$libraries_select, df_list, input$libraries_currLevel, reactive__mouseOver_libraries$reg_name,  reactive__mouseOver_libraries$reg_val, reactive__mouseOver_libraries$reg_eng_dif, reactive__mouseOver_libraries$reg_rank)
+  })
+  
   output$libraries_borough_text <- renderUI({
     generate_borough_text(input$libraries_select, df_list)
   })
+  
+  
+  
+  
   
   observeEvent(input$libraries_select, {
     if (input$libraries_select!=LIBRARIES_QUESTIONS[1]) {
@@ -1898,6 +2398,8 @@ server <- function(input, output, session) {
     
     
   }, ignoreInit=T)
+  
+  
   
   observeEvent(input$libraries_previous, {
     current <- which(LIBRARIES_QUESTIONS == input$libraries_select)
@@ -1958,9 +2460,9 @@ server <- function(input, output, session) {
     question <- as.numeric(input$libraries_select)
     # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
+      select(region, prop_resp, num_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
     df_borough <- df_list[[question ]][['borough']][['dataframe']]
     if ('error'%in%input$libraries_compOps & 'mean'%ni%input$libraries_compOps) { #delay(110)
       #browser()
@@ -1968,7 +2470,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -1998,7 +2500,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2020,7 +2522,7 @@ server <- function(input, output, session) {
       else if (input$libraries_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2052,7 +2554,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2075,7 +2577,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2107,7 +2609,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2132,36 +2634,36 @@ server <- function(input, output, session) {
       if (is.null(input$libraries_currLevel)) {
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(500,
+        # delay(0,
+        #       shinyjs::runjs(
+        #         paste0(
+        #           "
+        #         var chart = $('#libraries_chart').highcharts();
+        #           chart.yAxis[0].update({plotLines:
+        #             [{
+        #               value:",mean(df_region_central$prop_resp),",
+        #               color:'#d82222',
+        #               zIndex:99,
+        #               label: {
+        #                 text: 'England',
+        #                 verticalAlign: 'top',
+        #                 textAlign: 'center',
+        #                 rotation:0,
+        #                 y:-4,
+        #                 style: {
+        #                     color:'#d82222',
+        #                     fontWeight: 'normal',
+        #                     fontSize: '1.35vh'
+        #                 }
+        #               }
+        #             }]
+        #           });
+        #         console.log(chart);
+        #      "
+        #         )
+        #       )
+        # )
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2184,7 +2686,7 @@ server <- function(input, output, session) {
       else if (input$libraries_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2215,7 +2717,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2238,7 +2740,7 @@ server <- function(input, output, session) {
       else if (input$libraries_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2269,7 +2771,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2291,7 +2793,7 @@ server <- function(input, output, session) {
       }
       else {
         #   update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        #   delay(500,
+        #   delay(300,
         #         shinyjs::runjs(
         #           paste0(
         #             "
@@ -2320,7 +2822,7 @@ server <- function(input, output, session) {
         #           )
         #         )
         #   )
-        #   delay(500,
+        #   delay(300,
         #         shinyjs::runjs(
         #           paste0(
         #             "
@@ -2346,7 +2848,7 @@ server <- function(input, output, session) {
     else if ('mean'%in%input$libraries_compOps & 'error'%in%input$libraries_compOps) {
       if (is.null(input$libraries_currLevel)) {
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2376,7 +2878,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2397,7 +2899,7 @@ server <- function(input, output, session) {
       }
       else if (input$libraries_currLevel==0) {
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2427,7 +2929,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2449,7 +2951,7 @@ server <- function(input, output, session) {
       }
       else{
         update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2479,7 +2981,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2501,7 +3003,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#libraries_chart').highcharts();
@@ -2518,7 +3020,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#libraries_chart').highcharts();
@@ -2632,6 +3134,47 @@ server <- function(input, output, session) {
   )
   
   
+  reactive__countFromToLibraries <- reactive({
+    question <- as.numeric(input$libraries_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+  })
+  
+  reactiveVal__countFromToLibraries <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromToLibraries(),{
+      reactiveVal__countFromToLibraries$countFrom <- reactiveVal__countFromToLibraries$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromToLibraries$countTo <- reactive__countFromToLibraries()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countToLibraries <- reactive({req(reactive__countFromToLibraries());  reactive__countFromToLibraries(); reactiveVal__countFromToLibraries$countTo})
+  reactive__countFromLibraries <- reactive({req(reactive__countFromToLibraries()); reactive__countFromToLibraries(); reactiveVal__countFromToLibraries$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$libraries_select,once=T, ignoreNULL=F, ignoreInit=F, {
+      insertUI(
+        selector = "#countUp-ui-libraries",
+        where = "afterEnd",
+        ui = div(generate_countUp(reactiveVal__countFromToLibraries$countTo, reactiveVal__countFromToLibraries$countFrom, 'libraries'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+      )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromToLibraries$countTo, {
+    countupProxy("countUp-libraries") %>% 
+      countup_update(reactiveVal__countFromToLibraries$countTo)
+  })
+  
   #=============================================================================
   # Heritage Server
   #=============================================================================
@@ -2686,28 +3229,273 @@ server <- function(input, output, session) {
   })
   
   
-  # observeEvent(input$heritage_currLevel, {
-  #   
-  #   if (input$heritage_currLevel)
-  #   
-  #   
-  # })
-  
   
   output$heritage_chart <- renderHighchart({
-    generate_drilldown_chart(input$heritage_select, df_list, 'libraries', shinybrowser::get_height())
+    generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
   })
   output$heritage_map <- renderHighchart({
-    generate_drilldown_map(input$heritage_select, df_list, 'libraries', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(input$heritage_select, df_list, 'heritage', QUESTION_LIST, bounds_region, bounds_borough)
   })
   
   
-  output$heritage_region_text <- renderUI({
-    generate_region_text(input$heritage_select, df_list)
+  reactive__heritage_select <- reactive({req(input$heritage_select)})
+  reactive__mouseOver_heritage <- reactiveValues()
+  observeEvent(c(input$heritage_tab, input$heritage_chart_mouseOver$name,input$heritage_currLevel, input$heritage_map_mouseOver,input$heritage_currLevelMap, input$heritage_select), {
+    observeEvent(c(input$heritage_tab, input$heritage_select, input$heritage_currLevel, input$heritage_currLevelMap), {
+      reg_name <- 'London'
+      reg_val <-
+        df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        filter(region=='London') %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-
+        df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region=='London') %>%
+        select(mean) %>%
+        pull(1)
+      reg_eng_dif <- round(reg_val - eng_val ,1)
+      reg_rank <-
+        df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region=='London') %>%
+        select(rank) %>%
+        pull(1)
+      
+    }, ignoreInit=T, ignoreNULL=T)
+    if (input$heritage_tab=='chart') {
+      if(is.null(input$heritage_chart_mouseOver$name)) {
+        #browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+        #browser()
+      }
+      # On mouseOver
+      else {
+        
+        if (is.null(input$heritage_currLevel)) {
+          reg_name <- input$heritage_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          #browser()
+        }
+        else if (input$heritage_currLevel==1) {
+          reg_name <- input$heritage_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$heritage_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          # TODO TRY HERE!!!!!!!!
+          #browser()
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    if (input$heritage_tab=='map') {
+      if(is.null(input$heritage_map_mouseOver)) {
+        # browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+      }
+      # On mouseOver
+      else {
+        if (is.null(input$heritage_currLevelMap)) {
+          #browser()
+          reg_name <- input$heritage_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else if (input$heritage_currLevelMap==1) {
+          #browser()
+          reg_name <- input$heritage_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$heritage_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    reactive__mouseOver_heritage$reg_name <- reg_name
+    reactive__mouseOver_heritage$reg_val <- reg_val
+    reactive__mouseOver_heritage$reg_eng_dif <- reg_eng_dif
+    reactive__mouseOver_heritage$reg_rank <- reg_rank
+    # browser()
+    # print('yo')
+  }, ignoreNULL=F, ignoreInit=F
+  )
+  
+  
+  output$heritage_region_headline_text <- renderUI({
+    generate_region_headline_text(input$heritage_select, df_list)
   })
+  output$heritage_region_summary_text <- renderUI({
+    generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank)
+  })
+  
   output$heritage_borough_text <- renderUI({
     generate_borough_text(input$heritage_select, df_list)
   })
+  
+  
+  
+  
   
   observeEvent(input$heritage_select, {
     if (input$heritage_select!=HERITAGE_QUESTIONS[1]) {
@@ -2725,6 +3513,7 @@ server <- function(input, output, session) {
     
     
   }, ignoreInit=T)
+  
   
   
   observeEvent(input$heritage_previous, {
@@ -2786,9 +3575,9 @@ server <- function(input, output, session) {
     question <- as.numeric(input$heritage_select)
     # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
+      select(region, prop_resp, num_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
     df_borough <- df_list[[question ]][['borough']][['dataframe']]
     if ('error'%in%input$heritage_compOps & 'mean'%ni%input$heritage_compOps) { #delay(110)
       #browser()
@@ -2796,7 +3585,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2826,7 +3615,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2848,7 +3637,7 @@ server <- function(input, output, session) {
       else if (input$heritage_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2880,7 +3669,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2903,7 +3692,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2935,7 +3724,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -2960,36 +3749,36 @@ server <- function(input, output, session) {
       if (is.null(input$heritage_currLevel)) {
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(500,
+        # delay(0,
+        #       shinyjs::runjs(
+        #         paste0(
+        #           "
+        #         var chart = $('#heritage_chart').highcharts();
+        #           chart.yAxis[0].update({plotLines:
+        #             [{
+        #               value:",mean(df_region_central$prop_resp),",
+        #               color:'#d82222',
+        #               zIndex:99,
+        #               label: {
+        #                 text: 'England',
+        #                 verticalAlign: 'top',
+        #                 textAlign: 'center',
+        #                 rotation:0,
+        #                 y:-4,
+        #                 style: {
+        #                     color:'#d82222',
+        #                     fontWeight: 'normal',
+        #                     fontSize: '1.35vh'
+        #                 }
+        #               }
+        #             }]
+        #           });
+        #         console.log(chart);
+        #      "
+        #         )
+        #       )
+        # )
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3012,7 +3801,7 @@ server <- function(input, output, session) {
       else if (input$heritage_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3043,7 +3832,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3066,7 +3855,7 @@ server <- function(input, output, session) {
       else if (input$heritage_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3097,7 +3886,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3119,7 +3908,7 @@ server <- function(input, output, session) {
       }
       else {
         #   update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        #   delay(500,
+        #   delay(300,
         #         shinyjs::runjs(
         #           paste0(
         #             "
@@ -3148,7 +3937,7 @@ server <- function(input, output, session) {
         #           )
         #         )
         #   )
-        #   delay(500,
+        #   delay(300,
         #         shinyjs::runjs(
         #           paste0(
         #             "
@@ -3174,7 +3963,7 @@ server <- function(input, output, session) {
     else if ('mean'%in%input$heritage_compOps & 'error'%in%input$heritage_compOps) {
       if (is.null(input$heritage_currLevel)) {
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3204,7 +3993,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3225,7 +4014,7 @@ server <- function(input, output, session) {
       }
       else if (input$heritage_currLevel==0) {
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3255,7 +4044,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3275,9 +4064,9 @@ server <- function(input, output, session) {
         )
         
       }
-      else {
+      else{
         update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3307,7 +4096,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(500,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3329,7 +4118,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#heritage_chart').highcharts();
@@ -3346,7 +4135,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(500,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#heritage_chart').highcharts();
@@ -3430,13 +4219,13 @@ server <- function(input, output, session) {
       req(input$heritage_currLevel)
       #browser()
       if (input$heritage_currLevel==0) {
-        shinyjs::show('libraries-text-drilldown')
+        shinyjs::show('heritage-text-drilldown')
       }
       else  {
-        shinyjs::hide('libraries-text-drilldown')
+        shinyjs::hide('heritage-text-drilldown')
       }
       observeEvent(c(input$heritage_select, input$heritage_tab), {
-        shinyjs::hide('libraries-text-drilldown')
+        shinyjs::hide('heritage-text-drilldown')
       }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
     
@@ -3445,13 +4234,13 @@ server <- function(input, output, session) {
       #delay(5000,
       req(input$heritage_currLevelMap)
       if (input$heritage_currLevelMap==0) {
-        shinyjs::show('libraries-text-drilldown')
+        shinyjs::show('heritage-text-drilldown')
       }
       else  {
-        shinyjs::hide('libraries-text-drilldown')
+        shinyjs::hide('heritage-text-drilldown')
       }
       observeEvent(c(input$heritage_select, input$heritage_tab), {
-        shinyjs::hide('libraries-text-drilldown')
+        shinyjs::hide('heritage-text-drilldown')
       }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
     
@@ -3459,16 +4248,64 @@ server <- function(input, output, session) {
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
   
+  
+  reactive__countFromToHeritage <- reactive({
+    question <- as.numeric(input$heritage_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+  })
+  
+  reactiveVal__countFromToHeritage <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromToHeritage(),{
+      reactiveVal__countFromToHeritage$countFrom <- reactiveVal__countFromToHeritage$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromToHeritage$countTo <- reactive__countFromToHeritage()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countToHeritage <- reactive({req(reactive__countFromToHeritage());  reactive__countFromToHeritage(); reactiveVal__countFromToHeritage$countTo})
+  reactive__countFromHeritage <- reactive({req(reactive__countFromToHeritage()); reactive__countFromToHeritage(); reactiveVal__countFromToHeritage$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$heritage_select,once=T, ignoreNULL=F, ignoreInit=F, {
+      insertUI(
+        selector = "#countUp-ui-heritage",
+        where = "afterEnd",
+        ui = div(generate_countUp(reactiveVal__countFromToHeritage$countTo, reactiveVal__countFromToHeritage$countFrom, 'heritage'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+      )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromToHeritage$countTo, {
+    countupProxy("countUp-heritage") %>% 
+      countup_update(reactiveVal__countFromToHeritage$countTo)
+  })
+  
+  
+  
   #=============================================================================
   # Sport Server
-  #============================================================================= 
+  #=============================================================================
   
   output$sport_previous_btn <- renderUI({
+    # tooltip(
     actionButton(
       "sport_previous", 
       "Previous",
       icon=icon("backward")
     )
+    #,
+    #'A fucking message'
+    #)
   })
   output$sport_next_btn <- renderUI({
     actionButton(
@@ -3477,45 +4314,39 @@ server <- function(input, output, session) {
       icon=icon("forward")
     )
   })
+  
+  
   output$sport_title_chart <- renderText({
     print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
   })
   output$sport_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
   })
-  
   output$sport_subtitle_chart <- renderText({
-   # if (is.null(input$sport_currLevel)) {
-      print(paste("Drilldown is not available due to absence of data at Borough level"))
-   # }
+    if (is.null(input$sport_currLevel)) {
+      print(paste("Click to drilldown into London by Borough"))
+    }
+    else if (input$sport_currLevel==0) {
+      print(paste("Click 'Back to Regions' to drillup" ))
+    }
+    else {
+      print(paste("Click to drilldown into London by Borough"))
+    }
   })
-  
   output$sport_subtitle_map <- renderText({
-    # if (is.null(input$sport_currLevel)) {
-    print(paste("Drilldown is not available due to absence of data at Borough level"))
-    # }
+    if (is.null(input$sport_currLevelMap)) {
+      print(paste("Click to drilldown into London by Borough"))
+    }
+    else if (input$sport_currLevelMap==0) {
+      print(paste("Click 'Back to Regions' to drillup" ))
+    }
+    else {
+      print(paste("Click to drilldown into London by Borough"))
+    }
   })
   
-  #   else if (input$sport_currLevel==0) {
-  #     print(paste("Click 'Back to Regions' to drillup" ))
-  #   }
-  #   else {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  # })
-  # output$sport_subtitle_map <- renderText({
-  #   if (is.null(input$sport_currLevel)) {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  #   else if (input$sport_currLevel==0) {
-  #     print(paste("Click 'Back to Regions' to drillup" ))
-  #   }
-  #   else {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  # })
-  # 
-  # 
+  
+  
   output$sport_chart <- renderHighchart({
     generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
   })
@@ -3524,12 +4355,264 @@ server <- function(input, output, session) {
   })
   
   
-  output$sport_region_text <- renderUI({
-    generate_region_text(input$sport_select, df_list)
+  reactive__sport_select <- reactive({req(input$sport_select)})
+  reactive__mouseOver_sport <- reactiveValues()
+  observeEvent(c(input$sport_tab, input$sport_chart_mouseOver$name,input$sport_currLevel, input$sport_map_mouseOver,input$sport_currLevelMap, input$sport_select), {
+    observeEvent(c(input$sport_tab, input$sport_select, input$sport_currLevel, input$sport_currLevelMap), {
+      reg_name <- 'London'
+      reg_val <-
+        df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        filter(region=='London') %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-
+        df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region=='London') %>%
+        select(mean) %>%
+        pull(1)
+      reg_eng_dif <- round(reg_val - eng_val ,1)
+      reg_rank <-
+        df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region=='London') %>%
+        select(rank) %>%
+        pull(1)
+      
+    }, ignoreInit=T, ignoreNULL=T)
+    if (input$sport_tab=='chart') {
+      if(is.null(input$sport_chart_mouseOver$name)) {
+        #browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+        #browser()
+      }
+      # On mouseOver
+      else {
+        
+        if (is.null(input$sport_currLevel)) {
+          reg_name <- input$sport_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          #browser()
+        }
+        else if (input$sport_currLevel==1) {
+          reg_name <- input$sport_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$sport_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          # TODO TRY HERE!!!!!!!!
+          #browser()
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    if (input$sport_tab=='map') {
+      if(is.null(input$sport_map_mouseOver)) {
+        # browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+      }
+      # On mouseOver
+      else {
+        if (is.null(input$sport_currLevelMap)) {
+          #browser()
+          reg_name <- input$sport_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else if (input$sport_currLevelMap==1) {
+          #browser()
+          reg_name <- input$sport_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$sport_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    reactive__mouseOver_sport$reg_name <- reg_name
+    reactive__mouseOver_sport$reg_val <- reg_val
+    reactive__mouseOver_sport$reg_eng_dif <- reg_eng_dif
+    reactive__mouseOver_sport$reg_rank <- reg_rank
+    # browser()
+    # print('yo')
+  }, ignoreNULL=F, ignoreInit=F
+  )
+  
+  
+  output$sport_region_headline_text <- renderUI({
+    generate_region_headline_text(input$sport_select, df_list)
   })
+  output$sport_region_summary_text <- renderUI({
+    generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank)
+  })
+  
   output$sport_borough_text <- renderUI({
     generate_borough_text(input$sport_select, df_list)
   })
+  
+  
+  
+  
   
   observeEvent(input$sport_select, {
     if (input$sport_select!=SPORT_QUESTIONS[1]) {
@@ -3549,6 +4632,7 @@ server <- function(input, output, session) {
   }, ignoreInit=T)
   
   
+  
   observeEvent(input$sport_previous, {
     current <- which(SPORT_QUESTIONS == input$sport_select)
     if(current > 1) {
@@ -3565,32 +4649,52 @@ server <- function(input, output, session) {
   )
   # 
   observeEvent(input$sport_next, {
-    #browser()
     current <- which(SPORT_QUESTIONS == input$sport_select)
     if(current < length(SPORT_QUESTIONS)){
       updateSelectInput(
         session, "sport_select",
         selected = SPORT_QUESTIONS[current + 1]
       )
-      # delay(1000,
-      # update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
-      # )
+      #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
       #update_drilldown_map(input$sport_select, df_list, "sport_map")
-      #browser()
       shinyjs::html(id = 'sport_region_text', html = generate_region_text(input$sport_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
   
+  # 
+  # observeEvent(c(input$sport_currLevel,input$sport_currLevelMap), {
+  #   if (is.null(input$sport_currLevel)) {
+  #     updateTextOutput(session, 'sport_subtitle_text')
+  #   }
+  #    if (is.null(input$sport_currLevelMap)) {
+  #      updateTextOutput(session, 'sport_subtitle_text')
+  #    }
+  #   
+  #   input$sport_currLevel
+  #   
+  # })
+  
+  observeEvent(input$sport_currLevel, {
+    print('level change')
+  })
+  
+  
   observeEvent(c(input$sport_compOps, input$sport_currLevel, input$sport_select), {
     
-    print(input$sport_currLevel)
+    # drillup event bug!!!
+    # https://github.com/blacklabel/custom_events/issues/139
+    
+    
+    
+    print(paste0('Current drilldown level: ',input$sport_currLevel))
+    # print(input$sport_currLevel)
     question <- as.numeric(input$sport_select)
-    print(question)
+    # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
+      select(region, prop_resp, num_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
     df_borough <- df_list[[question ]][['borough']][['dataframe']]
     if ('error'%in%input$sport_compOps & 'mean'%ni%input$sport_compOps) { #delay(110)
       #browser()
@@ -3598,7 +4702,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3611,15 +4715,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -3628,7 +4732,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3650,7 +4754,7 @@ server <- function(input, output, session) {
       else if (input$sport_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3662,16 +4766,16 @@ server <- function(input, output, session) {
                       color:'#d822221F',
                       zIndex:98,
                       label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        text: 'London',
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -3682,7 +4786,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3705,7 +4809,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3718,15 +4822,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -3737,7 +4841,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3762,36 +4866,36 @@ server <- function(input, output, session) {
       if (is.null(input$sport_currLevel)) {
         #browser()
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(1100,
+        # delay(0,
+        #       shinyjs::runjs(
+        #         paste0(
+        #           "
+        #         var chart = $('#sport_chart').highcharts();
+        #           chart.yAxis[0].update({plotLines:
+        #             [{
+        #               value:",mean(df_region_central$prop_resp),",
+        #               color:'#d82222',
+        #               zIndex:99,
+        #               label: {
+        #                 text: 'England',
+        #                 verticalAlign: 'top',
+        #                 textAlign: 'center',
+        #                 rotation:0,
+        #                 y:-4,
+        #                 style: {
+        #                     color:'#d82222',
+        #                     fontWeight: 'normal',
+        #                     fontSize: '1.35vh'
+        #                 }
+        #               }
+        #             }]
+        #           });
+        #         console.log(chart);
+        #      "
+        #         )
+        #       )
+        # )
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3811,10 +4915,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else if (input$sport_currLevel==0) { # drill level
+      else if (input$sport_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3825,14 +4929,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -3844,7 +4949,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3864,10 +4969,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else { # top level
+      else if (input$sport_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3885,7 +4990,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -3897,7 +5003,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3916,13 +5022,65 @@ server <- function(input, output, session) {
                 )
               )
         )
+      }
+      else {
+        #   update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+        #   delay(300,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#sport_chart').highcharts();
+        #             chart.yAxis[0].update({plotLines:
+        #               [{
+        #                 value:",mean(df_region_central$prop_resp),",
+        #                 color:'#d82222',
+        #                 zIndex:99,
+        #                 label: {
+        #                   text: 'England',
+        #           verticalAlign: 'top',
+        #           textAlign: 'center',
+        #           rotation:0,
+        #           y:-4,
+        #           style: {
+        #               color:'#d82222',
+        #               fontWeight: 'normal'
+        #           }
+        #           
+        #                 }
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
+        #   delay(300,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#sport_chart').highcharts();
+        #             chart.yAxis[0].update({plotBands:
+        #               [{
+        #                 from:0,
+        #                 to:0,
+        #                 color:'#d822221F',
+        #                 zIndex:98
+        # 
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
       }
       
     }
+    
     else if ('mean'%in%input$sport_compOps & 'error'%in%input$sport_compOps) {
       if (is.null(input$sport_currLevel)) {
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3940,7 +5098,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -3951,7 +5110,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3972,7 +5131,7 @@ server <- function(input, output, session) {
       }
       else if (input$sport_currLevel==0) {
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -3983,14 +5142,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4001,7 +5161,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4023,7 +5183,7 @@ server <- function(input, output, session) {
       }
       else{
         update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4041,7 +5201,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4052,7 +5213,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4074,7 +5235,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-      delay(1100,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#sport_chart').highcharts();
@@ -4091,7 +5252,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(1100,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#sport_chart').highcharts();
@@ -4110,7 +5271,7 @@ server <- function(input, output, session) {
       
       #browser()
     }
-  }, ignoreInit=F, ignoreNULL=T, priority=0)
+  }, ignoreInit=F, ignoreNULL=F, priority=0)
   
   
   
@@ -4130,20 +5291,6 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        shinyjs::runjs(
-          paste0(
-            "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      label: {
-                        text: 'London'
-                      }
-                    }]
-                  });
-            ")
-        )
-        
       }
       else {
         updateAwesomeCheckboxGroup(
@@ -4154,19 +5301,6 @@ server <- function(input, output, session) {
           ),
           selected=selected,
           inline=T
-        )
-        shinyjs::runjs(
-          paste0(
-            "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      label: {
-                        text: 'England'
-                      }
-                    }]
-                  });
-            ")
         )
       }
       
@@ -4180,40 +5314,115 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        highchartProxy('sport_chart') %>%
-          hcpxy_update(
-            subtitle=list(
-              text='Click to drilldown into London by Borough'
-            )
-          )
+        
       }, ignoreInit=T, ignoreNULL=T, priority=-4)
     }, ignoreInit=T, ignoreNULL=F, priority=-3
   )
-  observeEvent(c(input$sport_currLevel, input$currLevelMap), {
+  
+  observe({
+    print(input$sport_tab)
+  })
+  
+  observe({
+    print(paste0('my level =', input$sport_currLevelMap))
+  })
+  
+  
+  observeEvent(c(input$sport_currLevel, input$sport_currLevelMap, input$sport_tab), {
     
-    req(input$sport_currLevel)
-    if (input$sport_currLevel==0) {
-      shinyjs::show('sport-text-drilldown')
+    req(input$sport_tab) # still don't really understand req() but is required 
+    #browser()
+    if (input$sport_tab=='chart') {
+      req(input$sport_currLevel)
+      #browser()
+      if (input$sport_currLevel==0) {
+        shinyjs::show('sport-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('sport-text-drilldown')
+      }
+      observeEvent(c(input$sport_select, input$sport_tab), {
+        shinyjs::hide('sport-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    else  {
-      shinyjs::hide('sport-text-drilldown')
+    
+    else {
+      #browser()
+      #delay(5000,
+      req(input$sport_currLevelMap)
+      if (input$sport_currLevelMap==0) {
+        shinyjs::show('sport-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('sport-text-drilldown')
+      }
+      observeEvent(c(input$sport_select, input$sport_tab), {
+        shinyjs::hide('sport-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    observeEvent(c(input$sport_select), {
-      shinyjs::hide('sport-text-drilldown')
-    }, ignoreInit=T, ignoreNULL=T, priority=-2)
+    
+    
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
   
+  
+  reactive__countFromToSport <- reactive({
+    question <- as.numeric(input$sport_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+  })
+  
+  reactiveVal__countFromToSport <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromToSport(),{
+      reactiveVal__countFromToSport$countFrom <- reactiveVal__countFromToSport$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromToSport$countTo <- reactive__countFromToSport()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countToSport <- reactive({req(reactive__countFromToSport());  reactive__countFromToSport(); reactiveVal__countFromToSport$countTo})
+  reactive__countFromSport <- reactive({req(reactive__countFromToSport()); reactive__countFromToSport(); reactiveVal__countFromToSport$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$sport_select,once=T, ignoreNULL=F, ignoreInit=F, {
+      insertUI(
+        selector = "#countUp-ui-sport",
+        where = "afterEnd",
+        ui = div(generate_countUp(reactiveVal__countFromToSport$countTo, reactiveVal__countFromToSport$countFrom, 'sport'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+      )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromToSport$countTo, {
+    countupProxy("countUp-sport") %>% 
+      countup_update(reactiveVal__countFromToSport$countTo)
+  })
+  
+  
+  
   #=============================================================================
   # Tourism Server
-  #============================================================================= 
+  #=============================================================================
   
   output$tourism_previous_btn <- renderUI({
+    # tooltip(
     actionButton(
       "tourism_previous", 
       "Previous",
       icon=icon("backward")
     )
+    #,
+    #'A fucking message'
+    #)
   })
   output$tourism_next_btn <- renderUI({
     actionButton(
@@ -4222,45 +5431,39 @@ server <- function(input, output, session) {
       icon=icon("forward")
     )
   })
+  
+  
   output$tourism_title_chart <- renderText({
     print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
   })
   output$tourism_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
   })
-  
   output$tourism_subtitle_chart <- renderText({
-    # if (is.null(input$tourism_currLevel)) {
-    print(paste("Drilldown is not available due to absence of data at Borough level"))
-    # }
+    if (is.null(input$tourism_currLevel)) {
+      print(paste("Click to drilldown into London by Borough"))
+    }
+    else if (input$tourism_currLevel==0) {
+      print(paste("Click 'Back to Regions' to drillup" ))
+    }
+    else {
+      print(paste("Click to drilldown into London by Borough"))
+    }
   })
-  
   output$tourism_subtitle_map <- renderText({
-    # if (is.null(input$tourism_currLevel)) {
-    print(paste("Drilldown is not available due to absence of data at Borough level"))
-    # }
+    if (is.null(input$tourism_currLevelMap)) {
+      print(paste("Click to drilldown into London by Borough"))
+    }
+    else if (input$tourism_currLevelMap==0) {
+      print(paste("Click 'Back to Regions' to drillup" ))
+    }
+    else {
+      print(paste("Click to drilldown into London by Borough"))
+    }
   })
   
-  #   else if (input$tourism_currLevel==0) {
-  #     print(paste("Click 'Back to Regions' to drillup" ))
-  #   }
-  #   else {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  # })
-  # output$tourism_subtitle_map <- renderText({
-  #   if (is.null(input$tourism_currLevel)) {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  #   else if (input$tourism_currLevel==0) {
-  #     print(paste("Click 'Back to Regions' to drillup" ))
-  #   }
-  #   else {
-  #     print(paste("Click to drilldown into London by Borough"))
-  #   }
-  # })
-  # 
-  # 
+  
+  
   output$tourism_chart <- renderHighchart({
     generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
   })
@@ -4269,22 +5472,274 @@ server <- function(input, output, session) {
   })
   
   
-  output$tourism_region_text <- renderUI({
-    generate_region_text(input$tourism_select, df_list)
+  reactive__tourism_select <- reactive({req(input$tourism_select)})
+  reactive__mouseOver_tourism <- reactiveValues()
+  observeEvent(c(input$tourism_tab, input$tourism_chart_mouseOver$name,input$tourism_currLevel, input$tourism_map_mouseOver,input$tourism_currLevelMap, input$tourism_select), {
+    observeEvent(c(input$tourism_tab, input$tourism_select, input$tourism_currLevel, input$tourism_currLevelMap), {
+      reg_name <- 'London'
+      reg_val <-
+        df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        filter(region=='London') %>%
+        select(prop_resp) %>%
+        pull(1)
+      eng_val <-
+        df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+        mutate(mean = round(mean(prop_resp),1)) %>%
+        filter(region=='London') %>%
+        select(mean) %>%
+        pull(1)
+      reg_eng_dif <- round(reg_val - eng_val ,1)
+      reg_rank <-
+        df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+        select(region, prop_resp) %>%
+        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        filter(region=='London') %>%
+        select(rank) %>%
+        pull(1)
+      
+    }, ignoreInit=T, ignoreNULL=T)
+    if (input$tourism_tab=='chart') {
+      if(is.null(input$tourism_chart_mouseOver$name)) {
+        #browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+        #browser()
+      }
+      # On mouseOver
+      else {
+        
+        if (is.null(input$tourism_currLevel)) {
+          reg_name <- input$tourism_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          #browser()
+        }
+        else if (input$tourism_currLevel==1) {
+          reg_name <- input$tourism_chart_mouseOver$name
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$tourism_chart_mouseOver$name) %>%
+            select(rank) %>%
+            pull(1)
+          # TODO TRY HERE!!!!!!!!
+          #browser()
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    if (input$tourism_tab=='map') {
+      if(is.null(input$tourism_map_mouseOver)) {
+        # browser()
+        reg_name <- 'London'
+        reg_val <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          filter(region=='London') %>%
+          select(prop_resp) %>%
+          pull(1)
+        eng_val <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          mutate(mean = round(mean(prop_resp),1)) %>%
+          filter(region=='London') %>%
+          select(mean) %>%
+          pull(1)
+        reg_eng_dif <- round(reg_val - eng_val ,1)
+        reg_rank <-
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          select(region, prop_resp) %>%
+          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          filter(region=='London') %>%
+          select(rank) %>%
+          pull(1)
+      }
+      # On mouseOver
+      else {
+        if (is.null(input$tourism_currLevelMap)) {
+          #browser()
+          reg_name <- input$tourism_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else if (input$tourism_currLevelMap==1) {
+          #browser()
+          reg_name <- input$tourism_map_mouseOver
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(mean) %>%
+            pull(1)
+          #browser()
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region==input$tourism_map_mouseOver) %>%
+            select(rank) %>%
+            pull(1)
+        }
+        else {
+          reg_name <- 'London'
+          reg_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            filter(region=='London') %>%
+            select(prop_resp) %>%
+            pull(1)
+          eng_val <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(mean = round(mean(prop_resp),1)) %>%
+            filter(region=='London') %>%
+            select(mean) %>%
+            pull(1)
+          reg_eng_dif <- round(reg_val - eng_val ,1)
+          reg_rank <-
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            select(region, prop_resp) %>%
+            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            filter(region=='London') %>%
+            select(rank) %>%
+            pull(1)
+        }
+      }
+    }
+    reactive__mouseOver_tourism$reg_name <- reg_name
+    reactive__mouseOver_tourism$reg_val <- reg_val
+    reactive__mouseOver_tourism$reg_eng_dif <- reg_eng_dif
+    reactive__mouseOver_tourism$reg_rank <- reg_rank
+    # browser()
+    # print('yo')
+  }, ignoreNULL=F, ignoreInit=F
+  )
+  
+  
+  output$tourism_region_headline_text <- renderUI({
+    generate_region_headline_text(input$tourism_select, df_list)
   })
+  output$tourism_region_summary_text <- renderUI({
+    generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank)
+  })
+  
   output$tourism_borough_text <- renderUI({
     generate_borough_text(input$tourism_select, df_list)
   })
   
+  
+  
+  
+  
   observeEvent(input$tourism_select, {
     if (input$tourism_select!=TOURISM_QUESTIONS[1]) {
-      shinyjs::hide('tourism_previous_btn')
+      shinyjs::show('tourism_previous_btn')
     }
     if (input$tourism_select==TOURISM_QUESTIONS[1]) {
       shinyjs::hide('tourism_previous_btn')
     }
     if (input$tourism_select!=TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)]) {
-      shinyjs::hide('tourism_next_btn')
+      shinyjs::show('tourism_next_btn')
     }
     if (input$tourism_select==TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)])  { 
       shinyjs::hide('tourism_next_btn')
@@ -4292,6 +5747,7 @@ server <- function(input, output, session) {
     
     
   }, ignoreInit=T)
+  
   
   
   observeEvent(input$tourism_previous, {
@@ -4302,7 +5758,7 @@ server <- function(input, output, session) {
         selected = TOURISM_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
-      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+      update_drilldown_map(input$tourism_select, df_list, "tourism_map")
       generate_region_text(input$tourism_select, df_list)
       shinyjs::html(id = 'tourism_region_text', html =  generate_region_text(input$tourism_select, df_list))
     }
@@ -4310,32 +5766,52 @@ server <- function(input, output, session) {
   )
   # 
   observeEvent(input$tourism_next, {
-    #browser()
     current <- which(TOURISM_QUESTIONS == input$tourism_select)
     if(current < length(TOURISM_QUESTIONS)){
       updateSelectInput(
         session, "tourism_select",
         selected = TOURISM_QUESTIONS[current + 1]
       )
-      # delay(1000,
-      # update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
-      # )
-      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
-      #browser()
+      #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
+      update_drilldown_map(input$tourism_select, df_list, "tourism_map")
       shinyjs::html(id = 'tourism_region_text', html = generate_region_text(input$tourism_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
   
+  # 
+  # observeEvent(c(input$tourism_currLevel,input$tourism_currLevelMap), {
+  #   if (is.null(input$tourism_currLevel)) {
+  #     updateTextOutput(session, 'tourism_subtitle_text')
+  #   }
+  #    if (is.null(input$tourism_currLevelMap)) {
+  #      updateTextOutput(session, 'tourism_subtitle_text')
+  #    }
+  #   
+  #   input$tourism_currLevel
+  #   
+  # })
+  
+  observeEvent(input$tourism_currLevel, {
+    print('level change')
+  })
+  
+  
   observeEvent(c(input$tourism_compOps, input$tourism_currLevel, input$tourism_select), {
     
-    print(input$tourism_currLevel)
+    # drillup event bug!!!
+    # https://github.com/blacklabel/custom_events/issues/139
+    
+    
+    
+    print(paste0('Current drilldown level: ',input$tourism_currLevel))
+    # print(input$tourism_currLevel)
     question <- as.numeric(input$tourism_select)
-    print(question)
+    # print(question)
     df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, color, drilldown_central)
+      select(region, prop_resp, num_resp, color, drilldown_central)
     df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, prop_resp_ub, drilldown_error)
+      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
     df_borough <- df_list[[question ]][['borough']][['dataframe']]
     if ('error'%in%input$tourism_compOps & 'mean'%ni%input$tourism_compOps) { #delay(110)
       #browser()
@@ -4343,7 +5819,7 @@ server <- function(input, output, session) {
         #browser()
         #browser()
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4356,15 +5832,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
                     }]
                   });
@@ -4373,7 +5849,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4395,7 +5871,7 @@ server <- function(input, output, session) {
       else if (input$tourism_currLevel==0) { # drill level
         #browser()
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4407,16 +5883,16 @@ server <- function(input, output, session) {
                       color:'#d822221F',
                       zIndex:98,
                       label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        text: 'London',
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -4427,7 +5903,7 @@ server <- function(input, output, session) {
               )
              
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4450,7 +5926,7 @@ server <- function(input, output, session) {
         #browser()
         
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4463,15 +5939,15 @@ server <- function(input, output, session) {
                       zIndex:98,
                       label: {
                         text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
+                        verticalAlign: 'top',
+                        textAlign: 'center',
+                        rotation:0,
+                        y:-4,
+                        style: {
+                            color:'#d82222',
+                            fontWeight: 'normal',
+                            fontSize: '1.35vh'
+                        }
                       }
 
                     }]
@@ -4482,7 +5958,7 @@ server <- function(input, output, session) {
               )
         )
         
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4507,36 +5983,36 @@ server <- function(input, output, session) {
       if (is.null(input$tourism_currLevel)) {
         #browser()
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(1100,
+        # delay(0,
+        #       shinyjs::runjs(
+        #         paste0(
+        #           "
+        #         var chart = $('#tourism_chart').highcharts();
+        #           chart.yAxis[0].update({plotLines:
+        #             [{
+        #               value:",mean(df_region_central$prop_resp),",
+        #               color:'#d82222',
+        #               zIndex:99,
+        #               label: {
+        #                 text: 'England',
+        #                 verticalAlign: 'top',
+        #                 textAlign: 'center',
+        #                 rotation:0,
+        #                 y:-4,
+        #                 style: {
+        #                     color:'#d82222',
+        #                     fontWeight: 'normal',
+        #                     fontSize: '1.35vh'
+        #                 }
+        #               }
+        #             }]
+        #           });
+        #         console.log(chart);
+        #      "
+        #         )
+        #       )
+        # )
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4556,10 +6032,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else if (input$tourism_currLevel==0) { # drill level
+      else if (input$tourism_currLevel==0) { # Borough level
         #browser()
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4570,14 +6046,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4589,7 +6066,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4609,10 +6086,10 @@ server <- function(input, output, session) {
               )
         )
       }
-      else { # top level
+      else if (input$tourism_currLevel==1) { # top level
         #browser()
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4630,7 +6107,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4642,7 +6120,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4661,13 +6139,65 @@ server <- function(input, output, session) {
                 )
               )
         )
+      }
+      else {
+        #   update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+        #   delay(300,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#tourism_chart').highcharts();
+        #             chart.yAxis[0].update({plotLines:
+        #               [{
+        #                 value:",mean(df_region_central$prop_resp),",
+        #                 color:'#d82222',
+        #                 zIndex:99,
+        #                 label: {
+        #                   text: 'England',
+        #           verticalAlign: 'top',
+        #           textAlign: 'center',
+        #           rotation:0,
+        #           y:-4,
+        #           style: {
+        #               color:'#d82222',
+        #               fontWeight: 'normal'
+        #           }
+        #           
+        #                 }
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
+        #   delay(300,
+        #         shinyjs::runjs(
+        #           paste0(
+        #             "
+        #           var chart = $('#tourism_chart').highcharts();
+        #             chart.yAxis[0].update({plotBands:
+        #               [{
+        #                 from:0,
+        #                 to:0,
+        #                 color:'#d822221F',
+        #                 zIndex:98
+        # 
+        #               }]
+        #             });
+        #           console.log(chart);
+        #        "
+        #           )
+        #         )
+        #   )
       }
       
     }
+    
     else if ('mean'%in%input$tourism_compOps & 'error'%in%input$tourism_compOps) {
       if (is.null(input$tourism_currLevel)) {
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4685,7 +6215,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4696,7 +6227,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4717,7 +6248,7 @@ server <- function(input, output, session) {
       }
       else if (input$tourism_currLevel==0) {
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4728,14 +6259,15 @@ server <- function(input, output, session) {
                       color:'#d82222',
                       zIndex:99,
                       label: {
-                        text: 'England',
+                        text: 'London',
                 verticalAlign: 'top',
                 textAlign: 'center',
                 rotation:0,
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4746,7 +6278,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4768,7 +6300,7 @@ server <- function(input, output, session) {
       }
       else{
         update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4786,7 +6318,8 @@ server <- function(input, output, session) {
                 y:-4,
                 style: {
                     color:'#d82222',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal',
+                            fontSize: '1.35vh'
                 }
                 
                       }
@@ -4797,7 +6330,7 @@ server <- function(input, output, session) {
                 )
               )
         )
-        delay(1100,
+        delay(300,
               shinyjs::runjs(
                 paste0(
                   "
@@ -4819,7 +6352,7 @@ server <- function(input, output, session) {
     }
     else {
       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-      delay(1100,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#tourism_chart').highcharts();
@@ -4836,7 +6369,7 @@ server <- function(input, output, session) {
              "
             )
       )
-      delay(1100,
+      delay(300,
             shinyjs::runjs(
               "
                 var chart = $('#tourism_chart').highcharts();
@@ -4855,7 +6388,7 @@ server <- function(input, output, session) {
       
       #browser()
     }
-  }, ignoreInit=F, ignoreNULL=T, priority=0)
+  }, ignoreInit=F, ignoreNULL=F, priority=0)
   
   
   
@@ -4875,20 +6408,6 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        shinyjs::runjs(
-          paste0(
-            "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      label: {
-                        text: 'London'
-                      }
-                    }]
-                  });
-            ")
-        )
-        
       }
       else {
         updateAwesomeCheckboxGroup(
@@ -4899,19 +6418,6 @@ server <- function(input, output, session) {
           ),
           selected=selected,
           inline=T
-        )
-        shinyjs::runjs(
-          paste0(
-            "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      label: {
-                        text: 'England'
-                      }
-                    }]
-                  });
-            ")
         )
       }
       
@@ -4925,30 +6431,98 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-        highchartProxy('tourism_chart') %>%
-          hcpxy_update(
-            subtitle=list(
-              text='Click to drilldown into London by Borough'
-            )
-          )
+        
       }, ignoreInit=T, ignoreNULL=T, priority=-4)
     }, ignoreInit=T, ignoreNULL=F, priority=-3
   )
-  observeEvent(c(input$tourism_currLevel, input$currLevelMap), {
+  
+  observe({
+    print(input$tourism_tab)
+  })
+  
+  observe({
+    print(paste0('my level =', input$tourism_currLevelMap))
+  })
+  
+  
+  observeEvent(c(input$tourism_currLevel, input$tourism_currLevelMap, input$tourism_tab), {
     
-    req(input$tourism_currLevel)
-    if (input$tourism_currLevel==0) {
-      shinyjs::show('tourism-text-drilldown')
+    req(input$tourism_tab) # still don't really understand req() but is required 
+    #browser()
+    if (input$tourism_tab=='chart') {
+      req(input$tourism_currLevel)
+      #browser()
+      if (input$tourism_currLevel==0) {
+        shinyjs::show('tourism-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('tourism-text-drilldown')
+      }
+      observeEvent(c(input$tourism_select, input$tourism_tab), {
+        shinyjs::hide('tourism-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    else  {
-      shinyjs::hide('tourism-text-drilldown')
+    
+    else {
+      #browser()
+      #delay(5000,
+      req(input$tourism_currLevelMap)
+      if (input$tourism_currLevelMap==0) {
+        shinyjs::show('tourism-text-drilldown')
+      }
+      else  {
+        shinyjs::hide('tourism-text-drilldown')
+      }
+      observeEvent(c(input$tourism_select, input$tourism_tab), {
+        shinyjs::hide('tourism-text-drilldown')
+      }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-    observeEvent(c(input$tourism_select), {
-      shinyjs::hide('tourism-text-drilldown')
-    }, ignoreInit=T, ignoreNULL=T, priority=-2)
+    
+    
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
   
+  
+  reactive__countFromToTourism <- reactive({
+    question <- as.numeric(input$tourism_select)
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+      select(region, prop_resp, color, drilldown_central)
+    countTo <- df_region$prop_resp[df_region$region=='London']
+  })
+  
+  reactiveVal__countFromToTourism <-  reactiveValues(countFrom=0, countTo=0)
+  
+  observeEvent( 
+    reactive__countFromToTourism(),{
+      reactiveVal__countFromToTourism$countFrom <- reactiveVal__countFromToTourism$countTo; 
+      #print(reactiveVal__countFromTo$countFrom)
+      reactiveVal__countFromToTourism$countTo <- reactive__countFromToTourism()
+      #print(reactiveVal__countFromTo$countTo)
+    }
+  )
+  
+  reactive__countToTourism <- reactive({req(reactive__countFromToTourism());  reactive__countFromToTourism(); reactiveVal__countFromToTourism$countTo})
+  reactive__countFromTourism <- reactive({req(reactive__countFromToTourism()); reactive__countFromToTourism(); reactiveVal__countFromToTourism$countFrom})
+  
+  
+  output$countTo <- renderPrint({reactive__countTo()})
+  output$countFrom <- renderPrint({ reactive__countFrom()})
+  
+  
+  observeEvent(
+    input$tourism_select,once=T, ignoreNULL=F, ignoreInit=F, {
+      insertUI(
+        selector = "#countUp-ui-tourism",
+        where = "afterEnd",
+        ui = div(generate_countUp(reactiveVal__countFromToTourism$countTo, reactiveVal__countFromToTourism$countFrom, 'tourism'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+      )
+    }
+  )
+  
+  observeEvent(reactiveVal__countFromToTourism$countTo, {
+    countupProxy("countUp-tourism") %>% 
+      countup_update(reactiveVal__countFromToTourism$countTo)
+  })
   
    
 }
