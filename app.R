@@ -20,7 +20,6 @@ source('scripts/funs.R')
 
 
 DOWNLOAD_LATEST_DATA <- F
-
 SURVEY_PATH <- "data/Final_Revised_DCMS_Participation_Survey_annual_23-24_data_tables__Oct_2024_.ods"
 BOUNDS_REGION_PATH <- "data/regions-simplified3-topo.json"
 BOUNDS_BOROUGH_PATH <- "data/london_421-simplify41.json"
@@ -87,6 +86,14 @@ LIBRARIES_QUESTIONS <- 5:6
 HERITAGE_QUESTIONS <- 7:10
 SPORT_QUESTIONS <- 11:12
 TOURISM_QUESTIONS <- 13
+QUESTION_RANK_DIRECTION <- c(
+  'D', 'A', 'A', 'D', 
+  'D', 'D', 
+  'D', 'D', 'D', 'D',
+  'D', 'D',
+  'D'
+)
+THEMES <- c('arts', 'libraries', 'heritage', 'sport', 'tourism')
 `%ni%` <- Negate(`%in%`)
 
 # RANKING ASC/DESC LIST
@@ -100,12 +107,12 @@ options("scipen"=100, "digits"=4)
 
 df_list <- lapply(
   #1:length(QUESTION_LIST[['region']][['code']]), function(q) {
-  1:13, function(q) {
-    
+  REGION_QUESTION_NUM, function(q) {
     df_region <- generate_region_frame(
       SURVEY_PATH, 
       RELEASE_YEAR,
-      list('code'=QUESTION_LIST[['region']][['code']][[q]],'theme'=QUESTION_LIST[['region']][['theme']][q], 'color'=QUESTION_LIST[['region']][['color']][q])
+      list('code'=QUESTION_LIST[['region']][['code']][[q]],'theme'=QUESTION_LIST[['region']][['theme']][q], 'color'=QUESTION_LIST[['region']][['color']][q]),
+      QUESTION_RANK_DIRECTION[q]
     )
     
     if (QUESTION_LIST[['borough']][['code']][[q]]!="") {
@@ -128,6 +135,8 @@ df_list <- lapply(
     }
   }
 )
+
+df_headline <- generate_headline_frame(df_list, REGION_QUESTION_NUM, THEMES)
 
 
 
@@ -153,6 +162,311 @@ ui <- fluidPage(
   div(id='contents_ui',
       includeHTML('contents.html')
   ),
+  div(style='height:6vh;'),
+  
+  
+  #=============================================================================
+  # Headlines UI
+  #=============================================================================
+  div(id='headlines_ui',
+      fluidRow(
+        column(7,
+               div(class='tab-panel-ui',
+                   # shinyjs::hidden(
+                   #   pickerInput(
+                   #     inputId="arts_select",
+                   #     label="Question",
+                   #     choices = ARTS_QUESTIONS,
+                   #     selected=ARTS_QUESTIONS[1],
+                   #     multiple=F
+                   #   )
+                   # ),
+                   bslib::navset_bar(
+                     id='headlines_tab',
+                     nav_panel(
+                       title='Chart view', 
+                       value='chart',
+                       div(style='height:15vh; ',#background-color: #e10000;
+                           div(class='chart-title-buffer',
+                               div(HTML('Headline rank scores for London by DCMS sector'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                           ),
+                           div(class='chart-subtitle-buffer',
+                               div(HTML("Headline rank scores represent London's average (mean) ranking across selected survey questions<br>relative to the other 8 regions in England; the number of questions, <span style='font-style:normal !important'>q</span>, used to construct this average<br>is shown below the axis label of each data point"), style='font-size:2.4vh; line-height:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 important; font-style: italic !important ')
+                           )
+                           #,
+                           # shinyWidgets::awesomeCheckboxGroup(
+                           #   inputId='headlines_compOps',
+                           #   label='',
+                           #   choices=c(
+                           #     'England mean'='mean',
+                           #     'England error (95% CI)'='error'
+                           #   ),
+                           #   selected=c('mean'),
+                           #   inline=T
+                           # )
+                       ),
+                       div(class='chart-buffer'),
+                       shinycssloaders::withSpinner(
+                         highchartOutput('headlines_chart', height='73vh'),
+                         color = "#353D42"
+                       )
+                     ),
+                     # nav_panel(
+                     #   title='Map view',
+                     #   value='map',
+                     #   div(style='height:16vh;',
+                     #       div(style='height: .5vh'),
+                     #       div(class='chart-title-buffer',
+                     #           div(textOutput('arts_title_map'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+                     #       ),
+                     #       div(class='chart-subtitle-buffer',
+                     #           div(textOutput('arts_subtitle_map'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+                     #       )
+                     #   ),
+                     #   shinycssloaders::withSpinner(
+                     #     highchartOutput('arts_map', height='72vh'),
+                     #     color = "#6da7ded9"
+                     #   )
+                     # ),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_spacer(),
+                     nav_item(
+                       #shinyjs::hidden(uiOutput("arts_previous_btn")) ,
+                       # bsTooltip(
+                       #   id = "arts_previous_btn",
+                       #   title = 'View previous "Arts" question',
+                       #   placement = "bottom",
+                       #   trigger = "hover"
+                       # )
+                     ),
+                     nav_item(
+                       #uiOutput("arts_next_btn"),
+                       # bsTooltip(
+                       #   id = "arts_next_btn",
+                       #   title = 'View next "Arts" question',
+                       #   placement = "bottom",
+                       #   trigger = "hover"
+                       # )
+                     ),
+                     nav_item(
+                       shinyjs::hidden(
+                         pickerInput(
+                           inputId = "hidden1",
+                           choices = list(
+                             Group1 = c("1"),
+                             Group2 = c("A")
+                           )
+                         )
+                       )
+                     ),
+                     fluidRow(
+                       column(3),
+                       column(5)#,
+                     )
+                   )
+               )
+        ), 
+        column(5,
+               fluidRow(
+                 h2('Headlines', style='color:#353D42 !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
+               ),
+               fluidRow(
+                 div(
+                   style = "background-color: #353D42 !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%;",
+                   div(class='text-ui',
+                       div(style='height:2vh'),
+                       HTML(
+                         '
+                           <span style="color:#ffffff; font-size:2.2vw;  line-height:2.2vw;">
+                             Of the 9 regions in England,<br>
+                           </span>
+                           <span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw; ">
+                             London ranks:
+                           </span>
+                           <span style="color:#ffffff; font-size:1.4vw;  line-height:1.6vw; margin-top:-2vh">
+                             <div style="height:2vh"></div>
+                             <ul>
+                               <li>2<sup>nd</sup> for participation in <span style="color:#6da7de; font-weight:bold">Arts</span></li>
+                               <li>1<sup>st</sup> for participation in <span style="color:#ff38ba; font-weight:bold">Libraries</span></li>
+                               <li>2<sup>nd</sup> for participation in <span style="color:#5ea15d; font-weight:bold">Heritage</span></li>
+                               <li>8<sup>th</sup> for participation in <span style="color:#d82222; font-weight:bold">Sport</span></li>
+                               <li>9<sup>th</sup> for participation in <span style="color:#eb861e; font-weight:bold">Tourism</span></li>
+                             </ul>
+                           </span>
+                         '
+                       )
+                       #,
+                       # add key high scores on specific questions
+                       
+                       
+                      #div(id='countUp-ui-arts'),
+                       #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
+                       #htmlOutput("arts_region_headline_text"),
+                       #shinycssloaders::withSpinner(htmlOutput("arts_region_summary_text"),color='#ffffff', size=.5, proxy.height='25vh'),
+                       #shinycssloaders::withSpinner(,color = "#ffffff"),
+                       #uiOutput("mouseOver_ui"),
+                       # shinyjs::hidden(
+                       #   div(id='arts-text-drilldown',
+                       #       icon('arrow-down-long'),
+                       #       div(style='height:1.4vh'),
+                       #       htmlOutput("arts_borough_text")
+                       #   )
+                       # )
+                   )
+                 )
+               ),
+               fluidRow(
+                 div(style='height:2.5vh;'),
+                 div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+                   bslib::navset_bar(
+                     nav_item(
+                       #div(class='box headlines',
+                       HTML(
+                         '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines active">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_item(
+                       HTML(
+                         '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_item(
+                       HTML(
+                         '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_item(
+                       HTML(
+                         '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_item(
+                       HTML(
+                         '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                       )
+                     ),
+                     nav_spacer(),
+                     nav_item(
+                       HTML(
+                         '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                       )
+                     )#,
+                   )
+                 )
+               )
+        )
+      )
+  ),
+  div(style='height:6vh;'),
+  
+  # Of the 9 regions in England, London ranks:
+  #  1st for participation in Arts
+  #  2nd for participation in Libraries
+  #  8th for participation in Sport, and
+  #  9th for participation in Tourism
+  #
+  #  Participation in London was especially high for the following questions
+  #
+  #
+  
+  
+  # div(id='headlines_ui',
+  #   #div(style='height:5vh;'),
+  #   fluidRow(
+  #     column(7,
+  #       div(style='height:15vh; ',#background-color: #e10000;
+  #         div(class='chart-title-buffer',
+  #           div(HTML('A chart title'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
+  #         ),
+  #         div(class='chart-subtitle-buffer',
+  #           div(HTML('A chart subtitle'), style='font-size:2.4vh; line-height:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
+  #         ),
+  #       ),
+  #       div(class='chart-buffer'),
+  #       shinycssloaders::withSpinner(
+  #         highchartOutput('headlines_chart', height='73vh'),
+  #         color = "#353D42"
+  #       )
+  #     ),
+  #     column(5,
+  #       fluidRow(
+  #         h2('Headlines', style='color:#353D42; !important; font-size: 16vh; margin-top:0vh; right: 2vw; position:absolute')
+  #       ),
+  #       fluidRow(
+  #         div(
+  #           style = "background-color:#353D42; !important; margin-left:0vw; margin-right:0vw; height:70vh; border-radius:10% 0% 10% 0%",
+  #           div(class='text-ui',
+  #             div(style='height:2vh')
+  #           )
+  #         )
+  #       )
+  #     )
+  #   )
+  # ),
+  # div(style='height:6vh;'),
+  #       
+      
   
   
   #=============================================================================
@@ -282,6 +596,102 @@ ui <- fluidPage(
               )
             )
           )
+        )
+      ),
+      fluidRow(
+        div(style='height:2.5vh;'),
+        div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+            bslib::navset_bar(
+              nav_item(
+                #div(class='box headlines',
+                HTML(
+                  '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                )
+              ),
+              nav_spacer(),
+              nav_item(
+                HTML(
+                  '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts active">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                  
+                )
+              ),
+              nav_spacer(),
+              nav_item(
+                HTML(
+                  '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                )
+              ),
+              nav_spacer(),
+              nav_item(
+                HTML(
+                  '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                )
+              ),
+              nav_spacer(),
+              nav_item(
+                HTML(
+                  '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                )
+              ),
+              nav_spacer(),
+              nav_item(
+                HTML(
+                  '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                )
+              )#,
+            )
         )
       )
     )
@@ -414,6 +824,102 @@ ui <- fluidPage(
                          )
                        )
                    )
+                 )
+               ),
+               fluidRow(
+                 div(style='height:2.5vh;'),
+                 div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+                     bslib::navset_bar(
+                       nav_item(
+                         #div(class='box headlines',
+                         HTML(
+                           '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                         
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries active">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       )#,
+                     )
                  )
                )
         )
@@ -550,6 +1056,102 @@ ui <- fluidPage(
                    )
                )
              )
+           ),
+           fluidRow(
+             div(style='height:2.5vh;'),
+             div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+                 bslib::navset_bar(
+                   nav_item(
+                     #div(class='box headlines',
+                     HTML(
+                       '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                       
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage active">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   )#,
+                 )
+             )
            )
     )
   )
@@ -681,6 +1283,102 @@ ui <- fluidPage(
                    )
                )
              )
+           ),
+           fluidRow(
+             div(style='height:2.5vh;'),
+             div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+                 bslib::navset_bar(
+                   nav_item(
+                     #div(class='box headlines',
+                     HTML(
+                       '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                       
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport active">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   ),
+                   nav_spacer(),
+                   nav_item(
+                     HTML(
+                       '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                     )
+                   )#,
+                 )
+             )
            )
     )
   )
@@ -811,6 +1509,102 @@ ui <- fluidPage(
                        )
                    )
                  )
+               ),
+               fluidRow(
+                 div(style='height:2.5vh;'),
+                 div(class='section_nav_panel',style='margin-left:1vw; margin-right:0vw;',
+                     bslib::navset_bar(
+                       nav_item(
+                         #div(class='box headlines',
+                         HTML(
+                           '
+                         <div>
+                           <a href="#headlines_ui" style="text-decoration: none;">
+                             <div class="box headlines">
+                               <i class="fa-solid fa-chart-simple fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#arts_ui" style="text-decoration: none;">
+                             <div class="box arts">
+                               <i class="fa-solid fa-masks-theater fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+                         '
+                         
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#libraries_ui" style="text-decoration: none;">
+                             <div class="box libraries">
+                               <i class="fa-solid fa-book-open fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#heritage_ui" style="text-decoration: none;">
+                             <div class="box heritage">
+                               <i class="fa-solid fa-building-columns fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#sport_ui" style="text-decoration: none;">
+                             <div class="box sport">
+                               <i class="fa-solid fa-person-biking fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       ),
+                       nav_spacer(),
+                       nav_item(
+                         HTML(
+                           '
+                         <div>
+                           <a href="#tourism_ui" style="text-decoration: none;">
+                             <div class="box tourism active">
+                               <i class="fa-solid fa-mountain-sun fa-1x"></i>
+                             </div>
+                           </a>
+                         </div>
+
+                         '
+                         )
+                       )#,
+                     )
+                 )
                )
         )
       )
@@ -823,7 +1617,7 @@ ui <- fluidPage(
   ),
   
   # Set scroll reveal animation for each section - mwah!
-  scroll_reveal(target = c('#header_ui', '#contents_ui', "#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "#tourism_ui", '#header_ui', '#footer_ui'), duration=4000, distance="0%", delay=200)
+  scroll_reveal(target = c('#header_ui', '#contents_ui', '#headlines_ui', "#arts_ui", "#libraries_ui", "#heritage_ui", "#sport_ui", "#tourism_ui", '#header_ui', '#footer_ui'), duration=4000, distance="0%", delay=200)
 )
 
 
@@ -861,7 +1655,7 @@ server <- function(input, output, session) {
   #=============================================================================
   
   insertUI(
-    selector="#background-glide-box",
+    selector="#background-info-tabs",
     where='beforeEnd',
     ui=
     tabsetPanel(type='pills',
@@ -889,9 +1683,15 @@ server <- function(input, output, session) {
       )
     )
   )
+  
+  #=============================================================================
+  # Headlines Server
+  #=============================================================================
       
+  output$headlines_chart <- renderHighchart({
+    generate_headline_chart(df_headline, shinybrowser::get_height())
+  })
 
-    
   
   
   
@@ -915,7 +1715,7 @@ server <- function(input, output, session) {
    # tooltip(
     actionButton(
       "arts_previous", 
-      "Previous",
+      "Previous question",
       icon=icon("backward")
     )
     #,
@@ -925,7 +1725,7 @@ server <- function(input, output, session) {
   output$arts_next_btn <- renderUI({
     actionButton(
       "arts_next", 
-      "Next",
+      "Next question",
       icon=icon("forward")
     )
   })
@@ -982,6 +1782,7 @@ server <- function(input, output, session) {
   reactive__arts_select <- reactive({req(input$arts_select)})
   reactive__mouseOver_arts <- reactiveValues()
   observeEvent(c(input$arts_tab, input$arts_chart_mouseOver$name,input$arts_currLevel, input$arts_map_mouseOver,input$arts_currLevelMap, input$arts_select), { 
+    #browser()
     observeEvent(c(input$arts_tab, input$arts_select, input$arts_currLevel, input$arts_currLevelMap), {
       reg_name <- 'London'
       reg_val <- 
@@ -999,8 +1800,8 @@ server <- function(input, output, session) {
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <- 
         df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        select(region, prop_resp, rank_direction) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -1024,8 +1825,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <- 
           df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -1052,8 +1853,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -1077,9 +1878,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
-            filter(region==input$arts_chart_mouseOver$name) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             select(rank) %>%
             pull(1)
           # TODO TRY HERE!!!!!!!!
@@ -1102,9 +1902,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
-            filter(region=='London') %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             select(rank) %>%
             pull(1)
         }
@@ -1129,8 +1928,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <- 
           df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -1156,8 +1955,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -1181,8 +1980,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -1204,8 +2003,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <- 
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -2068,7 +2867,7 @@ server <- function(input, output, session) {
     # tooltip(
     actionButton(
       "libraries_previous", 
-      "Previous",
+      "Previous question",
       icon=icon("backward")
     )
     #,
@@ -2078,7 +2877,7 @@ server <- function(input, output, session) {
   output$libraries_next_btn <- renderUI({
     actionButton(
       "libraries_next", 
-      "Next",
+      "Next question",
       icon=icon("forward")
     )
   })
@@ -2143,8 +2942,8 @@ server <- function(input, output, session) {
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
         df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        select(region, prop_resp, rank_direction) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -2169,8 +2968,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -2197,8 +2996,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -2222,8 +3021,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -2247,8 +3046,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -2274,8 +3073,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -2301,8 +3100,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -2326,8 +3125,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -2349,8 +3148,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -3183,7 +3982,7 @@ server <- function(input, output, session) {
     # tooltip(
     actionButton(
       "heritage_previous", 
-      "Previous",
+      "Previous question",
       icon=icon("backward")
     )
     #,
@@ -3193,7 +3992,7 @@ server <- function(input, output, session) {
   output$heritage_next_btn <- renderUI({
     actionButton(
       "heritage_next", 
-      "Next",
+      "Next question",
       icon=icon("forward")
     )
   })
@@ -3258,8 +4057,8 @@ server <- function(input, output, session) {
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        select(region, prop_resp, rank_direction) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -3284,8 +4083,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -3312,8 +4111,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -3337,8 +4136,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -3362,8 +4161,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -3389,8 +4188,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -3416,8 +4215,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -3441,8 +4240,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -3464,8 +4263,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -4300,7 +5099,7 @@ server <- function(input, output, session) {
     # tooltip(
     actionButton(
       "sport_previous", 
-      "Previous",
+      "Previous question",
       icon=icon("backward")
     )
     #,
@@ -4310,7 +5109,7 @@ server <- function(input, output, session) {
   output$sport_next_btn <- renderUI({
     actionButton(
       "sport_next", 
-      "Next",
+      "Next question",
       icon=icon("forward")
     )
   })
@@ -4375,8 +5174,8 @@ server <- function(input, output, session) {
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        select(region, prop_resp, rank_direction) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -4401,8 +5200,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -4429,8 +5228,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -4454,8 +5253,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -4479,8 +5278,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -4506,8 +5305,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -4533,8 +5332,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -4558,8 +5357,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -4581,8 +5380,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -5417,7 +6216,7 @@ server <- function(input, output, session) {
     # tooltip(
     actionButton(
       "tourism_previous", 
-      "Previous",
+      "Previous question",
       icon=icon("backward")
     )
     #,
@@ -5427,7 +6226,7 @@ server <- function(input, output, session) {
   output$tourism_next_btn <- renderUI({
     actionButton(
       "tourism_next", 
-      "Next",
+      "Next question",
       icon=icon("forward")
     )
   })
@@ -5492,8 +6291,8 @@ server <- function(input, output, session) {
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-        select(region, prop_resp) %>%
-        mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+        select(region, prop_resp, rank_direction) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -5518,8 +6317,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -5546,8 +6345,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -5571,8 +6370,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -5596,8 +6395,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -5623,8 +6422,8 @@ server <- function(input, output, session) {
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-          select(region, prop_resp) %>%
-          mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+          select(region, prop_resp, rank_direction) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -5650,8 +6449,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -5675,8 +6474,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -5698,8 +6497,8 @@ server <- function(input, output, session) {
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            select(region, prop_resp) %>%
-            mutate(rank = scales::ordinal(rank(prop_resp, ties.method='min'))) %>%
+            select(region, prop_resp, rank_direction) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)

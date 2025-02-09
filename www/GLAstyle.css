@@ -1,16 +1,56 @@
 /* responsive layout for items placed in container - for larger screens*/
 
+.box {
+  width: 9vh;
+  height: 9vh;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
 
+.active {
+  opacity: 1 !important;
+}
+
+
+
+
+.headlines {
+  background-color: #353D42;
+  opacity: .3;
+}
+.arts {
+  background-color: #6da7de;
+  opacity: .3;
+}
+.libraries {
+  background-color: #ff38ba;
+  opacity: .3;
+}
+.heritage {
+  background-color: #5ea15d;
+  opacity: .3;
+}
+.sport {
+  background-color: #d82222;
+  opacity: .3;
+}
+.tourism {
+  background-color: #eb861e;
+  opacity: .3;
+}
 
 
 .flexrow-box {
   width: 100%; 
   margin: 0em 2.5vw; 
-  height: 30.8vh; 
+  height: 30vh; 
   background-color: #eeefef; 
   font-family: sans-serif; 
   text-align: center; 
-  line-height: 30.8vh; 
+  line-height: 30vh; 
   font-size: x-large;
   box-shadow: 22px -5px 33px -12px rgba(8,8,8,1);
 }
@@ -322,8 +362,6 @@ a {
 #header_ui {
   height: 100vh;
 }
-  height: 35vh;
-}
 
 
 #section-arts {
@@ -331,8 +369,8 @@ a {
 }
 
 .btn-default {
-  min-width: 8vw;
-  max-width: 8vw;
+  min-width: 10vw;
+  max-width: 10vw;
   background-color: #337ab7;
   color:white;
 }

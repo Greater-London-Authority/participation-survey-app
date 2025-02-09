@@ -478,7 +478,7 @@ scrape_and_write_survey_data <- function(release_year) {
 
 ################################################################################
 
-generate_region_frame <- function(survey_path, release_year, question) {
+generate_region_frame <- function(survey_path, release_year, question, rank_direction) {
   
   if (file.exists(survey_path)) {
     df <- read_ods(survey_path, sheet=paste0('Table_', question[['code']]), skip=3)
@@ -507,11 +507,11 @@ generate_region_frame <- function(survey_path, release_year, question) {
     mutate(region = fct_reorder(region, -prop_resp)) %>%
     arrange(region) %>%
     mutate(code = question[['code']]) %>%
-    mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=","))
+    mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=",")) %>%
+    mutate(`rank_direction`=rank_direction)
   
   # create drilldown_central and drilldown_error as london-central and london-error, or "" 
   # entirely where Question_lisrt drilldown is 0
-  
   
   return(list('dataframe'=df_region, 'title'=subtitle))
   
@@ -553,27 +553,171 @@ generate_borough_frame <- function(survey_path, release_year, question) {
     mutate(across(contains('resp'),~ round(.x,1))) %>%
     mutate(borough = fct_reorder(borough, -prop_resp)) %>%
     arrange(borough) %>%
-    mutate(code = question[['code']]) #%>% 
+    mutate(code = question[['code']]) 
     #mutate(num_resp = as.character(format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=",")))
 
   return(list('dataframe'=df_borough))
-  
-  
-  
+}
+
+generate_headline_frame <- function(df_list, region_question_num, themes) {
+
+   rankdf_list <- lapply(
+     region_question_num, function(q) {
+       dfrank <- df_list[[as.numeric(q)]][['region']][['dataframe']] %>%
+         mutate(rank = case_when(rank_direction=='D'~rank(desc(prop_resp), ties.method='min'), T~rank(prop_resp, ties.method='min'))) %>%
+         select(region, rank, color)
+     }
+   )
+   themedf_list <- lapply(
+     toupper(themes), function(theme) {
+       # temp fix##############
+       ARTS_QUESTIONS <- 1:4
+       LIBRARIES_QUESTIONS <- 5:6
+       HERITAGE_QUESTIONS <- 7:10
+       SPORT_QUESTIONS <- 11:12
+       TOURISM_QUESTIONS <- 13
+       ########################
+       themedf <- bind_rows(rankdf_list[eval(parse(text=paste0(theme,'_QUESTIONS')))]) %>%
+         filter(region=='London') %>%
+         mutate(average_rank = round(mean(rank),0)) %>% # TODO possibly go ordinal, not sur ehow that works with y axis, revisit later
+         mutate(qnum= length(eval(parse(text=paste0(theme,'_QUESTIONS'))))) %>%
+         mutate(theme=paste0(stringr::str_to_title(theme),'<br>(<i>q</i>=',qnum,')')) %>%
+         distinct(theme, .keep_all=T)
+     }
+   )
+   df_headline<- bind_rows(themedf_list)
+
+   return(df_headline)
+}
+
+
+generate_headline_chart <- function(df_headline, browser_height) {
+
+  highchart() %>%
+    hc_add_series(
+      name='',
+      id='',
+      type='bar',
+      showInLegend=F,
+      data=df_headline,
+      mapping=hcaes(x = factor(theme), y = average_rank, low=10,
+                    color=color)
+      #,
+      # dataLabels=list(
+      #   enabled=T,
+      #   format='{point.qnum}',
+      #   color = "white",
+      #   align = 'left',
+      #   #x = 60,
+      #   style = list(textOutline = T)
+      # )
+      #pointWidth=browser_height/19
+    ) %>%
+    hc_xAxis(
+      type='category',
+      title=list(enabled=F),
+      labels = list(
+        align='left',
+        reserveSpace=T,
+        style=list(
+          fontSize='2vh',
+          color='#9b9b9b',
+          fontFamily = "Arial",
+          fontWeight='300'
+        )
+      )
+    ) %>%
+    hc_yAxis(
+      title =list(enabled=F),
+      gridLineWidth=0,
+      tickInterval=1,
+      reversed=T,
+      min=1,
+      max=10,
+      #max=max_borough,
+      labels=list(
+        formatter=JS(
+          "
+          function() {
+            if (this.value==1)
+              return this.value + 'st';
+            else if ([4,5,6,7,8,9].includes(this.value))
+              return this.value + 'th';
+            else if (this.value==2)
+              return this.value + 'nd';
+            else if (this.value==3)
+              return this.value + 'rd';
+            else
+              return ''
+          }
+          "
+        ),
+        style=list(
+          fontSize='2vh',
+          color='#9b9b9b',
+          fontFamily = "Arial",
+          fontWeight='300'
+        )
+      )
+    ) %>%
+    hc_credits(
+      enabled=T,
+      useHTML=T,
+      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      href="",
+      position=list(
+        align='left',
+        x=10,
+        y=-10
+      ),
+      style =list(
+        fontSize='1.7vh',
+        color='#9b9b9b'
+      )
+    ) %>%
+    hc_tooltip(
+      valueSuffix= '',
+      borderWidth=2.6,
+      style=list(fontSize='1.35vh'),
+      shape='callout',
+      #shared=T,
+      useHTML = TRUE#,
+      #headerFormat = "" ,
+      #pointFormat="<span style='font-size:1.6vh;'> {point.key}</span><br>"
+      #formatter =
+      #JS(paste0()
+      #)
+      #
+
+      #point.point.options.num_resp
+      #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+    ) %>%
+    hc_exporting(
+      enabled=T
+    ) %>%
+    hc_legend(
+      enabled=F
+    ) %>%
+    hc_chart(
+      spacingBottom= browser_height/12, # needs to be adjusted
+      spacingTop=20
+    ) #%>%
+    #hc_plotOptions(
+      # dataLabels=list(
+      #   enabled=T,
+      #   format='{point.qnum}',
+      #   color = "white",
+      #   style = list(textOutline = T)
+      # )
+   # )
 }
 
 
 
 generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
   
-  # #
-  # question <- SPORT_QUESTIONS[2]
-  # theme <- 'Sport'
-  # browser_height <- 950
-  
 
 
-  
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp, color, drilldown_central, num_resp) #%>%
@@ -1449,7 +1593,7 @@ generate_region_text <- function(question, df_list, drill_level=NULL, reactive__
     paste0(
       "
       <div style='height:-1vh'></div>
-      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
       <ul>
       <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
       <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
@@ -1503,7 +1647,7 @@ generate_region_summary_text <- function(question, df_list, drill_level=NULL, re
     paste0(
       "
       <div style='height:-1vh'></div>
-      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
       <ul>
       <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
       <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
