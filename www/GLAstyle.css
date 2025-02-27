@@ -148,10 +148,31 @@
 
 
 
+table {
+  table-layout: fixed;
+  width: 72vw;
+  height:26vh;
+  border: none;
+}
+
+td {
+  border:  1px solid black;
+  overflow: visible;
+  white-space: wrap;
+  text-overflow: ellipsis;
+  font-size:2.2vh;
+  line-height:2.4vh;
+  border-spacing: 200px 2px
+}
 
 
+.multicolumn-text {
+  column-count: 4;
+  column-gap: 40px;
+  column-rule: 4px double #353d42;
+  align-items: center;
 
-
+}
 
 
 
@@ -411,7 +432,18 @@ a {
         width: 1vh !important; /*Desired width*/
         height: 1vh !important; /*Desired height*/
         line-height: 1vh !important; 
+        accent-color: red
       }
+
+.pretty.p-default input[value='mean']:checked~.state label:after {
+  background-color: #d82222 !important;
+}
+
+.pretty.p-default input[value='error']:checked~.state label:after {
+  background-color: #d8222266 !important;
+}
+
+  
   
   .shiny-input-checkboxgroup.shiny-input-container-inline label~.shiny-options-group, .shiny-input-radiogroup.shiny-input-container-inline label~.shiny-options-group {
     margin-top: 0vh;

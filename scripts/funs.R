@@ -503,7 +503,7 @@ generate_region_frame <- function(survey_path, release_year, question, rank_dire
     ) %>%
     filter(grepl('ITL1', level)) %>%
     mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
-    mutate(across(contains('resp'),~ round(as.numeric(as.character(.x)),1))) %>%
+    mutate(across(contains('resp'),~ as.numeric(as.character(.x)))) %>%
     mutate(region = fct_reorder(region, -prop_resp)) %>%
     arrange(region) %>%
     mutate(code = question[['code']]) %>%
@@ -521,7 +521,6 @@ generate_region_frame <- function(survey_path, release_year, question, rank_dire
 generate_borough_frame <- function(survey_path, release_year, question) {
   
   #question <- question <- list('code'=QUESTION_LIST[[2]][[1]][1],'theme'=QUESTION_LIST[[2]][[2]][1], 'color'=QUESTION_LIST[[2]][[3]][1])
-  
   # Load table
   if (file.exists(survey_path)) {
     df <- read_ods(
@@ -550,17 +549,18 @@ generate_borough_frame <- function(survey_path, release_year, question) {
       num_resp=paste0(gsub('_', '/', release_year), ' No. of respondents')
     ) %>%
     filter(grepl('London', region)) %>%
-    mutate(across(contains('resp'),~ round(.x,1))) %>%
+    mutate(across(contains('resp'),~ .x)) %>%
     mutate(borough = fct_reorder(borough, -prop_resp)) %>%
     arrange(borough) %>%
     mutate(code = question[['code']]) 
     #mutate(num_resp = as.character(format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=",")))
 
+  #browser()
   return(list('dataframe'=df_borough))
 }
 
 generate_headline_frame <- function(df_list, region_question_num, themes) {
-
+   #browser()
    rankdf_list <- lapply(
      region_question_num, function(q) {
        dfrank <- df_list[[as.numeric(q)]][['region']][['dataframe']] %>%
@@ -581,7 +581,8 @@ generate_headline_frame <- function(df_list, region_question_num, themes) {
          filter(region=='London') %>%
          mutate(average_rank = round(mean(rank),0)) %>% # TODO possibly go ordinal, not sur ehow that works with y axis, revisit later
          mutate(qnum= length(eval(parse(text=paste0(theme,'_QUESTIONS'))))) %>%
-         mutate(theme=paste0(stringr::str_to_title(theme),'<br>(<i>q</i>=',qnum,')')) %>%
+         mutate(theme=stringr::str_to_title(theme)) %>%
+         mutate(theme_long=paste0(stringr::str_to_title(theme),'<br>(<i>q</i>=',qnum,')')) %>%
          distinct(theme, .keep_all=T)
      }
    )
@@ -600,8 +601,8 @@ generate_headline_chart <- function(df_headline, browser_height) {
       type='bar',
       showInLegend=F,
       data=df_headline,
-      mapping=hcaes(x = factor(theme), y = average_rank, low=10,
-                    color=color)
+      mapping=hcaes(x = factor(theme_long), y = average_rank, low=10,
+                    color=color, name=theme)
       #,
       # dataLabels=list(
       #   enabled=T,
@@ -625,6 +626,15 @@ generate_headline_chart <- function(df_headline, browser_height) {
           fontFamily = "Arial",
           fontWeight='300'
         )
+        # formatter=paste0(
+        #   JS(
+        #     "
+        #       function() {
+        #         return this.value + this.qnum;
+        #       }
+        #     "
+        #   )
+        # )
       )
     ) %>%
     hc_yAxis(
@@ -663,7 +673,8 @@ generate_headline_chart <- function(df_headline, browser_height) {
     hc_credits(
       enabled=T,
       useHTML=T,
-      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      #'Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      text='Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24, DCMS</a>',
       href="",
       position=list(
         align='left',
@@ -681,9 +692,9 @@ generate_headline_chart <- function(df_headline, browser_height) {
       style=list(fontSize='1.35vh'),
       shape='callout',
       #shared=T,
-      useHTML = TRUE#,
-      #headerFormat = "" ,
-      #pointFormat="<span style='font-size:1.6vh;'> {point.key}</span><br>"
+      useHTML = TRUE,
+      headerFormat = "<span style='font-size:1.6vh;'>{point.point.theme}</span><br>" ,
+      pointFormat="<span style='color: {point.color}'>\u25CF</span> Average rank: {point.y}"
       #formatter =
       #JS(paste0()
       #)
@@ -693,14 +704,63 @@ generate_headline_chart <- function(df_headline, browser_height) {
       #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
     ) %>%
     hc_exporting(
-      enabled=T
+      enabled=T,
+      showExportInProgress=T,
+      buttons=list(
+        contextButton=list(
+          menuItems=c(
+            'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+          ),
+          symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
+          height=40,
+          width=48,
+          symbolSize=36,
+          symbolX=60,
+          symbolY=20,
+          symbolStrokeWidth=2
+          
+        )
+      ),
+      # sourceWidth=1600,
+      # sourceHeight= 1400,
+      sourceWidth=900,
+      sourceHeight= 700,
+      scale=3,
+      # width=1000,
+      # height=800,
+      chartOptions = list(
+        title=list(
+          text='Headline rank scores for London by DCMS sector',
+          align='left',
+          margin=35,
+          style = list(
+            #fontSize ="3.8vh",
+            fontSize =25 ,color = '#353d42',
+            fontFamily = "Arial", fontWeight = "450"
+          )
+        ),
+        subtitle=list(
+          text="Headline rank scores represent London's average (mean) ranking across selected survey questions relative to the other 8 regions in England; the number of questions, <span style='font-style:normal !important'>q</span>, used to construct this average is shown below the axis label of each data point",
+          useHTML=T,
+          align='left',
+          margin=35,
+          style = list(
+            #fontSize ="3.8vh",
+            fontSize =14.5 ,color = '#353d42',
+            fontFamily = "Arial", fontWeight = "250",
+            fontStyle='italic'
+          )
+          
+        )
+      )
     ) %>%
     hc_legend(
       enabled=F
     ) %>%
     hc_chart(
       spacingBottom= browser_height/12, # needs to be adjusted
-      spacingTop=20
+      spacingTop=20,
+      backgroundColor='#ffffff'
     ) #%>%
     #hc_plotOptions(
       # dataLabels=list(
@@ -716,243 +776,594 @@ generate_headline_chart <- function(df_headline, browser_height) {
 
 generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
   
-
+ 
+  # if (theme=='sport') {
+  #   browser()
+  # }
 
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, color, drilldown_central, num_resp) #%>%
+    select(region, prop_resp, color, drilldown_central, num_resp)  %>% mutate(id=region)
     #rename(fname=num_resp)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, drilldown_error, num_resp)#%>%
+    select(region, prop_resp_lb, prop_resp_ub, drilldown_error, num_resp) %>% mutate(id=region)
     #rename(fname=num_resp)
   subtitle <-  df_list[[question ]][['region']][['title']]
+  # if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+  #   df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+  #     select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+  # }
+  # else {
+  #   df_borough <- data.frame()
+  # }
+  #browser()
+  
   if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    
     df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
       select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+    
+    chart <- 
+      highchart() %>%
+      hc_add_series(
+        name='Central estimate',
+        id='region-central',
+        type='bar', 
+        showInLegend=F,
+        data=df_region_central, 
+        mapping=hcaes(x = region, y = round(prop_resp,1), 
+              color=color, drilldown=drilldown_central),
+        pointWidth=browser_height/19
+      ) %>%
+      hc_add_series(
+        name='Lower-Upper estimate',
+        id='region-error',
+        type='errorbar',
+        showInLegend=F,
+        data=df_region_error,
+        mapping=hcaes(x=region, low=round(prop_resp_lb,1),
+              high=round(prop_resp_ub,1), drilldown=drilldown_error)#,
+      ) %>%
+      hc_xAxis(
+        type='category',
+        title=list(enabled=F),
+        labels = list(
+          align='left',
+          reserveSpace=T,
+          style=list(
+            fontSize='2vh',
+            color='#9b9b9b',
+            fontFamily = "Arial",
+            fontWeight='300'
+          ),
+          formatter = JS(
+            "function() {
+                if (this.value =='London' ) {
+                console.log(this.value)
+                  return '<span style=\"color: black; font-weight:600; text-decoration:underline\">' + this.value + '</span>'; 
+                }
+                return this.value;
+              }"
+          )
+        ),
+        scrollbar=list(
+          enabled=T,
+          showFull=F,
+          margin=30,
+          barBackgroundColor=df_region_central$color[df_region_central$color!='#cccccc'],
+          #barBorderColor=df_region_central$color[df_region_central$color!='#cccccc'],
+          barBorderColor='#f2f2f2',
+          barBorderRadius=0,
+          barBorderWidth=1,
+          buttonBorderColor='#f2f2f2',
+          buttonBorderWidth=1,
+          buttonBackgroundColor=df_region_central$color[df_region_central$color!='#cccccc'],
+          buttonArrowColor='#ffffff',
+          rifleColor='#ffffff',
+          zIndex=9
+          #,
+          #
+        ),
+        min=0,
+        max=8
+      ) %>%
+      hc_yAxis(
+        title =list(enabled=F),
+        gridLineWidth=0,
+        tickInterval=10,
+        floor=0,
+        ceiling=100,
+        #max=max_borough,
+        labels=list(
+          format="{value}%",
+          style=list(
+            fontSize='2vh',
+            color='#9b9b9b',
+            fontFamily = "Arial",
+            fontWeight='300'
+          )
+        )
+        ,
+        plotLines=list(
+          list(
+            value=mean(df_region_central$prop_resp),
+            color='#d82222',
+            zIndex=99,
+            label=list(
+              text= 'England',
+              verticalAlign='top',
+              textAlign='center',
+              rotation=0,
+              y=-4,
+              style=list(
+                color='#d82222',
+                fontWeight='normal',
+                fontSize='1.35vh'
+              )
+            )
+          )
+        )
+        ,
+        plotBands=list(
+          list(
+            from=0,
+            to=0,
+            # from=0,
+            # to=0,
+            zIndex=98, 
+            color='#d822221F'
+          )
+        )
+        # ,
+        # plotBands=list(
+        #   list(
+        #     id='region-plotBand',
+        #     from=mean(df_region_error$prop_resp_lb),
+        #     to=mean(df_region_error$prop_resp_ub),
+        #     color='#eeeeee4D',
+        #     zIndex=98
+        #   )
+        # )
+      ) %>%
+      hc_drilldown(
+        allowPointDrilldown=T,
+        breadcrumbs=list(
+          showFullPath=F,
+          useHTML=T,
+          format= '&#x25c0; Back to Regions',
+          style=list(
+            fontSize='2.2vh'
+          ),
+          position=list(
+            align='right',
+            y=-47
+          )
+        ),
+        activeAxisLabelStyle = list(
+          textDecoration='none',
+          color='#9b9b9b',
+          fontWeight='normal'
+        ),
+        # TODO COULD TRY THIS SHIT HERE
+        # TODO not working!!!
+        #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/breadcrumbs/format
+        series = list(
+          list(
+            id='london-central',
+            name='Central estimate',
+            type='bar',
+            #keys=c('x', 'y', 'color', 'drilldown', 'n'),
+            showInLegend=F,
+            pointWidth=browser_height/19,
+            #pointWidth=(browser_height/19)*0.272,
+            data = list_parse2(
+              data.frame(
+                'borough'=df_borough$borough,
+                'prop_resp'=round(df_borough$prop_resp,1),
+                'num_resp'=df_borough$num_resp
+              )
+              #d
+            )
+            # ,
+            # tooltip = list(
+            #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.prop_resp})</span><br>"
+            # )
+            #,
+            # tooltip=list(
+            #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
+            # )
+            #,
+            # tooltip=list(
+            #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.num_resp})</span><br>",
+            #   shared=T
+            # )
+          ),
+          list(
+            id='london-error',
+            name='Lower-Upper estimate',
+            type='errorbar',
+            showInLegend=F,
+            data=list_parse2(
+              #d2
+              data.frame(
+                'borough'=df_borough$borough,
+                'prop_resp_lb'=round(df_borough$prop_resp_lb,1),
+                'prop_resp_ub'=round(df_borough$prop_resp_ub,1),
+                'number'=as.numeric(df_borough$num_resp)
+              )
+            )
+            #,
+            # tooltip=list(
+            #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
+            # )
+            #,
+            # tooltip=list(
+            #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.name})</span><br>",
+            #   shared=T
+            # )
+          )
+        )
+      ) %>%
+      hc_plotOptions(  #48-45
+        # bar = list(
+        #   pointWidth=browser_height/19
+        # ),
+        errorbar=list(
+          stemWidth= 1,
+          whiskerWidth=1,
+          whiskerLength= browser_height/19.5
+        )
+        #,
+        # series=list(
+        #   events=list(
+        #     # get drilldown level
+        #     drilldown=JS(
+        #       "function() {Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);}"
+        #     )
+        #   )
+        # )
+      ) %>%
+      # hc_title(
+      #   text=subtitle,
+      #   align='left',
+      #   margin=60,
+      #   style = list(
+      #     fontSize ="3.8vh",color = '#353d42',
+      #     fontFamily = "Arial", fontWeight = "450"
+      #   )
+      # ) %>%
+      # hc_subtitle(
+      #   text="Click to drilldown into London by Borough",
+      #   align='left',
+      #   style = list(
+      #     fontSize ="2.4vh",color = '#353d42', 
+      #     fontFamily = "Arial", fontWeight = "250",
+      #     fontStyle='italic'
+      #   )
+      # ) %>%
+      hc_credits(
+        enabled=T,
+        useHTML=T,
+        #'Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+        text='Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24, DCMS</a>',
+        href="",
+        position=list(
+          align='left',
+          x=10,
+          y=-10 
+        ),
+        style =list(
+          fontSize='1.7vh',
+          color='#9b9b9b'
+        )
+      ) %>%
+      hc_tooltip(
+        valueSuffix= '%',
+        borderWidth=2.6,
+        style=list(fontSize='1.35vh'),
+        shape='callout',
+        shared=T,
+        useHTML = TRUE,
+        headerFormat = "<span style='font-size:1.6vh;'> {point.key}</span><br>"  
+        #formatter = 
+          #JS(paste0()
+        #)
+        # 
+         
+        #point.point.options.num_resp
+        #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+      ) %>%
+      hc_exporting(
+        enabled=T,
+        showExportInProgress=T,
+        buttons=list(
+          contextButton=list(
+            menuItems=c(
+              'viewFullscreen', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+            ),
+            symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
+            height=40,
+            width=48,
+            symbolSize=36,
+            symbolX=60,
+            symbolY=20,
+            symbolStrokeWidth=2
+          )
+        ),
+        # sourceWidth=1600,
+        # sourceHeight= 1400,
+        sourceWidth=900,
+        sourceHeight= 700,
+        scale=3,
+        # width=1000,
+        # height=800,
+        chartOptions = list(
+          title=list(
+            text=subtitle,
+            align='left',
+            margin=35,
+            style = list(
+              #fontSize ="3.8vh",
+              fontSize =25 ,color = '#353d42',
+              fontFamily = "Arial", fontWeight = "450"
+            )
+          )
+        )
+      ) %>%
+      hc_legend(
+        enabled=F
+      ) %>%
+      hc_chart(
+        spacingBottom= browser_height/12, # needs to be adjusted
+        spacingTop=20,
+        backgroundColor='#ffffff',
+        animation=list(
+          duration=1000
+        ),
+        #backgroundColor='#fafafa',
+        events=list(
+          
+          # load=JS(
+          #   "
+          #   function() {
+          #   levDrillDown = -1;
+          #   levDrillUp=0;
+          #   "
+          #   ),
+          
+          drilldown=JS(
+            paste0(
+              # "
+              # function(e) {
+              # Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+              # }
+              # "
+              "
+              function() {
+              Shiny.onInputChange('",theme,"_currLevel',  0);
+              }
+              "
+  
+            
+            
+            
+            # paste0(
+            #   "
+            #   function() {
+            #     this.yAxis[0].removePlotLine('region-plotLine');
+            #     this.yAxis[0].addPlotLine(
+            #       {
+            #         id:'borough-plotLine',
+            #         value:",mean(df_borough$prop_resp),",
+            #         color:'#d82222',
+            #         zIndex:99
+            #       }
+            #     );
+            #     Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+            #   }
+            #   "
+            )
+          )
+          ,
+          drillup=JS(
+            # paste0(
+            #   "
+            #   function() {
+            #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+            #   }
+            #   "
+            paste0(
+              "
+              function(e) {
+              Shiny.onInputChange('",theme,"_currLevel',  1);
+              }
+  
+              "
+  
+              # "
+              # function() {
+              # this.yAxis[0].removePlotLine('borough-plotLine');
+              #   this.yAxis[0].addPlotLine(
+              #     {
+              #       id:'region-plotLine',
+              #       value:",mean(df_region_central$prop_resp),",
+              #       color:'#d82222',
+              #       zIndex:99
+              #     }
+              #   );
+              #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+              # }
+              # "
+            )
+          )
+          #,
+          # drillupAll=JS(
+          #   # paste0(
+          #   #   "
+          #   #   function() {
+          #   #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+          #   #   }
+          #   #   "
+          #   paste0(
+          #     "
+          #     function(e) {
+          #     Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
+          #     }
+          # 
+          #     "
+          #     
+          #     # "
+          #     # function() {
+          #     # this.yAxis[0].removePlotLine('borough-plotLine');
+          #     #   this.yAxis[0].addPlotLine(
+          #     #     {
+          #     #       id:'region-plotLine',
+          #     #       value:",mean(df_region_central$prop_resp),",
+          #     #       color:'#d82222',
+          #     #       zIndex:99
+          #     #     }
+          #     #   );
+          #     #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
+          #     # }
+          #     # "
+          #   )
+          # )
+        )
+      ) %>%
+      hc_add_event_point(event = "mouseOver")
+    
   }
+  
   else {
     df_borough <- data.frame()
-  }
-  
-
-  #%>%
-    #rename(fname=num_resp)# %>%
-    #mutate(num_resp = as.character(as.numeric(num_resp)))
-  
-  # 
-  # d <- df_borough %>% select(borough, prop_resp)
-  # d2 <- df_borough %>% select(borough, prop_resp_lb, prop_resp_ub)
-  #browser()
-  #max_borough <- max(df_borough$prop_resp_ub)
-  #browser()
-  # if (as.numeric(question)==1) {
-  #   browser()
-  # }
-  chart <- 
-    
-    highchart() %>%
-    hc_add_series(
-      name='Central estimate',
-      id='region-central',
-      type='bar', 
-      showInLegend=F,
-      data=df_region_central, 
-      mapping=hcaes(x = factor(region), y = round(prop_resp,1), 
-            color=color, drilldown=drilldown_central),
-      pointWidth=browser_height/19
-    ) %>%
-    hc_add_series(
-      name='Lower-Upper estimate',
-      id='region-error',
-      type='errorbar',
-      showInLegend=F,
-      data=df_region_error,
-      mapping=hcaes(x=factor(region), low=prop_resp_lb, 
-            high=prop_resp_ub, drilldown=drilldown_error)#,
-    ) %>%
-    hc_drilldown(
-      allowPointDrilldown=F,
-      breadcrumbs=list(
-        showFullPath=F,
-        useHTML=T,
-        format= '&#x25c0; Back to Regions',
-        style=list(
-          fontSize='2.2vh'
+    chart <- 
+      highchart() %>%
+      hc_add_series(
+        name='Central estimate',
+        id='region-central',
+        type='bar', 
+        showInLegend=F,
+        data=df_region_central, 
+        mapping=hcaes(x = region, y = round(prop_resp,1), 
+                      color=color),
+        pointWidth=browser_height/19
+      ) %>%
+      hc_add_series(
+        name='Lower-Upper estimate',
+        id='region-error',
+        type='errorbar',
+        showInLegend=F,
+        data=df_region_error,
+        mapping=hcaes(x=region, low=round(prop_resp_lb,1),
+                      high=round(prop_resp_ub,1))#,
+      ) %>%
+      hc_xAxis(
+        type='category',
+        title=list(enabled=F),
+        labels = list(
+          align='left',
+          reserveSpace=T,
+          style=list(
+            fontSize='2vh',
+            color='#9b9b9b',
+            fontFamily = "Arial",
+            fontWeight='300'
+          )
         ),
-        position=list(
-          align='right',
-          y=-47
-        )
-      ),
-      activeAxisLabelStyle = list(
-        color='black'
-      ),
-      # TODO COULD TRY THIS SHIT HERE
-      # TODO not working!!!
-      #https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/breadcrumbs/format
-      series = list(
-        list(
-          id='london-central',
-          name='Central estimate',
-          type='bar',
-          #keys=c('x', 'y', 'color', 'drilldown', 'n'),
-          showInLegend=F,
-          pointWidth=browser_height/19,
-          data = list_parse2(
-            data.frame(
-              borough=df_borough$borough,
-              prop_resp=df_borough$prop_resp,
-              num_resp=df_borough$num_resp
-            )
-            #d
-          )
-          # ,
-          # tooltip = list(
-          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.options.prop_resp})</span><br>"
-          # )
-          #,
-          # tooltip=list(
-          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
-          # )
-          #,
-          # tooltip=list(
-          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.num_resp})</span><br>",
-          #   shared=T
-          # )
+        scrollbar=list(
+          enabled=T,
+          showFull=F,
+          zIndex=0
         ),
-        list(
-          id='london-error',
-          name='Lower-Upper estimate',
-          type='errorbar',
-          showInLegend=F,
-          data=list_parse2(
-            #d2
-            data.frame(
-              'borough'=df_borough$borough,
-              'prop_resp_lb'=df_borough$prop_resp_lb,
-              'prop_resp_ub'=df_borough$prop_resp_ub,
-              'number'=as.numeric(df_borough$num_resp)
-            )
+        min=0,
+        max=8
+      ) %>%
+      hc_yAxis(
+        title =list(enabled=F),
+        gridLineWidth=0,
+        tickInterval=10,
+        #max=max_borough,
+        labels=list(
+          format="{value}%",
+          style=list(
+            fontSize='2vh',
+            color='#9b9b9b',
+            fontFamily = "Arial",
+            fontWeight='300'
           )
-          #,
-          # tooltip=list(
-          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.fname})</span><br>"
-          # )
-          #,
-          # tooltip=list(
-          #   headerFormat = "<span style='font-size:1.6vh;'> {point.key} (n={point.point.name})</span><br>",
-          #   shared=T
-          # )
         )
-      )
-
-    ) %>%
-    hc_xAxis(
-      type='category',
-      title=list(enabled=F),
-      labels = list(
-        align='left',
-        reserveSpace=T,
-        style=list(
-          fontSize='2vh',
-          color='#9b9b9b',
-          fontFamily = "Arial",
-          fontWeight='300'
-        )
-      ),
-      scrollbar=list(
-        enabled=T,
-        showFull=F
-      ),
-      min=0,
-      max=8
-    ) %>%
-    hc_yAxis(
-      title =list(enabled=F),
-      gridLineWidth=0,
-      tickInterval=10,
-      #max=max_borough,
-      labels=list(
-        format="{value}%",
-        style=list(
-          fontSize='2vh',
-          color='#9b9b9b',
-          fontFamily = "Arial",
-          fontWeight='300'
-        )
-      )
-      ,
-      plotLines=list(
-        list(
-          value=mean(df_region_central$prop_resp),
-          color='#d82222',
-          zIndex=99,
-          label=list(
-            text= 'England',
-            verticalAlign='top',
-            textAlign='center',
-            rotation=0,
-            y=-4,
-            style=list(
-              color='#d82222',
-              fontWeight='normal',
-              fontSize='1.35vh'
+        ,
+        plotLines=list(
+          list(
+            value=mean(df_region_central$prop_resp),
+            color='#d82222',
+            zIndex=99,
+            label=list(
+              text= 'England',
+              verticalAlign='top',
+              textAlign='center',
+              rotation=0,
+              y=-4,
+              style=list(
+                color='#d82222',
+                fontWeight='normal',
+                fontSize='1.35vh'
+              )
             )
           )
         )
-      )
-      ,
-      plotBands=list(
-        list(
-          from=0,
-          to=0,
-          # from=0,
-          # to=0,
-          zIndex=98, 
-          color='#d822221F'
+        ,
+        plotBands=list(
+          list(
+            from=0,
+            to=0,
+            # from=0,
+            # to=0,
+            zIndex=98, 
+            color='#d822221F'
+          )
         )
-      )
-      # ,
-      # plotBands=list(
-      #   list(
-      #     id='region-plotBand',
-      #     from=mean(df_region_error$prop_resp_lb),
-      #     to=mean(df_region_error$prop_resp_ub),
-      #     color='#eeeeee4D',
-      #     zIndex=98
+        # ,
+        # plotBands=list(
+        #   list(
+        #     id='region-plotBand',
+        #     from=mean(df_region_error$prop_resp_lb),
+        #     to=mean(df_region_error$prop_resp_ub),
+        #     color='#eeeeee4D',
+        #     zIndex=98
+        #   )
+        # )
+      ) %>%
+      hc_plotOptions(  #48-45
+        # bar = list(
+        #   pointWidth=browser_height/19
+        # ),
+        errorbar=list(
+          stemWidth= 1,
+          whiskerWidth=1,
+          whiskerLength= browser_height/19.5
+        )
+        #,
+        # series=list(
+        #   events=list(
+        #     # get drilldown level
+        #     drilldown=JS(
+        #       "function() {Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);}"
+        #     )
+        #   )
+        # )
+      ) %>%
+      # hc_title(
+      #   text=subtitle,
+      #   align='left',
+      #   margin=60,
+      #   style = list(
+      #     fontSize ="3.8vh",color = '#353d42',
+      #     fontFamily = "Arial", fontWeight = "450"
       #   )
-      # )
-    ) %>%
-    hc_plotOptions(  #48-45
-      # bar = list(
-      #   pointWidth=browser_height/19
-      # ),
-      errorbar=list(
-        stemWidth= 1,
-        whiskerWidth=1,
-        whiskerLength= browser_height/19.5
-      )
-      #,
-      # series=list(
-      #   events=list(
-      #     # get drilldown level
-      #     drilldown=JS(
-      #       "function() {Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);}"
-      #     )
-      #   )
-      # )
-    ) %>%
-    # hc_title(
-    #   text=subtitle,
-    #   align='left',
-    #   margin=60,
-    #   style = list(
-    #     fontSize ="3.8vh",color = '#353d42', 
-    #     fontFamily = "Arial", fontWeight = "450"
-    #   )
-    # ) %>%
-    # hc_subtitle(
-    #   text="Click to drilldown into London by Borough",
+      # ) %>%
+      # hc_subtitle(
+      #   text="Click to drilldown into London by Borough",
     #   align='left',
     #   style = list(
     #     fontSize ="2.4vh",color = '#353d42', 
@@ -963,7 +1374,8 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
     hc_credits(
       enabled=T,
       useHTML=T,
-      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      #'Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      text='Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24, DCMS</a>',
       href="",
       position=list(
         align='left',
@@ -975,142 +1387,80 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         color='#9b9b9b'
       )
     ) %>%
-    hc_tooltip(
-      valueSuffix= '%',
-      borderWidth=2.6,
-      style=list(fontSize='1.35vh'),
-      shape='callout',
-      shared=T,
-      useHTML = TRUE,
-      headerFormat = "<span style='font-size:1.6vh;'> {point.key}</span><br>"  
-      #formatter = 
+      hc_tooltip(
+        valueSuffix= '%',
+        borderWidth=2.6,
+        style=list(fontSize='1.35vh'),
+        shape='callout',
+        shared=T,
+        useHTML = TRUE,
+        headerFormat = "<span style='font-size:1.6vh;'> {point.key}</span><br>"  
+        #formatter = 
         #JS(paste0()
-      #)
-      # 
-       
-      #point.point.options.num_resp
-      #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
-    ) %>%
-    hc_exporting(
-      enabled=T
-    ) %>%
-    hc_legend(
-      enabled=F
-    ) %>%
-    hc_chart(
-      spacingBottom= browser_height/12, # needs to be adjusted
-      spacingTop=20,
-      #backgroundColor='#fafafa',
-      events=list(
-        
-        # load=JS(
-        #   "
-        #   function() {
-        #   levDrillDown = -1;
-        #   levDrillUp=0;
-        #   "
-        #   ),
-        
-        drilldown=JS(
-          paste0(
-            # "
-            # function(e) {
-            # Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
-            # }
-            # "
-            "
-            function() {
-            Shiny.onInputChange('",theme,"_currLevel',  0);
-            }
-            "
-
-          
-          
-          
-          # paste0(
-          #   "
-          #   function() {
-          #     this.yAxis[0].removePlotLine('region-plotLine');
-          #     this.yAxis[0].addPlotLine(
-          #       {
-          #         id:'borough-plotLine',
-          #         value:",mean(df_borough$prop_resp),",
-          #         color:'#d82222',
-          #         zIndex:99
-          #       }
-          #     );
-          #     Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-          #   }
-          #   "
-          )
-        )
-        ,
-        drillup=JS(
-          # paste0(
-          #   "
-          #   function() {
-          #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-          #   }
-          #   "
-          paste0(
-            "
-            function(e) {
-            Shiny.onInputChange('",theme,"_currLevel',  1);
-            }
-
-            "
-
-            # "
-            # function() {
-            # this.yAxis[0].removePlotLine('borough-plotLine');
-            #   this.yAxis[0].addPlotLine(
-            #     {
-            #       id:'region-plotLine',
-            #       value:",mean(df_region_central$prop_resp),",
-            #       color:'#d82222',
-            #       zIndex:99
-            #     }
-            #   );
-            #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-            # }
-            # "
-          )
-        )
-        #,
-        # drillupAll=JS(
-        #   # paste0(
-        #   #   "
-        #   #   function() {
-        #   #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-        #   #   }
-        #   #   "
-        #   paste0(
-        #     "
-        #     function(e) {
-        #     Shiny.onInputChange('",theme,"_currLevel', [this.series[0].options._levelNumber]);
-        #     }
+        #)
         # 
-        #     "
-        #     
-        #     # "
-        #     # function() {
-        #     # this.yAxis[0].removePlotLine('borough-plotLine');
-        #     #   this.yAxis[0].addPlotLine(
-        #     #     {
-        #     #       id:'region-plotLine',
-        #     #       value:",mean(df_region_central$prop_resp),",
-        #     #       color:'#d82222',
-        #     #       zIndex:99
-        #     #     }
-        #     #   );
-        #     #   Shiny.onInputChange('currLevel', [this.series[0].options._levelNumber]);
-        #     # }
-        #     # "
-        #   )
-        # )
-      )
-    ) %>%
-    hc_add_event_point(event = "mouseOver")
+        
+        #point.point.options.num_resp
+        #pointFormat = "<span style='font-size:1.6vh; font-weight: normal;'><span style='color:{point.color}'>\u25CF</span> {point.name}</span><br>Central estimate: <b>{point.prop_resp}%</b><br>Lower-Upper estimate: <b>{point.prop_resp_lb}% - {point.prop_resp_ub}%</b>"
+      ) %>%
+      hc_exporting(
+        enabled=T,
+        showExportInProgress=T,
+        buttons=list(
+          contextButton=list(
+            menuItems=c(
+              'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+            ),
+            symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
+            height=40,
+            width=48,
+            symbolSize=36,
+            symbolX=60,
+            symbolY=20,
+            symbolStrokeWidth=2
+            # theme=list(
+            #   style=list(
+            #     zIndex=999
+            #   )
+            # )
+          )
+        ),
+        # sourceWidth=1600,
+        # sourceHeight= 1400,
+        sourceWidth=900,
+        sourceHeight= 700,
+        scale=3,
+        # width=1000,
+        # height=800,
+        chartOptions = list(
+          title=list(
+            text=subtitle,
+            align='left',
+            margin=35,
+            style = list(
+              #fontSize ="3.8vh",
+              fontSize =25 ,color = '#353d42',
+              fontFamily = "Arial", fontWeight = "450"
+            )
+          )
+        )
+      ) %>%
+      hc_legend(
+        enabled=F
+      ) %>%
+      hc_chart(
+        spacingBottom= browser_height/12, # needs to be adjusted
+        spacingTop=20,
+        backgroundColor='#ffffff',
+        animation=list(
+          duration=1000
+        )
+      ) %>%
+      hc_add_event_point(event = "mouseOver")
+    
+  }
+
+    
   #chart
   #browser()
   # TODO Add tooltip to plotline and plotband https://jsfiddle.net/BlackLabel/nx0uo1rk/
@@ -1124,75 +1474,1394 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
 }
 
 
-update_drilldown_chart <- function(question, df_list, chart) {
+update_drilldown_chart <- function(question, df_list, chart, comp_ops, curr_level=NULL) {
   
+  `%ni%` <- Negate(`%in%`)
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, num_resp, color, drilldown_central)
+    select(region, prop_resp, num_resp, color, drilldown_central) %>% mutate(id=region)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)
+    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)  %>% mutate(id=region)
+  subtitle <-  df_list[[question ]][['region']][['title']]
+  # if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+  #   
+  # }
+  # else {
+  #   df_borough <- data.frame()
+  # }
+  #max_borough <- max(df_borough$prop_resp_ub)
+  ldn_index <- which(df_region_central$region=='London')-1
+  ldn_color <- unique(df_region_central$color[df_region_central$color!='#cccccc'])
+  reg_index <- c(0:8)[c(0:8) !=ldn_index]
+  
+  
+  #browser()
+  if (is.null(curr_level)) {
+    #browser()
+    #browser()
+    if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==F) {
+      # if (question==12) {
+      #   browser()
+      # }
+      df_borough <- data.frame()
+      proxy <- highchartProxy(chart) %>%
+      hcpxy_update_series(
+        id='region-central',
+        data=list_parse2(
+          data.frame(
+            region=df_region_central$region,
+            prop_resp=round(df_region_central$prop_resp,1)#,
+            #drilldown=rep(NA, 9)
+          )
+        )
+      ) %>%
+      hcpxy_update_series(
+        id='region-error',
+        data=list_parse2(
+          data.frame( 
+            region=df_region_error$region,
+            prop_resp_lb=round(df_region_error$prop_resp_lb,1),
+            prop_resp_ub=round(df_region_error$prop_resp_ub,1)#,
+            #drilldown=rep(NA, 9)
+          )
+        )
+      )  %>%
+      hcpxy_update_point(
+          id='region-central',
+          id_point = ldn_index,
+          color=ldn_color,
+          #drilldown='london-central',
+          marker=list(
+            color=ldn_color,
+            fillColor=ldn_color
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-error',
+          id_point = ldn_index#,
+          #drilldown='london-error'
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[1],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[2],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[3],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[4],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[5],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[6],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[7],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[8],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update(
+          xAxis=list(
+            labels = list(
+              style=list(
+                color='#9b9b9b'
+              )
+            )
+          ) 
+        )
+    }
+    if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+      # if (question==12) {
+      #   browser()
+      # }
+      df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+        select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+      proxy <- highchartProxy(chart) %>%
+        hcpxy_update_series(
+          id='region-central',
+          data=list_parse2(
+            data.frame(
+              region=df_region_central$region,
+              prop_resp=round(df_region_central$prop_resp,1),
+              drilldown=rep('london-central', 9)
+            )
+          )
+        ) %>%
+        hcpxy_update_series(
+          id='region-error',
+          data=list_parse2(
+            data.frame( 
+              region=df_region_error$region,
+              prop_resp_lb=round(df_region_error$prop_resp_lb,1),
+              prop_resp_ub=round(df_region_error$prop_resp_ub,1),
+              drilldown=rep('london-error', 9)
+            )
+          )
+        )  %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = ldn_index,
+          color=ldn_color,
+          drilldown='london-central',
+          marker=list(
+            color=ldn_color,
+            fillColor=ldn_color
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-error',
+          id_point = ldn_index,
+          drilldown='london-error'
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[1],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[2],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[3],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[4],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[5],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[6],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[7],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+        hcpxy_update_point(
+          id='region-central',
+          id_point = reg_index[8],
+          color='#cccccc',
+          marker=list(
+            color='#cccccc',
+            fillColor='#cccccc'
+          )
+        ) %>%
+      hcpxy_update(
+        drilldown=list(
+          series=list(
+            list(
+              id='london-central',
+              name='Central estimate',
+              type='bar',
+              pointWidth=shinybrowser::get_height()/19.5,
+              data=list_parse2(
+                data.frame(
+                  borough=df_borough$borough,
+                  prop_resp=round(df_borough$prop_resp,1),
+                  num_resp=df_borough$num_resp
+                )
+              )
+            ),
+            list(
+              id='london-error',
+              name='Lower-Upper estimate',
+              type='errorbar',
+              data=list_parse2(
+                data.frame(
+                  borough=df_borough$borough,
+                  prop_resp_lb=round(df_borough$prop_resp_lb,1),
+                  prop_resp_ub=round(df_borough$prop_resp_ub,1),
+                  num_resp=df_borough$num_resp
+                  
+                )
+              )
+            )
+          )
+        )
+        #,
+        # xAxis = list(
+        #   type='category'
+        # )
+      )
+    }
+  }
+  
+  else if (curr_level==1) {
+    df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+      select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+    #browser()
+    proxy <- highchartProxy(chart) %>%
+      # hcpxy_set_data(
+      #   type='bar',
+      #   data=df_region_central,
+      #   mapping=hcaes(
+      #     x=region,
+      #     y=round(prop_resp,1),
+      #     drilldown=drilldown_central
+      #   ),
+      #   updatePoints = F,
+      #   redraw=T
+      # ) %>%
+      # hcpxy_set_data(
+      #   type='errorbar',
+      #   data=df_region_error,
+      #   mapping=hcaes(
+      #     x=factor(region),
+      #     low=round(prop_resp_lb,1),
+      #     high=round(prop_resp_ub,1),
+      #     drilldown=drilldown_error,
+      #     id=id
+      #   ),
+      #   updatePoints = T,
+      #   redraw=F
+      # ) %>%
+    
+    # mapping=hcaes(x = region, y = round(prop_resp,1), 
+    #               color=color, drilldown=drilldown_central, id=id),
+    
+    
+    
+    
+    
+    
+    # hcpxy_update_series(
+    #   id='region-central',
+    #   data=#=df_region_central$prop_resp
+    #     list_parse2(
+    #       data.frame(
+    #         'region'=df_region_central$region,
+    #         'prop_resp'=round(df_region_central$prop_resp,1),
+    #         'color'=df_region_central$color,
+    #         'drilldown'=df_region_central$drilldown_central,
+    #         'num_resp'=df_region_central$num_resp, 'id'=df_region_central$id
+    #       )
+    #     )
+    # ) %>%
+    #   hcpxy_update_series(
+    #     id='region-error',
+    #     data=list_parse2(
+    #       data.frame(
+    #         'region'=df_region_error$region,
+    #         'prop_resp_lb'=round(df_region_error$prop_resp_lb,1),
+    #         'prop_resp_ub'=round(df_region_error$prop_resp_ub,1),
+    #         'drilldown'=df_region_error$drilldown_error,
+    #         'num_resp'=df_region_error$num_resp, id=df_region_error$id
+    #       )
+    #     )
+    #   ) %>%
+    # hcpxy_update_series(
+    #   id='region-central',
+    #   data=list_parse2(
+    #     data.frame(
+    #       region=df_region_central$region,
+    #       prop_resp=round(df_region_central$prop_resp,1),
+    #       drilldown=rep('london-central', 9)
+    #     ))#,
+    #   #,
+    #   #drilldown=df_region_central$drilldown_central
+    # ) %>%
+    hcpxy_update_series(
+      id='region-central',
+      data=list_parse2(
+        data.frame(
+          region=df_region_central$region,
+          prop_resp=round(df_region_central$prop_resp,1),
+          drilldown=rep('london-central', 9)
+        ))#,
+      #,
+      #drilldown=df_region_central$drilldown_central
+    ) %>%
+      hcpxy_update_series(
+        id='region-error',
+        data=list_parse2(
+          data.frame(
+            region=df_region_error$region,
+            prop_resp_lb=round(df_region_error$prop_resp_lb,1),
+            prop_resp_ub=round(df_region_error$prop_resp_ub,1),
+            drilldown=rep('london-error', 9)
+          )
+        )
+      ) %>%
+      # hcpxy_set_data(
+      #   type='bar',
+      #   data=df_region_central,
+      #   mapping=hcaes(
+      #     x=region,
+      #     y=round(prop_resp,1),
+      #     drilldown=drilldown_central
+      #   ),
+      #   updatePoints = F,
+      #   redraw=F
+      # ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = ldn_index,
+        color=ldn_color,
+        drilldown='london-central',
+        marker=list(
+          color=ldn_color,
+          fillColor=ldn_color
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[1],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[2],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[3],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[4],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[5],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[6],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[7],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update_point(
+        id='region-central',
+        id_point = reg_index[8],
+        color='#cccccc',
+        marker=list(
+          color='#cccccc',
+          fillColor='#cccccc'
+        )
+      ) %>%
+      hcpxy_update(
+        drilldown=list(
+          series=list(
+            list(
+              id='london-central',
+              name='Central estimate',
+              type='bar',
+              pointWidth=shinybrowser::get_height()/19.5,
+              data=list_parse2(
+                data.frame(
+                  borough=df_borough$borough,
+                  prop_resp=round(df_borough$prop_resp,1),
+                  num_resp=df_borough$num_resp
+                )
+              )
+            ),
+            list(
+              id='london-error',
+              name='Lower-Upper estimate',
+              type='errorbar',
+              data=list_parse2(
+                data.frame(
+                  borough=df_borough$borough,
+                  prop_resp_lb=round(df_borough$prop_resp_lb,1),
+                  prop_resp_ub=round(df_borough$prop_resp_ub,1)
+                )
+              )
+            )
+          )
+        )
+      )
+    # if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
+    #   proxy <- proxy %>%
+    #     hcpxy_update(
+    #       yAxis=list(
+    #         plotLines=list(
+    #           list(
+    #             value=mean(df_region_central$prop_resp),
+    #             color='#d82222',
+    #             zIndex=99,
+    #             label=list(
+    #               text= 'England',
+    #               verticalAlign='top',
+    #               textAlign='center',
+    #               rotation=0,
+    #               y=-4,
+    #               style=list(
+    #                 color='#d82222',
+    #                 fontWeight='normal',
+    #                 fontSize='1.35vh'
+    #               )
+    #             )
+    #           )
+    #         ),
+    #         plotBands=list(
+    #           list(
+    #             from=mean(df_region_error$prop_resp_lb),
+    #             to=mean(df_region_error$prop_resp_ub),
+    #             color='#d8222200',
+    #             zIndex=98,
+    #             label=list(
+    #               text= ''
+    #             )
+    #           )
+    #         )
+    #       )
+    #     )
+    # }
+    # else if ('mean'%ni%comp_ops & 'error'%in%comp_ops) {
+    #   proxy <- proxy %>%
+    #     hcpxy_update(
+    #       yAxis=list(
+    #         plotLines=list(
+    #           list(
+    #             value=mean(df_region_central$prop_resp),
+    #             color='#d8222200',
+    #             zIndex=99,
+    #             label=list(
+    #               text= ''
+    #             )
+    #           )
+    #         ),
+    #         plotBands=list(
+    #           list(
+    #             from=mean(df_region_error$prop_resp_lb),
+    #             to=mean(df_region_error$prop_resp_ub),
+    #             color='#d822221F',
+    #             zIndex=98,
+    #             label=list(
+    #               text= 'England',
+    #               verticalAlign='top',
+    #               textAlign='center',
+    #               rotation=0,
+    #               y=-4,
+    #               style=list(
+    #                 color='#d82222',
+    #                 fontWeight='normal',
+    #                 fontSize='1.35vh'
+    #               )
+    #             )
+    #           )
+    #         )
+    #       )
+    #     )
+    # }
+    # else if ('mean'%in%comp_ops & 'error'%in%comp_ops) {
+    #   proxy <- proxy %>%
+    #     hcpxy_update(
+    #       yAxis=list(
+    #         plotLines=list(
+    #           list(
+    #             value=mean(df_region_central$prop_resp),
+    #             color='#d82222',
+    #             zIndex=99,
+    #             label=list(
+    #               text= 'England',
+    #               verticalAlign='top',
+    #               textAlign='center',
+    #               rotation=0,
+    #               y=-4,
+    #               style=list(
+    #                 color='#d82222',
+    #                 fontWeight='normal',
+    #                 fontSize='1.35vh'
+    #               )
+    #             )
+    #           )
+    #         ),
+    #         plotBands=list(
+    #           list(
+    #             from=mean(df_region_error$prop_resp_lb),
+    #             to=mean(df_region_error$prop_resp_ub),
+    #             color='#d822221F',
+    #             zIndex=98,
+    #             label=list(
+    #               text= ''
+    #             )
+    #           )
+    #         )
+    #       )
+    #     )
+    # }
+    # else {
+    #   proxy <- proxy %>%
+    #     hcpxy_update(
+    #       yAxis=list(
+    #         plotLines=list(
+    #           list(
+    #             value=mean(df_region_central$prop_resp),
+    #             color='#d8222200',
+    #             zIndex=99,
+    #             label=list(
+    #               text= ''
+    #             )
+    #           )
+    #         ),
+    #         plotBands=list(
+    #           list(
+    #             from=mean(df_region_error$prop_resp_lb),
+    #             to=mean(df_region_error$prop_resp_ub),
+    #             color='#d8222200',
+    #             zIndex=98,
+    #             label=list(
+    #               text= ''
+    #             )
+    #           )
+    #         )
+    #       )
+    #     )
+    # }
+  }
+  
+  else {  # THIS IS THE PROBLEM!!!
+    df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+      select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp)
+    proxy <- highchartProxy(chart) #%>%
+      # hcpxy_set_data(
+      #   type='bar',
+      #   data=df_region_central,
+      #   mapping=hcaes(
+      #     x=region,
+      #     y=round(prop_resp,1),
+      #     drilldown=drilldown_central
+      #   ),
+      #   updatePoints = F,
+      #   redraw=T
+      #  ) %>%
+      # hcpxy_set_data(
+      #   type='errorbar',
+      #   data=df_region_error,
+      #   mapping=hcaes(
+      #     x=factor(region),
+      #     low=round(prop_resp_lb,1),
+      #     high=round(prop_resp_ub,1),
+      #     drilldown=drilldown_error,
+      #     id=id
+      #   ),
+      #   updatePoints = T,
+      #   redraw=F
+      # ) #%>%
+      # hcpxy_set_data(
+      #   'errorbar',
+      #   df_region_error,
+      #   mapping=hcaes(
+      #     region=factor(region),
+      #     prop_resp_lb=round(prop_resp_lb,1),
+      #     prop_resp_ub=round(prop_resp_ub,1),
+      #     num_resp=num_resp, id=id
+      #   ),
+      #   updatePoints = T, 
+      #   redraw=F
+      # ) #%>%
+    
+    # 
+    # hcpxy_set_data(
+    #   type='errorbar',
+    #   data=data.frame(
+    #     borough=df_borough$borough,
+    #     prop_resp_lb=round(df_borough$prop_resp_lb,1),
+    #     prop_resp_ub=round(df_borough$prop_resp_ub,1)
+    #   ),
+    #   mapping=hcaes(
+    #     x=borough, low=prop_resp_lb, high=prop_resp_ub
+    #   ),
+    #   redraw=F
+    # ) %>%
+    # hcpxy_redraw()
+    
+    # %>%
+    # hcpxy_set_data(
+    #   type='bar',
+    #   data=data.frame(
+    #     borough=df_borough$borough,
+    #     prop_resp=round(df_borough$prop_resp,1),
+    #     num_resp=df_borough$num_resp
+    #   )
+    #   ,
+    #   mapping=hcaes(
+    #     x = factor(borough), y = prop_resp
+    #   )
+    #   ,
+    #   redraw=T
+    # )# %>%
+    #hcpxy_redraw()
+    
+    
+    
+    
+    
+    
+    # hcpxy_update_series(
+    #   id='region-central',
+    #   data=#=df_region_central$prop_resp
+    #     list_parse2(
+    #       data.frame(
+    #         'region'=df_region_central$region,
+    #         'prop_resp'=round(df_region_central$prop_resp,1),
+    #         'color'=df_region_central$color,
+    #         'drilldown'=df_region_central$drilldown_central,
+    #         'num_resp'=df_region_central$num_resp, 'id'=df_region_central$id
+    #       )
+    #     )
+    # ) %>%
+    #   hcpxy_update_series(
+    #     id='region-error',
+    #     data=list_parse2(
+    #       data.frame(
+    #         'region'=df_region_error$region,
+    #         'prop_resp_lb'=round(df_region_error$prop_resp_lb,1),
+    #         'prop_resp_ub'=round(df_region_error$prop_resp_ub,1),
+    #         'drilldown'=df_region_error$drilldown_error,
+    #         'num_resp'=df_region_error$num_resp, id=df_region_error$id
+    #       )
+    #     )
+    #   ) 
+    # hcpxy_set_data(
+    #   type='bar',
+    #   data=df_region_central,
+    #   mapping=hcaes(
+    #     x=region,
+    #     y=round(prop_resp,1),
+    #     drilldown=drilldown_central
+    #   ),
+    #   updatePoints = T,
+    #   redraw=F
+    # ) %>%
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      # hcpxy_update_series(
+      #   id='region-central',
+      #   data=list_parse2(
+      #     data.frame(
+      #       region=df_region_central$region,
+      #       prop_resp=round(df_region_central$prop_resp,1),
+      #       drilldown=rep('london-central', 9)
+      #     ))#,
+      #   #,
+      #   #drilldown=df_region_central$drilldown_central
+      # ) %>%
+      # hcpxy_update_series(
+      #   id='region-error',
+      #   data=list_parse2(
+      #     data.frame(
+      #       region=df_region_error$region,
+      #       prop_resp_lb=round(df_region_error$prop_resp_lb,1),
+      #       prop_resp_ub=round(df_region_error$prop_resp_ub,1),
+      #       drilldown=df_region_error$drilldown_error
+      #     )
+      #   )
+      # ) %>%
+      # hcpxy_update(
+      #   drilldown=list(
+      #     series=list(
+      #       list(
+      #         id='london-central',
+      #         name='Central estimate',
+      #         type='bar',
+      #         pointWidth=shinybrowser::get_height()/19.5,
+      #         data=list_parse2(
+      #           data.frame(
+      #             borough=df_borough$borough,
+      #             prop_resp=round(df_borough$prop_resp,1),
+      #             num_resp=df_borough$num_resp
+      #           )
+      #         )
+      #       ),
+      #       list(
+      #         id='london-error',
+      #         name='Lower-Upper estimate',
+      #         type='errorbar',
+      #         data=list_parse2(
+      #           data.frame(
+      #             borough=df_borough$borough,
+      #             prop_resp_lb=round(df_borough$prop_resp_lb,1),
+      #             prop_resp_ub=round(df_borough$prop_resp_ub,1),
+      #             num_resp=df_borough$num_resp
+      # 
+      #           )
+      #         )
+      #       )
+      #     )
+      #   )#,
+      # #   xAxis = list(
+      # #     type='category'
+      # #   )
+      # )
+      # 
+      #   hcpxy_update_series(
+      #     id='london-central',
+      #     data=list_parse2(
+      #       data.frame(
+      #         borough=df_borough$borough,
+      #         prop_resp=round(df_borough$prop_resp,1),
+      #         num_resp=df_borough$num_resp
+      #       )
+      #     )
+      #     #,
+      #     #drilldown=df_region_central$drilldown_central
+      #   ) %>%
+      #   hcpxy_update_series(
+      #     id='london-error',
+      #     data=list_parse2(
+      #       data.frame(
+      #         borough=df_borough$borough,
+      #         prop_resp_lb=round(df_borough$prop_resp_lb,1),
+      #         prop_resp_ub=round(df_borough$prop_resp_ub,1),
+      #         num_resp=df_borough$num_resp
+      #         
+      #       )
+      #     )
+      #   )# %>%
+      
+      
+      
+
+
+
+    
+  }
+  
+  #proxy <- proxy %>% hcpxy_redraw()
+  #browser()
+  return(proxy)
+  
+}
+
+
+update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, curr_level=NULL) {
+  
+  #browser()
+  `%ni%` <- Negate(`%in%`)
+  question <- as.numeric(question)
+  df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp, num_resp, color, drilldown_central) %>% mutate(id=region)
+  df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
+    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)  %>% mutate(id=region)
   subtitle <-  df_list[[question ]][['region']][['title']]
   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
   #max_borough <- max(df_borough$prop_resp_ub)
-  #browser()
-  highchartProxy(chart) %>%
-    hcpxy_update_series(
-      id='region-central',
-      data=#=df_region_central$prop_resp
-        list_parse2(
-          data.frame(
-            region=df_region_central$region,
-            prop_resp=df_region_central$prop_resp,
-            num_resp=df_region_central$num_resp
-          )
-      )
-    ) %>%
-    hcpxy_update_series(
-      id='region-error',
-      data=list_parse2(
-        data.frame(
-          region=df_region_error$region,
-          prop_resp_lb=df_region_error$prop_resp_lb,
-          prop_resp_ub=df_region_error$prop_resp_ub,
-          num_resp=df_region_error$num_resp
-        )
-      )
-    ) %>%
-    hcpxy_update(
-      drilldown=list(
-        series=list(
-          list(
-            id='london-central',
-            name='Central estimate',
-            type='column',
-            pointWidth=shinybrowser::get_height()/19.5,
-            data=list_parse2(
-              data.frame(
-                borough=df_borough$borough,
-                prop_resp=df_borough$prop_resp,
-                num_resp=df_borough$num_resp
+  ldn_index <- which(df_region_central$region=='London')-1
+  ldn_color <- unique(df_region_central$color[df_region_central$color!='#cccccc'])
+  reg_index <- c(0:8)[c(0:8) !=ldn_index]
+  
+  if (is.null(curr_level)) {
+    #browser()
+    proxy <- highchartProxy(chart) 
+    if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
+      proxy <- proxy %>%
+      hcpxy_update(
+        yAxis=list(
+          plotLines=list(
+            list(
+              value=mean(df_region_central$prop_resp),
+              color='#d82222',
+              zIndex=99,
+              label=list(
+                text= 'England',
+                verticalAlign='top',
+                textAlign='center',
+                rotation=0,
+                y=-4,
+                style=list(
+                  color='#d82222',
+                  fontWeight='normal',
+                  fontSize='1.35vh'
+                )
               )
             )
           ),
-          list(
-            id='london-error',
-            name='Lower-Upper estimate',
-            type='errorbar',
-            data=list_parse2(
-              data.frame(
-                borough=df_borough$borough,
-                prop_resp_lb=df_borough$prop_resp_lb,
-                prop_resp_ub=df_borough$prop_resp_ub,
-                num_resp=df_borough$num_resp
-                
+          plotBands=list(
+            list(
+              from=mean(df_region_error$prop_resp_lb),
+              to=mean(df_region_error$prop_resp_ub),
+              color='#d8222200',
+              zIndex=98,
+              label=list(
+                text= ''
               )
             )
           )
         )
       )
-    )
-}
+    }
+    else if ('mean'%ni%comp_ops & 'error'%in%comp_ops) {
+      proxy <- proxy %>%
+      hcpxy_update(
+        yAxis=list(
+          plotLines=list(
+            list(
+              value=mean(df_region_central$prop_resp),
+              color='#d8222200',
+              zIndex=99,
+              label=list(
+                text= ''
+              )
+            )
+          ),
+          plotBands=list(
+            list(
+              from=mean(df_region_error$prop_resp_lb),
+              to=mean(df_region_error$prop_resp_ub),
+              color='#d822221F',
+              zIndex=98,
+              label=list(
+                text= 'England',
+                verticalAlign='top',
+                textAlign='center',
+                rotation=0,
+                y=-4,
+                style=list(
+                  color='#d82222',
+                  fontWeight='normal',
+                  fontSize='1.35vh'
+                )
+              )
+            )
+          )
+        )
+      )
+    }
+    else if ('mean'%in%comp_ops & 'error'%in%comp_ops) {
+      proxy <- proxy %>%
+      hcpxy_update(
+        yAxis=list(
+          plotLines=list(
+            list(
+              value=mean(df_region_central$prop_resp),
+              color='#d82222',
+              zIndex=99,
+              label=list(
+                text= 'England',
+                verticalAlign='top',
+                textAlign='center',
+                rotation=0,
+                y=-4,
+                style=list(
+                  color='#d82222',
+                  fontWeight='normal',
+                  fontSize='1.35vh'
+                )
+              )
+            )
+          ),
+          plotBands=list(
+            list(
+              from=mean(df_region_error$prop_resp_lb),
+              to=mean(df_region_error$prop_resp_ub),
+              color='#d822221F',
+              zIndex=98,
+              label=list(
+                text= ''
+              )
+            )
+          )
+        )
+      )
+    }
+    else {
+      proxy <- proxy %>%
+      hcpxy_update(
+        yAxis=list(
+          plotLines=list(
+            list(
+              value=mean(df_region_central$prop_resp),
+              color='#d8222200',
+              zIndex=99,
+              label=list(
+                text= ''
+              )
+            )
+          ),
+          plotBands=list(
+            list(
+              from=mean(df_region_error$prop_resp_lb),
+              to=mean(df_region_error$prop_resp_ub),
+              color='#d8222200',
+              zIndex=98,
+              label=list(
+                text= ''
+              )
+            )
+          )
+        )
+      )
+    }
+ }
+  
+  else if (curr_level==1) {
+    #browser()
+    proxy <- highchartProxy(chart) 
+      if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
+        proxy <- proxy %>%
+          hcpxy_update(
+            yAxis=list(
+              plotLines=list(
+                list(
+                  value=mean(df_region_central$prop_resp),
+                  color='#d82222',
+                  zIndex=99,
+                  label=list(
+                    text= 'England',
+                    verticalAlign='top',
+                    textAlign='center',
+                    rotation=0,
+                    y=-4,
+                    style=list(
+                      color='#d82222',
+                      fontWeight='normal',
+                      fontSize='1.35vh'
+                    )
+                  )
+                )
+              ),
+              plotBands=list(
+                list(
+                  from=mean(df_region_error$prop_resp_lb),
+                  to=mean(df_region_error$prop_resp_ub),
+                  color='#d8222200',
+                  zIndex=98,
+                  label=list(
+                    text= ''
+                  )
+                )
+              )
+            )
+          )
+      }
+      else if ('mean'%ni%comp_ops & 'error'%in%comp_ops) {
+        proxy <- proxy %>%
+          hcpxy_update(
+            yAxis=list(
+              plotLines=list(
+                list(
+                  value=mean(df_region_central$prop_resp),
+                  color='#d8222200',
+                  zIndex=99,
+                  label=list(
+                    text= ''
+                  )
+                )
+              ),
+              plotBands=list(
+                list(
+                  from=mean(df_region_error$prop_resp_lb),
+                  to=mean(df_region_error$prop_resp_ub),
+                  color='#d822221F',
+                  zIndex=98,
+                  label=list(
+                    text= 'England',
+                    verticalAlign='top',
+                    textAlign='center',
+                    rotation=0,
+                    y=-4,
+                    style=list(
+                      color='#d82222',
+                      fontWeight='normal',
+                      fontSize='1.35vh'
+                    )
+                  )
+                )
+              )
+            )
+          )
+      }
+      else if ('mean'%in%comp_ops & 'error'%in%comp_ops) {
+        proxy <- proxy %>%
+          hcpxy_update(
+            yAxis=list(
+              plotLines=list(
+                list(
+                  value=mean(df_region_central$prop_resp),
+                  color='#d82222',
+                  zIndex=99,
+                  label=list(
+                    text= 'England',
+                    verticalAlign='top',
+                    textAlign='center',
+                    rotation=0,
+                    y=-4,
+                    style=list(
+                      color='#d82222',
+                      fontWeight='normal',
+                      fontSize='1.35vh'
+                    )
+                  )
+                )
+              ),
+              plotBands=list(
+                list(
+                  from=mean(df_region_error$prop_resp_lb),
+                  to=mean(df_region_error$prop_resp_ub),
+                  color='#d822221F',
+                  zIndex=98,
+                  label=list(
+                    text= ''
+                  )
+                )
+              )
+            )
+          )
+      }
+      else {
+        proxy <- proxy %>%
+          hcpxy_update(
+            yAxis=list(
+              plotLines=list(
+                list(
+                  value=mean(df_region_central$prop_resp),
+                  color='#d8222200',
+                  zIndex=99,
+                  label=list(
+                    text= ''
+                  )
+                )
+              ),
+              plotBands=list(
+                list(
+                  from=mean(df_region_error$prop_resp_lb),
+                  to=mean(df_region_error$prop_resp_ub),
+                  color='#d8222200',
+                  zIndex=98,
+                  label=list(
+                    text= ''
+                  )
+                )
+              )
+            )
+          )
+      }
+  }
+  
+  else {
+    proxy <- highchartProxy(chart)
+      if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
+        proxy <- proxy %>%
+          hcpxy_update(
+            yAxis=list(
+              plotLines=list(
+                list(
+                  value=mean(df_borough$prop_resp),
+                  color='#d82222',
+                  zIndex=99,
+                  label=list(
+                    text= 'London',
+                    verticalAlign='top',
+                    textAlign='center',
+                    rotation=0,
+                    y=-4,
+                    style=list(
+                      color='#d82222',
+                      fontWeight='normal',
+                      fontSize='1.35vh'
+                    )
+                  )
+                )
+              ),
+              plotBands=list(
+                list(
+                  from=mean(df_borough$prop_resp_lb),
+                  to=mean(df_borough$prop_resp_ub),
+                  color='#d8222200',
+                  zIndex=98,
+                  label=list(
+                    text= ''
+                  )
+                )
+              )
+            )
+          )
+      }
+    else if ('mean'%ni%comp_ops & 'error'%in%comp_ops) {
+      proxy <- proxy %>%
+        hcpxy_update(
+          yAxis=list(
+            plotLines=list(
+              list(
+                value=mean(df_borough$prop_resp),
+                color='#d8222200',
+                zIndex=99,
+                label=list(
+                  text= ''
+                )
+              )
+            ),
+            plotBands=list(
+              list(
+                from=mean(df_borough$prop_resp_lb),
+                to=mean(df_borough$prop_resp_ub),
+                color='#d822221F',
+                zIndex=98,
+                label=list(
+                  text= 'London',
+                  verticalAlign='top',
+                  textAlign='center',
+                  rotation=0,
+                  y=-4,
+                  style=list(
+                    color='#d82222',
+                    fontWeight='normal',
+                    fontSize='1.35vh'
+                  )
+                )
+              )
+            )
+          )
+        )
+    }
+    else if ('mean'%in%comp_ops & 'error'%in%comp_ops) {
+      proxy <- proxy %>%
+        hcpxy_update(
+          yAxis=list(
+            plotLines=list(
+              list(
+                value=mean(df_borough$prop_resp),
+                color='#d82222',
+                zIndex=99,
+                label=list(
+                  text= 'London',
+                  verticalAlign='top',
+                  textAlign='center',
+                  rotation=0,
+                  y=-4,
+                  style=list(
+                    color='#d82222',
+                    fontWeight='normal',
+                    fontSize='1.35vh'
+                  )
+                )
+              )
+            ),
+            plotBands=list(
+              list(
+                from=mean(df_borough$prop_resp_lb),
+                to=mean(df_borough$prop_resp_ub),
+                color='#d822221F',
+                zIndex=98,
+                label=list(
+                  text= ''
+                )
+              )
+            )
+          )
+        )
+    }
+    else {
+      proxy <- proxy %>%
+        hcpxy_update(
+          yAxis=list(
+            plotLines=list(
+              list(
+                value=mean(df_borough$prop_resp),
+                color='#d8222200',
+                zIndex=99,
+                label=list(
+                  text= ''
+                )
+              )
+            ),
+            plotBands=list(
+              list(
+                from=mean(df_borough$prop_resp_lb),
+                to=mean(df_borough$prop_resp_ub),
+                color='#d8222200',
+                zIndex=98,
+                label=list(
+                  text= ''
+                )
+              )
+            )
+          )
+        )
+    }
+  
+  
+  }
+  
+  #browser()
+  return(proxy)
 
+}
+      
+      
+
+
+# update_drilldown_chart_errorbar <- function(question, df_list, chart) {
+#   
+#   question <- as.numeric(question)
+#   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
+#     select(region, prop_resp, num_resp, color, drilldown_central)
+#   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
+#     select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)
+#   subtitle <-  df_list[[question ]][['region']][['title']]
+#   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
+#   #browser()
+#   highchartProxy(chart) %>%
+#   hcpxy_set_data(
+#     type='errorbar',
+#     data=data.frame(
+#       borough=df_borough$borough,
+#       prop_resp_lb=round(df_borough$prop_resp_lb,1),
+#       prop_resp_ub=round(df_borough$prop_resp_ub,1)
+#     ),
+#     mapping=hcaes(
+#       x=borough, low=prop_resp_lb, high=prop_resp_ub
+#     ),
+#     redraw=F
+#    ) %>%
+#     hcpxy_set_data(
+#       type='bar',
+#       data=data.frame(
+#         borough=df_borough$borough,
+#         prop_resp=round(df_borough$prop_resp,1),
+#         num_resp=df_borough$num_resp
+#       )
+#       ,
+#       mapping=hcaes(
+#         x=borough, y=prop_resp
+#       )
+#       ,
+#       redraw=F
+#     ) %>%
+#     hcpxy_redraw()
+#   
+# }
+# 
 
 
 generate_drilldown_map <- function(question, df_list, theme, question_list, bounds_region, bounds_borough) {
@@ -1206,17 +2875,24 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
   if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
     df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
       select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
-      mutate(value = prop_resp, drilldown=case_when(region=='London'~'london-drilldown',T~''))
+      mutate(
+        value = round(prop_resp,1), drilldown=case_when(region=='London'~'london-drilldown',T~''),
+        prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
    
     df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
       select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
-      mutate(value = prop_resp)
+      mutate(
+        value = round(prop_resp,1), prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
   }
   else {
     
     df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
       select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
-      mutate(value = prop_resp)
+      mutate(
+        value = round(prop_resp,1), prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
   }
   
   
@@ -1346,7 +3022,8 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
     hc_credits(
       enabled=T,
       useHTML=T,
-      text='Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      #Chart: <a href="https://data.london.gov.uk/social-evidence-base/" target="_blank" style="color:#9b9b9b; text-decoration: underline;" >GLA City Intelligence (Social Policy) </a>&#x2022 Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24</a>',
+      text='Source: <a href="https://www.gov.uk/government/collections/participation-survey-statistical-releases/" target="_blank" style="color:#9b9b9b; text-decoration: underline;">Participation Survey 2023/24, DCMS</a>',
       href="",
       position=list(
         align='left',
@@ -1378,18 +3055,41 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
         )
       ) %>%
     hc_exporting(
-      enabled=T#,
-      # navigation=list(
-      #   buttonOptions=list(
-      #     align='center'
-      #   )
-      # )
-      # buttons=list(
-      #   exportButton=list(
-      #     align='right',
-      #     x=-300
-      #   )
-      # )
+      enabled=T,
+      showExportInProgress=T,
+      buttons=list(
+        contextButton=list(
+          menuItems=c(
+            'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+          ),
+          symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
+          height=40,
+          width=48,
+          symbolSize=36,
+          symbolX=42,
+          symbolY=45,
+          symbolStrokeWidth=2
+        )
+      ),
+      # sourceWidth=1600,
+      # sourceHeight= 1400,
+      sourceWidth=900,
+      sourceHeight= 700,
+      scale=3,
+      # width=1000,
+      # height=800,
+      chartOptions = list(
+        title=list(
+          text=subtitle,
+          align='left',
+          margin=35,
+          style = list(
+            #fontSize ="3.8vh",
+            fontSize =25 ,color = '#353d42',
+            fontFamily = "Arial", fontWeight = "450"
+          )
+        )
+      )
     ) %>%
     hc_chart(
       spacingBottom= 35,
@@ -1495,43 +3195,78 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
 }
 
 
-update_drilldown_map <- function(question, df_list, map) {
+update_drilldown_map <- function(question, df_list, map, question_list=NULL, bounds_region=NULL, bounds_borough=NULL) {
   
+
   question <- as.numeric(question)
-  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
-    mutate(
-      value = prop_resp,
-      drilldown=case_when(region=='London'~'london-drilldown',T~'')
-    )
   subtitle <-  df_list[[question ]][['region']][['title']]
-  df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
-    select(borough, prop_resp,  prop_resp_lb, prop_resp_ub) %>%
-    mutate(value = prop_resp)
-  #max_borough <- max(df_borough$prop_resp_ub)
-  pal <- gla_pal(gla_theme = "default", palette_type = "quantitative", palette_name='core', n = 20, main_colours='blue')
-  #min <- min(df_region$prop_resp)
-  #max <- max(df_region$prop_resp)
+  if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+      select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
+      mutate(
+        value = round(prop_resp,1), drilldown=case_when(region=='London'~'london-drilldown',T~''),
+        prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
+    
+    df_borough <- df_list[[question ]][['borough']][['dataframe']] %>%
+      select(borough, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp) %>%
+      mutate(
+        value = round(prop_resp,1), prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
+  }
+  else {
+    df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+      select(region, prop_resp,  prop_resp_lb, prop_resp_ub, num_resp, color) %>%
+      mutate(
+        value = round(prop_resp,1), prop_resp_lb = round(prop_resp_lb,1), prop_resp_ub=round(prop_resp_ub,1)
+      )
+  }
+  df_region_rest <- df_region %>% filter(region != 'London') %>% select(-color)
+  df_region_ldn <- df_region %>% filter(region == 'London') %>% select(-color)
+  max_col <- unique(df_region$color[df_region$color!='#cccccc'])
+  min_col <- tinter::tinter(max_col, direction='tints', steps=9)[1]
+  mid_col <- tinter::tinter(max_col, direction='tints', steps=9)[5]
+  pal <- colorRampPalette(c(min_col, mid_col, max_col))
+  pal_vec <- pal(11)
   
-  highchartProxy(map) %>%
+#browser()
+  proxy <- highchartProxy(map) %>%
     hcpxy_update_series(
       id='regions',
-      data = df_region$value
+      data=list_parse(df_region_rest)
     ) %>%
+    hcpxy_update_series(
+      id='regions_ldn',
+      data=list_parse(df_region_ldn)#,
+    ) %>%
+    hcpxy_update(
+      colorAxis=list(
+        stops = list(
+          list(0.1, pal_vec[1]),
+          list(0.5, pal_vec[6]),
+          list(0.9, pal_vec[11])
+        )
+      )
+    )
+  if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
+    proxy <- proxy %>%
     hcpxy_update(
       drilldown=list(
         series=list(
           list(
             id='london-drilldown',
-            data=list_parse2(
-              data.frame(
-                value=df_borough$value
-              )
-            )
+            mapData=bounds_borough$features,
+            data=list_parse(df_borough),
+            joinBy=c("name", "borough"),
+            borderColor='#FAFAFA',
+            borderWidth=0.1
           )
         )
       )
     )
+  }
+  
+  return(proxy)
 }
 
 generate_countUp <- function(count_to, count_from, theme) {
@@ -1544,7 +3279,7 @@ generate_countUp <- function(count_to, count_from, theme) {
   countup(
     count = count_to,
     start_at = count_from,
-    duration = 2.5,
+    duration = 1.5,
     suffix='%',
     decimalPlaces=1,
     decimal='.',
@@ -1563,7 +3298,6 @@ generate_region_text <- function(question, df_list, drill_level=NULL, reactive__
   
   #browser()
   
-  #if (length(drill_level)==0) {
   
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
@@ -1665,6 +3399,7 @@ generate_region_summary_text <- function(question, df_list, drill_level=NULL, re
   
 }
 
+# TODO move 1dp ranking outside of processing, and so add add 1dpp only in chart output and ranking output itself
 
 
 
@@ -1673,27 +3408,40 @@ generate_borough_text <- function(question, df_list) {
   question <- as.numeric(question)
   df_borough <- df_list[[question ]][['borough']][['dataframe']] 
   
+  # if (question==6) {
+  #   browser()
+  # }
+
+
+  #browser()
   high1_name <- as.character(df_borough$borough[which(df_borough$prop_resp==max(df_borough$prop_resp))])
   high2_name <- as.character(df_borough$borough[which(df_borough$prop_resp==max(df_borough$prop_resp[df_borough$prop_resp!=max(df_borough$prop_resp)]))])
   low1_name <- as.character(df_borough$borough[which(df_borough$prop_resp==min(df_borough$prop_resp))])
   low2_name <- as.character(df_borough$borough[which(df_borough$prop_resp==min(df_borough$prop_resp[df_borough$prop_resp!=min(df_borough$prop_resp)]))])
-  high1_val <- max(df_borough$prop_resp)
-  high2_val <- max(df_borough$prop_resp[df_borough$prop_resp!=max(df_borough$prop_resp)])
-  low1_val <- min(df_borough$prop_resp)
-  low2_val <- min(df_borough$prop_resp[df_borough$prop_resp!=min(df_borough$prop_resp)])
+  high1_val <- round(max(df_borough$prop_resp),1)
+  high2_val <- round(max(df_borough$prop_resp[df_borough$prop_resp!=max(df_borough$prop_resp)]),1)
+  low1_val <- round(min(df_borough$prop_resp),1)
+  low2_val <- round(min(df_borough$prop_resp[df_borough$prop_resp!=min(df_borough$prop_resp)]),1)
   
   list <- HTML(
     paste0(
       "
       <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
       <ul>
-      <li>The two boroughs that score the highest are ", high1_name, " and ", high2_name ,", at ", high2_val,"% and ",high2_val,"% respectively</li>
+      <li>The two boroughs that score the highest are ", high1_name, " and ", high2_name ,", at ", high1_val,"% and ",high2_val,"% respectively</li>
       <li>The two boroughs that score the lowest are ", low1_name, " and ", low2_name ,", at ", low1_val,"% and ",low2_val,"% respectively</li>
       </ul>
       </span>
       "
     )
-  )                                
+  )      
+  # if (question==1) {
+  #   browser()
+  # }
+  # if (as.numeric(question)==1) {
+  #   browser()
+  # }
+  print('yo')
   return(list)
   
 

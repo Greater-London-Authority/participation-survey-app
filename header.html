@@ -1,14 +1,31 @@
+ <script >
+window.onload = setInterval(clock,1000);
+function clock()
+{
+    var d = new Date();
+    var date = d.getDate();
+    var year = d.getFullYear();
+    var month = d.getMonth();
+    var monthArr = ["January", "February","March", "April", "May", "June", "July", "August", "September", "October", "November","December"];
+    month = monthArr[month];
+    document.getElementById("date").innerHTML=date+" "+month+" "+year;
+}
+</script>
 <div style="height:100vh; background-color: #ffffff"; >
-  <div style="background-color:#353D42; border-color:#353D42; padding: 0px; border: 1px solid green; height: 100vh; margin-left:-1.2vw; margin-right:-1.2vw;">
+  <div style="background-color:#353D42; border-color:#353D42; padding: 0px; border: none; height: 100vh; margin-left:-1.2vw; margin-right:-1.2vw;">
     <div style="height: 5vh;"> </div>
     <img src="ciu_logo.png" alt="CIU Logo" style="padding:10px; width:95vh; height: 11vh; padding-right:2vw" align="right">
-    <div style="height: 22vh;"> </div>
-    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:684%; align='left'; padding-left:2vw">Participation Survey 2024</h1>
+    <div style="height: 17vh;"> </div>
+    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:684%; align='left'; padding-left:2vw">Participation Survey 2023/24</h1>
     <div style="height: 1vh;"> </div>
-    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:456%; align='left'; padding-left:2vw">CIU Analysis (Social Policy)  </h1>
+    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:456%; align='left'; padding-left:2vw">London Summary</h1>
     <div style="height: 1vh;"> </div>
     <h1 style="color:#ffffff; background-color:#ffffff00; font-size:342%; align='left'; padding-left:2vw">February 2025</h1>
     <div style="height: 1vh;"> </div>
-    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:285%; align='left'; padding-left:2vw">Last updated 1<sup>st</sup> February 2025</h1>
+    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:285%; align='left'; padding-left:2vw">Last updated 26 February 2025</h1>
+    <div style="height: 1vh;"> </div>
+    <h1 style="color:#ffffff; background-color:#ffffff00; font-size:180%; align='left'; padding-left:2vw; padding-right:2vw;"><i>The application UI is still in development (as of <span id="date"></span>) and we therefore recomended that GLA colleagues view this application on their MS Surface Pro or alternatively a 13-16 inch display</i></h1>
   </div>
 </div>
+
+

@@ -191,10 +191,12 @@ ui <- fluidPage(
                                div(HTML('Headline rank scores for London by DCMS sector'), style='font-size:3.8vh; line-height:3.8vh;  color: #353d42; font-family: Arial !important; font-weight: 450 !important ')
                            ),
                            div(class='chart-subtitle-buffer',
-                               div(HTML("Headline rank scores represent London's average (mean) ranking across selected survey questions<br>relative to the other 8 regions in England; the number of questions, <span style='font-style:normal !important'>q</span>, used to construct this average<br>is shown below the axis label of each data point"), style='font-size:2.4vh; line-height:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 important; font-style: italic !important ')
+                               div(HTML("Headline rank scores represent London's average (mean) ranking across selected survey questions relative to the other 8 regions in England; the number of questions, <span style='font-style:normal !important'>q</span>, used to construct this average is shown below the axis label of each data point"), style='font-size:2.4vh; line-height:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250; font-style: italic !important ')
                            )
+                           #question<br>relative
+                           #average<br>is shown
                            #,
-                           # shinyWidgets::awesomeCheckboxGroup(
+                           # shinyWidgets::prettyCheckboxGroup(
                            #   inputId='headlines_compOps',
                            #   label='',
                            #   choices=c(
@@ -290,7 +292,7 @@ ui <- fluidPage(
                            <span style="color:#ffffff; font-size:1.4vw;  line-height:1.6vw; margin-top:-2vh">
                              <div style="height:2vh"></div>
                              <ul>
-                               <li>2<sup>nd</sup> for participation in <span style="color:#6da7de; font-weight:bold">Arts</span></li>
+                               <li>3<sup>rd</sup> for participation in <span style="color:#6da7de; font-weight:bold">Arts</span></li>
                                <li>1<sup>st</sup> for participation in <span style="color:#ff38ba; font-weight:bold">Libraries</span></li>
                                <li>2<sup>nd</sup> for participation in <span style="color:#5ea15d; font-weight:bold">Heritage</span></li>
                                <li>8<sup>th</sup> for participation in <span style="color:#d82222; font-weight:bold">Sport</span></li>
@@ -497,7 +499,7 @@ ui <- fluidPage(
               div(class='chart-subtitle-buffer',
                 div(textOutput('arts_subtitle_chart'), style='font-size:2.4vh; line-height:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
               ),
-              shinyWidgets::awesomeCheckboxGroup(
+              shinyWidgets::prettyCheckboxGroup(
                 inputId='arts_compOps',
                 label='',
                 choices=c(
@@ -728,7 +730,7 @@ ui <- fluidPage(
                            div(class='chart-subtitle-buffer',
                                div(textOutput('libraries_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
                            ),
-                           shinyWidgets::awesomeCheckboxGroup(
+                           shinyWidgets::prettyCheckboxGroup(
                              inputId='libraries_compOps',
                              label='',
                              choices=c(
@@ -958,7 +960,7 @@ ui <- fluidPage(
                        div(class='chart-subtitle-buffer',
                            div(textOutput('heritage_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
                        ),
-                       shinyWidgets::awesomeCheckboxGroup(
+                       shinyWidgets::prettyCheckboxGroup(
                          inputId='heritage_compOps',
                          label='',
                          choices=c(
@@ -1186,7 +1188,7 @@ ui <- fluidPage(
                        div(class='chart-subtitle-buffer',
                            div(textOutput('sport_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
                        ),
-                       shinyWidgets::awesomeCheckboxGroup(
+                       shinyWidgets::prettyCheckboxGroup(
                          inputId='sport_compOps',
                          label='',
                          choices=c(
@@ -1273,14 +1275,14 @@ ui <- fluidPage(
                    div(id='countUp-ui-sport'),
                    #generate_countUp(reactiveVal__countFromTo$countTo, reactiveVal__countFromTo$countFrom, 'arts'),
                    htmlOutput("sport_region_headline_text"),
-                   shinycssloaders::withSpinner(htmlOutput("sport_region_summary_text"),color = "#ffffff"),
-                   shinyjs::hidden(
-                     div(id='sport-text-drilldown',
-                         icon('arrow-down-long'),
-                         div(style='height:1.4vh'),
-                         htmlOutput("sport_borough_text")
-                     )
-                   )
+                   shinycssloaders::withSpinner(htmlOutput("sport_region_summary_text"),color = "#ffffff")#,
+                   # shinyjs::hidden(
+                   #   div(id='sport-text-drilldown',
+                   #       icon('arrow-down-long'),
+                   #       div(style='height:1.4vh'),
+                   #       htmlOutput("sport_borough_text")
+                   #   )
+                   # )
                )
              )
            ),
@@ -1412,7 +1414,7 @@ ui <- fluidPage(
                            div(class='chart-subtitle-buffer',
                                div(textOutput('tourism_subtitle_chart'), style='font-size:2.4vh; color: #353d42; font-family: Arial !important; font-weight: 250 !important; font-style: italic !important ')
                            ),
-                           shinyWidgets::awesomeCheckboxGroup(
+                           shinyWidgets::prettyCheckboxGroup(
                              inputId='tourism_compOps',
                              label='',
                              choices=c(
@@ -1613,7 +1615,8 @@ ui <- fluidPage(
   # Header UI
   #=============================================================================
   div(id='footer_ui',
-      includeHTML('footer.html')
+      div(style='height:10vh'),
+      includeHTML('footer-new.html')
   ),
   
   # Set scroll reveal animation for each section - mwah!
@@ -1642,8 +1645,22 @@ ui <- fluidPage(
    
    
    
-   
-   
+#    
+# 
+# 
+# <h4 style="font-size:2.4vh"><i>The 2023/24 <i>Participation Survey</i> was commissioned by the Department for 
+# Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
+#           England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>, 
+# which ran for 16 continuous years, with its final publication in 2019/20. 
+# Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally 
+#           representative sample of adults (aged 16 years and over)". However, while the
+# <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews, 
+# the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire." The most 
+# immediate benefit of this alternate approach to data collection is that DCMS is now able to obtain a boosted
+# respondent sample, allowing for the collection of reliable data at the Local Authority (LA) level; going forward, DCMS plan to 
+# obtain a boosted sample for the <i>Pariticipation Survey</i> every three years, starting with the 2023/24 publication.
+# Overall, the key takeaway for the GLA is that the 2023/24 <i>Participation Survey</i> provides a uniquely rich source of information
+# on adult participation at the level of both Region and Borough.</i></h4>'
    
 
 # Define server logic required to draw a histogram
@@ -1653,7 +1670,7 @@ server <- function(input, output, session) {
   #=============================================================================
   # Background Server
   #=============================================================================
-  
+  #text-align: center;
   insertUI(
     selector="#background-info-tabs",
     where='beforeEnd',
@@ -1661,25 +1678,123 @@ server <- function(input, output, session) {
     tabsetPanel(type='pills',
       tabPanel(
         title='About the survey',
+        div(style="height:3vh;"),
         HTML(
-          '<h4 style="font-size:2.4vh"><i>The 2023/24 <i>Participation Survey</i> was Commissioned by the Department for 
-          Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
-          England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>, 
-          which ran for 16 continuous years, with its final publication in 2019/20. 
-          Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally 
-          representative sample of adults (aged 16 years and over)". However, while the
-          <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews, 
-          the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire." The most 
-          immediate benefit of this alternate approach to data collection is that DCMS is now able to obtain a boosted
-          respondent sample, allowing for the collection of reliable data at the Local Authority (LA) level; going forward, DCMS plan to 
-          obtain a boosted sample for the <i>Pariticipation Survey</i> every three years, starting with the latest (2023/24) publication.
-          Overall, the key takeaway for the GLA is that the 2023/24 <i>Pariticipation Survey</i> provides a uniquely rich source of information
-          on adult participation at the level of both Region and Borough.</i></h4>'
+          '
+          <div class="multicolumn-text">
+            <h4 style="font-size:2vh; break-after:column; 
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);">
+              The 2023/24 <i>Participation Survey</i> was commissioned by the Department for 
+              Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
+              England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>,
+              which ran for 16 continuous years, with its final publication in 2019/20.
+            </h4>
+             <h4 style="font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);">
+               Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally representative sample of adults (aged 16 years and over)". However, while the
+               <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews,
+               the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire.
+             </h4>
+             <h4 style="font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);">
+               The most immediate benefit of this alternate approach to data collection is that DCMS is now able to obtain a boosted
+               respondent sample, allowing for the collection of reliable data at the Local Authority (LA) level; going forward, DCMS plan to 
+               obtain a boosted sample for the <i>Pariticipation Survey</i> every three years, starting with the 2023/24 publication.
+             </h4>
+             <h4 style="font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);">
+               Overall, the key takeaway for the GLA is that the 2023/24 <i>Participation Survey</i> provides a uniquely rich source of information
+               on adult participation at the level of both Region and Borough.</i>
+             </h4>
+          </div>
+          '
+          # '
+          # <table>
+          #   <tr>
+          #     <td>
+          #       The 2023/24 <i>Participation Survey</i> was commissioned by the Department for 
+          #       Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
+          #       England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>, 
+          #       which ran for 16 continuous years, with its final publication in 2019/20. 
+          #     </td>
+          #     <td>
+          #       The most immediate benefit of this alternate approach to data collection is that DCMS is now able to obtain a boosted
+          # respondent sample, allowing for the collection of reliable data at the Local Authority (LA) level; going forward, DCMS plan to 
+          # obtain a boosted sample for the <i>Pariticipation Survey</i> every three years, starting with the 2023/24 publication.
+          #     </td>
+          #   </tr>
+          #   <tr>
+          #     <td>
+          #       Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally representative sample of adults (aged 16 years and over)". However, while the
+          #       <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews, 
+          #       the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire."
+          #     </td>
+          #     <td>
+          #       Overall, the key takeaway for the GLA is that the 2023/24 <i>Participation Survey</i> provides a uniquely rich source of information
+          #       on adult participation at the level of both Region and Borough.</i>
+          #     </td>
+          #   </tr>
+          # </table>
+          # '
         )
       ),
       tabPanel(
-        title='About this app',
-        HTML('This application ')
+        title='About this tool',
+        div(style="height:3vh;"),
+        HTML(
+          "
+          <div class='multicolumn-text'>
+            <h4 style='font-size:2vh; break-after:column; 
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);'>
+  This tool provides a London-focused overview of the main findings from the Participation Survey 2023/24 using the annual data tables, which can be accessed <a href='https://www.gov.uk/government/statistics/participation-survey-2023-24-annual-publication' target='_blank'>here</a>. The tool presents findings from across five DCMS sectors, namely: Arts, Libraries, Heritage, Sport and Tourism (Heritage contains the measures on Museums and Galleries).
+            </h4>
+             <h4 style='font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);'>
+     The tool contains a dedicated page for each of these five sectors, which can be accessed sequentially by scrolling downward or alternatively you can jump to a specific page using the Contents panel below. All five sector pages also contain two 'views', which you can switch between via the navigation bar located at the top left of each page.
+             </h4>
+             <h4 style='font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);'>
+     The default 'Chart view' presents findings using a simple bar chart. The alternate 'Map view' presents the same information using a choropleth map. You can also download an image of the chart or map in multiple formats, as well as export the underlying data to Excel spreadsheet or CSV. 
+             </h4>
+             <h4 style='font-size:2vh; break-after:column;
+  position: relative;
+  top: 50%;
+  -ms-transform: translateY(-58%);
+  -webkit-transform: translateY(-58%);
+  transform: translateY(-58%);'>
+    Finally, each sector page (except for Tourism) presents findings from multiple survey questions. You can switch between questions using the 'Next' and 'Previous' buttons.
+             </h4>
+          </div>
+          "
+        )
       )
     )
   )
@@ -1712,7 +1827,7 @@ server <- function(input, output, session) {
   #=============================================================================
   
   output$arts_previous_btn <- renderUI({
-   # tooltip(
+    # tooltip(
     actionButton(
       "arts_previous", 
       "Previous question",
@@ -1729,7 +1844,7 @@ server <- function(input, output, session) {
       icon=icon("forward")
     )
   })
-
+  
   
   output$arts_title_chart <- renderText({
     print(paste(df_list[[as.numeric(input$arts_select)]][['region']][['title']]))
@@ -1737,6 +1852,9 @@ server <- function(input, output, session) {
   output$arts_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$arts_select)]][['region']][['title']]))
   })
+  outputOptions(output, "arts_title_map", suspendWhenHidden = FALSE)
+  
+  
   output$arts_subtitle_chart <- renderText({
     if (is.null(input$arts_currLevel)) {
       print(paste("Click to drilldown into London by Borough"))
@@ -1759,74 +1877,69 @@ server <- function(input, output, session) {
       print(paste("Click to drilldown into London by Borough"))
     }
   })
-
-
-  # observeEvent(input$arts_currLevel, {
-  #   
-  #   if (input$arts_currLevel)
-  #   
-  #   
-  # })
+  outputOptions(output, "arts_subtitle_map", suspendWhenHidden = FALSE)
+  
   
   
   output$arts_chart <- renderHighchart({
-    generate_drilldown_chart(input$arts_select, df_list, 'arts', shinybrowser::get_height())
+    generate_drilldown_chart(ARTS_QUESTIONS[1], df_list, 'arts', shinybrowser::get_height())
   })
   output$arts_map <- renderHighchart({
-    generate_drilldown_map(input$arts_select, df_list, 'arts', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(ARTS_QUESTIONS[1], df_list, 'arts', QUESTION_LIST, bounds_region, bounds_borough)
   })
+  outputOptions(output, "arts_map", suspendWhenHidden = FALSE)
   
   
-  # Mousover reactives
-  #-----------------------
   reactive__arts_select <- reactive({req(input$arts_select)})
   reactive__mouseOver_arts <- reactiveValues()
-  observeEvent(c(input$arts_tab, input$arts_chart_mouseOver$name,input$arts_currLevel, input$arts_map_mouseOver,input$arts_currLevelMap, input$arts_select), { 
-    #browser()
+  observeEvent(c(input$arts_tab, input$arts_chart_mouseOver$name,input$arts_currLevel, input$arts_map_mouseOver,input$arts_currLevelMap, input$arts_select), {
     observeEvent(c(input$arts_tab, input$arts_select, input$arts_currLevel, input$arts_currLevelMap), {
       reg_name <- 'London'
-      reg_val <- 
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+      reg_val <-
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         select(region, prop_resp) %>%
         filter(region=='London') %>%
         select(prop_resp) %>%
         pull(1)
-      eng_val <-  
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+      eng_val <-
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
         mutate(mean = round(mean(prop_resp),1)) %>%
         filter(region=='London') %>%
         select(mean) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
-      reg_rank <- 
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+      reg_rank <-
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
         select(region, prop_resp, rank_direction) %>%
-        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
-      }, ignoreInit=T, ignoreNULL=T)
+      
+    }, ignoreInit=T, ignoreNULL=T)
     if (input$arts_tab=='chart') {
       if(is.null(input$arts_chart_mouseOver$name)) {
         #browser()
         reg_name <- 'London'
-        reg_val <- 
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        reg_val <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
           pull(1)
-        eng_val <-  
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        eng_val <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
           mutate(mean = round(mean(prop_resp),1)) %>%
           filter(region=='London') %>%
           select(mean) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
-        reg_rank <- 
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        reg_rank <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -1837,24 +1950,25 @@ server <- function(input, output, session) {
         
         if (is.null(input$arts_currLevel)) {
           reg_name <- input$arts_chart_mouseOver$name
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(mean) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -1862,48 +1976,52 @@ server <- function(input, output, session) {
         }
         else if (input$arts_currLevel==1) {
           reg_name <- input$arts_chart_mouseOver$name
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region==input$arts_chart_mouseOver$name) %>%
             select(mean) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+            filter(region==input$arts_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
           # TODO TRY HERE!!!!!!!!
-          #browser() 
+          #browser()
         }
         else {
           reg_name <- 'London'
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region=='London') %>%
             select(mean) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+            filter(region=='London') %>%
             select(rank) %>%
             pull(1)
         }
@@ -1911,25 +2029,26 @@ server <- function(input, output, session) {
     }
     if (input$arts_tab=='map') {
       if(is.null(input$arts_map_mouseOver)) {
-       # browser()
+        # browser()
         reg_name <- 'London'
-        reg_val <- 
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        reg_val <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
           pull(1)
-        eng_val <-  
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        eng_val <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
           mutate(mean = round(mean(prop_resp),1)) %>%
           filter(region=='London') %>%
           select(mean) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
-        reg_rank <- 
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+        reg_rank <-
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -1939,24 +2058,25 @@ server <- function(input, output, session) {
         if (is.null(input$arts_currLevelMap)) {
           #browser()
           reg_name <- input$arts_map_mouseOver
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(mean) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -1964,47 +2084,49 @@ server <- function(input, output, session) {
         else if (input$arts_currLevelMap==1) {
           #browser()
           reg_name <- input$arts_map_mouseOver
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(mean) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$arts_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
         }
         else {
           reg_name <- 'London'
-          reg_val <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
             pull(1)
-          eng_val <-  
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          eng_val <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             mutate(mean = round(mean(prop_resp),1)) %>%
             filter(region=='London') %>%
             select(mean) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
-          reg_rank <- 
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
+          reg_rank <-
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -2019,35 +2141,8 @@ server <- function(input, output, session) {
     # print('yo')
   }, ignoreNULL=F, ignoreInit=F
   )
-  # reactive__region_nameu <- reactive({reactive__region_name()})
-  # reactive__region_valu <- reactive({reactive__region_val()})
-  # reactive__region_difu <- reactive({reactive__region_dif()})
   
   
-  # observeEvent(input$arts_chart_mouseOver$name, {   
-  #   reg_val <- 
-  #     df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>% 
-  #     select(region, prop_resp) %>%
-  #     filter(region==input$arts_chart_mouseOver$name) %>%
-  #     select(prop_resp) %>%
-  #     pull(1)
-  #   reg_eng_dif <- eng_val - reg_val
-  #   reactive__region_name <- reactiveVal(input$arts_chart_mouseOver$name)
-  #   reactive__region_val <- reactiveVal(reg_val)
-  #   reactive__region_dif <- reactiveVal(reg_eng_dif)
-  #   # add rank
-  #   # add arts suffix
-  # })
-  # 
-  #-----------------------------------------------------------------------------
-  # output$mouseOver_ui <- renderUI({
-  #   
-  #   if(is.null(input$arts_chart_mouseOver)) return()
-  #   
-  #   wellPanel("Coordinates of mouseOvered point: ",input$arts_chart_mouseOver$name, input$arts_chart_mouseOver$y)
-  #   
-  # })
- 
   output$arts_region_headline_text <- renderUI({
     generate_region_headline_text(input$arts_select, df_list)
   })
@@ -2060,7 +2155,7 @@ server <- function(input, output, session) {
   })
   
   
-
+  
   
   
   observeEvent(input$arts_select, {
@@ -2076,10 +2171,10 @@ server <- function(input, output, session) {
     if (input$arts_select==ARTS_QUESTIONS[length(ARTS_QUESTIONS)])  { 
       shinyjs::hide('arts_next_btn')
     }
-      
-      
-    }, ignoreInit=T)
-      
+    
+    
+  }, ignoreInit=T)
+  
   
   
   observeEvent(input$arts_previous, {
@@ -2090,9 +2185,27 @@ server <- function(input, output, session) {
         selected = ARTS_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$arts_select, df_list, "arts_chart") 
-      update_drilldown_map(input$arts_select, df_list, "arts_map")
-      generate_region_text(input$arts_select, df_list)
-      shinyjs::html(id = 'arts_region_text', html =  generate_region_text(input$arts_select, df_list))
+      #update_drilldown_map(input$arts_select, df_list, "arts_map")
+      # if (!is.null(input$arts_currLevel)) {
+      # if (input$arts_currLevel==0) {
+      #   #browser()
+      # # output$arts_chart <- NULL
+      # # output$arts_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$arts_select, df_list, 'arts', shinybrowser::get_height())
+      # # })
+      #   # highchartProxy('arts_chart') %>%
+      #   # hcpxy_redraw()
+      # }
+      # }
+      
+      
+      #shinyjs::html(id = 'arts_region_headline_text', html=generate_region_headline_text(input$arts_select, df_list))
+      #shinyjs::html(id = 'arts_region_summary_text', html=generate_region_summary_text(input$arts_select, df_list, input$arts_currLevel, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank))
+      # TODO update instead of repetitive regeneration
+      
+      
+      #shinyjs::html(id = 'arts_borough_text', html=generate_borough_text(input$arts_select, df_list))
+      #shinyjs::html(id = 'arts_region_text', html =  generate_region_text(input$arts_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
@@ -2104,11 +2217,31 @@ server <- function(input, output, session) {
         session, "arts_select",
         selected = ARTS_QUESTIONS[current + 1]
       )
+      #input$arts_currLevel <- 1
       #update_drilldown_chart(input$arts_select, df_list, "arts_chart") 
-      update_drilldown_map(input$arts_select, df_list, "arts_map")
-      shinyjs::html(id = 'arts_region_text', html = generate_region_text(input$arts_select, df_list))
+      #update_drilldown_map(input$arts_select, df_list, "arts_map")
+      #browser()
+      # if (!is.null(input$arts_currLevel)) {
+      # if (input$arts_currLevel==0) {
+      # #browser()
+      # # output$arts_chart <- NULL
+      # # output$arts_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$arts_select, df_list, 'arts', shinybrowser::get_height())
+      # # })
+      #   highchartProxy('arts_chart') %>%
+      #   hcpxy_redraw()
+      # }#
+      # }
+      
+      
+      #shinyjs::html(id = 'arts_region_headline_text', html=generate_region_headline_text(input$arts_select, df_list))
+      #shinyjs::html(id = 'arts_region_summary_text', html=generate_region_summary_text(input$arts_select, df_list, input$arts_currLevel, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank))
+      
+      
+      #shinyjs::html(id = 'arts_borough_text', html=generate_borough_text(input$arts_select, df_list))
+      
     }
-  }, ignoreInit=T, ignoreNULL=T, priority=2
+  }, ignoreInit=T, ignoreNULL=T, priority=4
   )
   
   # 
@@ -2129,598 +2262,86 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$arts_compOps, input$arts_currLevel, input$arts_select), {
-    
-    # drillup event bug!!!
-    # https://github.com/blacklabel/custom_events/issues/139
-    
-    
-    
-    print(paste0('Current drilldown level: ',input$arts_currLevel))
-    # print(input$arts_currLevel)
-    question <- as.numeric(input$arts_select)
-    # print(question)
-    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, num_resp, color, drilldown_central)
-    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
-    df_borough <- df_list[[question ]][['borough']][['dataframe']]
-    if ('error'%in%input$arts_compOps & 'mean'%ni%input$arts_compOps) { #delay(110)
-      #browser()
-      if (is.null(input$arts_currLevel)) {
-        #browser()
-        #browser()
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+  # Need to separate out
+  
+  
+  
+  observeEvent(input$arts_select, {
+    if (!is.null(input$arts_currLevel)) { 
+      if (input$arts_currLevel==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#arts_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$arts_currLevel==0) { # drill level
-        #browser()
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'London',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-             
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00'',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else { # top level
-        #browser()
-        
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#arts_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else if ('mean'%in%input$arts_compOps & 'error'%ni%input$arts_compOps) {
-      #browser()
-      if (is.null(input$arts_currLevel)) {
-        #browser()
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        # delay(0,
-        #       shinyjs::runjs(
-        #         paste0(
-        #           "
-        #         var chart = $('#arts_chart').highcharts();
-        #           chart.yAxis[0].update({plotLines:
-        #             [{
-        #               value:",mean(df_region_central$prop_resp),",
-        #               color:'#d82222',
-        #               zIndex:99,
-        #               label: {
-        #                 text: 'England',
-        #                 verticalAlign: 'top',
-        #                 textAlign: 'center',
-        #                 rotation:0,
-        #                 y:-4,
-        #                 style: {
-        #                     color:'#d82222',
-        #                     fontWeight: 'normal',
-        #                     fontSize: '1.35vh'
-        #                 }
-        #               }
-        #             }]
-        #           });
-        #         console.log(chart);
-        #      "
-        #         )
-        #       )
-        # )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+    if (!is.null(input$arts_currLevelMap)) { 
+      if (input$arts_currLevelMap==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#arts_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-      }
-      else if (input$arts_currLevel==0) { # Borough level
-        #browser()
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$arts_currLevel==1) { # top level
-        #browser()
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else {
-      #   update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-      #   delay(300,
-      #         shinyjs::runjs(
-      #           paste0(
-      #             "
-      #           var chart = $('#arts_chart').highcharts();
-      #             chart.yAxis[0].update({plotLines:
-      #               [{
-      #                 value:",mean(df_region_central$prop_resp),",
-      #                 color:'#d82222',
-      #                 zIndex:99,
-      #                 label: {
-      #                   text: 'England',
-      #           verticalAlign: 'top',
-      #           textAlign: 'center',
-      #           rotation:0,
-      #           y:-4,
-      #           style: {
-      #               color:'#d82222',
-      #               fontWeight: 'normal'
-      #           }
-      #           
-      #                 }
-      #               }]
-      #             });
-      #           console.log(chart);
-      #        "
-      #           )
-      #         )
-      #   )
-      #   delay(300,
-      #         shinyjs::runjs(
-      #           paste0(
-      #             "
-      #           var chart = $('#arts_chart').highcharts();
-      #             chart.yAxis[0].update({plotBands:
-      #               [{
-      #                 from:0,
-      #                 to:0,
-      #                 color:'#d822221F',
-      #                 zIndex:98
-      # 
-      #               }]
-      #             });
-      #           console.log(chart);
-      #        "
-      #           )
-      #         )
-      #   )
-      }
-      
-    }
-      
-    else if ('mean'%in%input$arts_compOps & 'error'%in%input$arts_compOps) {
-      if (is.null(input$arts_currLevel)) {
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$arts_currLevel==0) {
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-      }
-      else{
-        update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#arts_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else {
-      update_drilldown_chart(input$arts_select, df_list, "arts_chart")
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
+  }, priority=8)  
+  
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$arts_select, input$arts_currLevel), { #input$arts_compOps, input$arts_currLevel,
+    update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+    update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+    update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+  }, ignoreInit=T, ignoreNULL=F, priority=0)
+  
+  
+  observeEvent(c(input$arts_compOps), { #, input$arts_currLevel
+    update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+  }, ignoreInit=F, ignoreNULL=F, priority=3)
+  
+  
 
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#arts_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
 
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      
-      #browser()
-    }
-  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  
+  
+  
+  
+  # observeEvent(c(input$arts_select), { #input$arts_compOps, input$arts_currLevel,
+  #   update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+  #   # update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+  #   #update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+  #   update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+  # }, ignoreInit=T, ignoreNULL=F, priority=0)
+  # 
+  # 
+  # observeEvent(c(input$arts_currLevel, input$arts_compOps, input$arts_select), { #input$arts_compOps, input$arts_currLevel,
+  #   update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+  # }, ignoreInit=T, ignoreNULL=F, priority=1)
+  
+  
   
   
   
@@ -2731,7 +2352,7 @@ server <- function(input, output, session) {
       req(input$arts_currLevel)
       selected <- input$arts_compOps
       if (input$arts_currLevel==0) {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "arts_compOps",
           choices=c(
             'London mean'='mean',
@@ -2742,7 +2363,7 @@ server <- function(input, output, session) {
         )
       }
       else {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "arts_compOps",
           choices=c(
             'England mean'='mean',
@@ -2754,7 +2375,7 @@ server <- function(input, output, session) {
       }
       
       observeEvent(c(input$arts_select), {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "arts_compOps",
           choices=c(
             'England mean'='mean',
@@ -2763,7 +2384,7 @@ server <- function(input, output, session) {
           selected=selected,
           inline=T
         )
-
+        
       }, ignoreInit=T, ignoreNULL=T, priority=-4)
     }, ignoreInit=T, ignoreNULL=F, priority=-3
   )
@@ -2776,7 +2397,7 @@ server <- function(input, output, session) {
     print(paste0('my level =', input$arts_currLevelMap))
   })
   
-
+  
   observeEvent(c(input$arts_currLevel, input$arts_currLevelMap, input$arts_tab), {
     
     req(input$arts_tab) # still don't really understand req() but is required 
@@ -2794,7 +2415,7 @@ server <- function(input, output, session) {
         shinyjs::hide('arts-text-drilldown')
       }, ignoreInit=T, ignoreNULL=T, priority=-2)
     }
-
+    
     else {
       #browser()
       #delay(5000,
@@ -2813,7 +2434,6 @@ server <- function(input, output, session) {
     
   }, ignoreInit=T, ignoreNULL=T, priority=-1
   )
-  
   
   
   reactive__countFromToArts <- reactive({
@@ -2855,9 +2475,7 @@ server <- function(input, output, session) {
   observeEvent(reactiveVal__countFromToArts$countTo, {
     countupProxy("countUp-arts") %>% 
       countup_update(reactiveVal__countFromToArts$countTo)
-  })
-  
-  
+  }, priority=8)
   
   #=============================================================================
   # Libraries Server
@@ -2889,6 +2507,8 @@ server <- function(input, output, session) {
   output$libraries_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$libraries_select)]][['region']][['title']]))
   })
+  outputOptions(output, "libraries_title_map", suspendWhenHidden = FALSE)
+  
   output$libraries_subtitle_chart <- renderText({
     if (is.null(input$libraries_currLevel)) {
       print(paste("Click to drilldown into London by Borough"))
@@ -2911,15 +2531,17 @@ server <- function(input, output, session) {
       print(paste("Click to drilldown into London by Borough"))
     }
   })
+  outputOptions(output, "libraries_subtitle_map", suspendWhenHidden = FALSE)
   
   
   
   output$libraries_chart <- renderHighchart({
-    generate_drilldown_chart(input$libraries_select, df_list, 'libraries', shinybrowser::get_height())
+    generate_drilldown_chart(LIBRARIES_QUESTIONS[1], df_list, 'libraries', shinybrowser::get_height())
   })
   output$libraries_map <- renderHighchart({
-    generate_drilldown_map(input$libraries_select, df_list, 'libraries', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(LIBRARIES_QUESTIONS[1], df_list, 'libraries', QUESTION_LIST, bounds_region, bounds_borough)
   })
+  outputOptions(output, "libraries_map", suspendWhenHidden = FALSE)
   
   
   reactive__libraries_select <- reactive({req(input$libraries_select)})
@@ -2929,6 +2551,7 @@ server <- function(input, output, session) {
       reg_name <- 'London'
       reg_val <-
         df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         select(region, prop_resp) %>%
         filter(region=='London') %>%
         select(prop_resp) %>%
@@ -2943,7 +2566,7 @@ server <- function(input, output, session) {
       reg_rank <-
         df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
         select(region, prop_resp, rank_direction) %>%
-        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -2955,6 +2578,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -2969,7 +2593,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -2982,6 +2606,7 @@ server <- function(input, output, session) {
           reg_name <- input$libraries_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -2997,7 +2622,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -3007,6 +2632,7 @@ server <- function(input, output, session) {
           reg_name <- input$libraries_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -3022,7 +2648,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$libraries_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -3033,6 +2659,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -3047,7 +2674,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -3060,6 +2687,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -3074,7 +2702,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -3086,6 +2714,7 @@ server <- function(input, output, session) {
           reg_name <- input$libraries_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -3101,7 +2730,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -3111,6 +2740,7 @@ server <- function(input, output, session) {
           reg_name <- input$libraries_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -3126,7 +2756,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$libraries_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -3135,6 +2765,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -3149,7 +2780,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -3208,9 +2839,26 @@ server <- function(input, output, session) {
         selected = LIBRARIES_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$libraries_select, df_list, "libraries_chart") 
-      update_drilldown_map(input$libraries_select, df_list, "libraries_map")
-      generate_region_text(input$libraries_select, df_list)
-      shinyjs::html(id = 'libraries_region_text', html =  generate_region_text(input$libraries_select, df_list))
+      #update_drilldown_map(input$libraries_select, df_list, "libraries_map")
+      # if (!is.null(input$libraries_currLevel)) {
+      # if (input$libraries_currLevel==0) {
+      #   #browser()
+      # # output$libraries_chart <- NULL
+      # # output$libraries_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$libraries_select, df_list, 'libraries', shinybrowser::get_height())
+      # # })
+      #   # highchartProxy('libraries_chart') %>%
+      #   # hcpxy_redraw()
+      # }
+      
+      # }
+      
+      #shinyjs::html(id = 'libraries_region_headline_text', html=generate_region_headline_text(input$libraries_select, df_list))
+      #shinyjs::html(id = 'libraries_region_summary_text', html=generate_region_summary_text(input$libraries_select, df_list, input$libraries_currLevel, reactive__mouseOver_libraries$reg_name,  reactive__mouseOver_libraries$reg_val, reactive__mouseOver_libraries$reg_eng_dif, reactive__mouseOver_libraries$reg_rank))
+      
+      
+      #shinyjs::html(id = 'libraries_borough_text', html=generate_borough_text(input$libraries_select, df_list))
+      #shinyjs::html(id = 'libraries_region_text', html =  generate_region_text(input$libraries_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
@@ -3222,11 +2870,31 @@ server <- function(input, output, session) {
         session, "libraries_select",
         selected = LIBRARIES_QUESTIONS[current + 1]
       )
+      #input$libraries_currLevel <- 1
       #update_drilldown_chart(input$libraries_select, df_list, "libraries_chart") 
-      update_drilldown_map(input$libraries_select, df_list, "libraries_map")
-      shinyjs::html(id = 'libraries_region_text', html = generate_region_text(input$libraries_select, df_list))
+      #update_drilldown_map(input$libraries_select, df_list, "libraries_map")
+      #browser()
+      # if (!is.null(input$libraries_currLevel)) {
+      # if (input$libraries_currLevel==0) {
+      # #browser()
+      # # output$libraries_chart <- NULL
+      # # output$libraries_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$libraries_select, df_list, 'libraries', shinybrowser::get_height())
+      # # })
+      #   highchartProxy('libraries_chart') %>%
+      #   hcpxy_redraw()
+      # }#
+      # }
+      
+      
+      #shinyjs::html(id = 'libraries_region_headline_text', html=generate_region_headline_text(input$libraries_select, df_list))
+      #shinyjs::html(id = 'libraries_region_summary_text', html=generate_region_summary_text(input$libraries_select, df_list, input$libraries_currLevel, reactive__mouseOver_libraries$reg_name,  reactive__mouseOver_libraries$reg_val, reactive__mouseOver_libraries$reg_eng_dif, reactive__mouseOver_libraries$reg_rank))
+      
+      
+      #shinyjs::html(id = 'libraries_borough_text', html=generate_borough_text(input$libraries_select, df_list))
+      
     }
-  }, ignoreInit=T, ignoreNULL=T, priority=2
+  }, ignoreInit=T, ignoreNULL=T, priority=4
   )
   
   # 
@@ -3246,599 +2914,67 @@ server <- function(input, output, session) {
     print('level change')
   })
   
+  # Need to separate out
   
-  observeEvent(c(input$libraries_compOps, input$libraries_currLevel, input$libraries_select), {
-    
-    # drillup event bug!!!
-    # https://github.com/blacklabel/custom_events/issues/139
-    
-    
-    
-    print(paste0('Current drilldown level: ',input$libraries_currLevel))
-    # print(input$libraries_currLevel)
-    question <- as.numeric(input$libraries_select)
-    # print(question)
-    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, num_resp, color, drilldown_central)
-    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
-    df_borough <- df_list[[question ]][['borough']][['dataframe']]
-    if ('error'%in%input$libraries_compOps & 'mean'%ni%input$libraries_compOps) { #delay(110)
-      #browser()
-      if (is.null(input$libraries_currLevel)) {
-        #browser()
-        #browser()
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+  
+  
+  observeEvent(input$libraries_select, {
+    if (!is.null(input$libraries_currLevel)) { 
+      if (input$libraries_currLevel==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#libraries_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$libraries_currLevel==0) { # drill level
-        #browser()
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'London',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-             
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00'',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else { # top level
-        #browser()
-        
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#libraries_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else if ('mean'%in%input$libraries_compOps & 'error'%ni%input$libraries_compOps) {
-      #browser()
-      if (is.null(input$libraries_currLevel)) {
-        #browser()
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        # delay(0,
-        #       shinyjs::runjs(
-        #         paste0(
-        #           "
-        #         var chart = $('#libraries_chart').highcharts();
-        #           chart.yAxis[0].update({plotLines:
-        #             [{
-        #               value:",mean(df_region_central$prop_resp),",
-        #               color:'#d82222',
-        #               zIndex:99,
-        #               label: {
-        #                 text: 'England',
-        #                 verticalAlign: 'top',
-        #                 textAlign: 'center',
-        #                 rotation:0,
-        #                 y:-4,
-        #                 style: {
-        #                     color:'#d82222',
-        #                     fontWeight: 'normal',
-        #                     fontSize: '1.35vh'
-        #                 }
-        #               }
-        #             }]
-        #           });
-        #         console.log(chart);
-        #      "
-        #         )
-        #       )
-        # )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+    if (!is.null(input$libraries_currLevelMap)) { 
+      if (input$libraries_currLevelMap==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#libraries_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-      }
-      else if (input$libraries_currLevel==0) { # Borough level
-        #browser()
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$libraries_currLevel==1) { # top level
-        #browser()
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else {
-        #   update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#libraries_chart').highcharts();
-        #             chart.yAxis[0].update({plotLines:
-        #               [{
-        #                 value:",mean(df_region_central$prop_resp),",
-        #                 color:'#d82222',
-        #                 zIndex:99,
-        #                 label: {
-        #                   text: 'England',
-        #           verticalAlign: 'top',
-        #           textAlign: 'center',
-        #           rotation:0,
-        #           y:-4,
-        #           style: {
-        #               color:'#d82222',
-        #               fontWeight: 'normal'
-        #           }
-        #           
-        #                 }
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#libraries_chart').highcharts();
-        #             chart.yAxis[0].update({plotBands:
-        #               [{
-        #                 from:0,
-        #                 to:0,
-        #                 color:'#d822221F',
-        #                 zIndex:98
-        # 
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-      }
-      
-    }
-    
-    else if ('mean'%in%input$libraries_compOps & 'error'%in%input$libraries_compOps) {
-      if (is.null(input$libraries_currLevel)) {
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$libraries_currLevel==0) {
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-      }
-      else{
-        update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#libraries_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else {
-      update_drilldown_chart(input$libraries_select, df_list, "libraries_chart")
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#libraries_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      
-      #browser()
-    }
-  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  }, priority=8)  
+  
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$libraries_select, input$libraries_currLevel), { #input$libraries_compOps, input$libraries_currLevel,
+    update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+    update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+    update_drilldown_map(input$libraries_select, df_list, "libraries_map", QUESTION_LIST, bounds_region, bounds_borough)
+  }, ignoreInit=T, ignoreNULL=F, priority=0)
+  
+  
+  observeEvent(c(input$libraries_compOps), { #, input$libraries_currLevel
+    update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+  }, ignoreInit=F, ignoreNULL=F, priority=3)
+  
+  
   
   
   
@@ -3849,7 +2985,7 @@ server <- function(input, output, session) {
       req(input$libraries_currLevel)
       selected <- input$libraries_compOps
       if (input$libraries_currLevel==0) {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "libraries_compOps",
           choices=c(
             'London mean'='mean',
@@ -3860,7 +2996,7 @@ server <- function(input, output, session) {
         )
       }
       else {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "libraries_compOps",
           choices=c(
             'England mean'='mean',
@@ -3872,7 +3008,7 @@ server <- function(input, output, session) {
       }
       
       observeEvent(c(input$libraries_select), {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "libraries_compOps",
           choices=c(
             'England mean'='mean',
@@ -3972,7 +3108,7 @@ server <- function(input, output, session) {
   observeEvent(reactiveVal__countFromToLibraries$countTo, {
     countupProxy("countUp-libraries") %>% 
       countup_update(reactiveVal__countFromToLibraries$countTo)
-  })
+  }, priority=8)
   
   #=============================================================================
   # Heritage Server
@@ -4004,6 +3140,8 @@ server <- function(input, output, session) {
   output$heritage_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$heritage_select)]][['region']][['title']]))
   })
+  outputOptions(output, "heritage_title_map", suspendWhenHidden = FALSE)
+  
   output$heritage_subtitle_chart <- renderText({
     if (is.null(input$heritage_currLevel)) {
       print(paste("Click to drilldown into London by Borough"))
@@ -4026,15 +3164,17 @@ server <- function(input, output, session) {
       print(paste("Click to drilldown into London by Borough"))
     }
   })
+  outputOptions(output, "heritage_subtitle_map", suspendWhenHidden = FALSE)
   
   
   
   output$heritage_chart <- renderHighchart({
-    generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
+    generate_drilldown_chart(HERITAGE_QUESTIONS[1], df_list, 'heritage', shinybrowser::get_height())
   })
   output$heritage_map <- renderHighchart({
-    generate_drilldown_map(input$heritage_select, df_list, 'heritage', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(HERITAGE_QUESTIONS[1], df_list, 'heritage', QUESTION_LIST, bounds_region, bounds_borough)
   })
+  outputOptions(output, "heritage_map", suspendWhenHidden = FALSE)
   
   
   reactive__heritage_select <- reactive({req(input$heritage_select)})
@@ -4044,6 +3184,7 @@ server <- function(input, output, session) {
       reg_name <- 'London'
       reg_val <-
         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         select(region, prop_resp) %>%
         filter(region=='London') %>%
         select(prop_resp) %>%
@@ -4058,7 +3199,7 @@ server <- function(input, output, session) {
       reg_rank <-
         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
         select(region, prop_resp, rank_direction) %>%
-        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -4070,6 +3211,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -4084,7 +3226,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -4097,6 +3239,7 @@ server <- function(input, output, session) {
           reg_name <- input$heritage_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -4112,7 +3255,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -4122,6 +3265,7 @@ server <- function(input, output, session) {
           reg_name <- input$heritage_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -4137,7 +3281,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$heritage_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -4148,6 +3292,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -4162,7 +3307,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -4175,6 +3320,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -4189,7 +3335,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -4201,6 +3347,7 @@ server <- function(input, output, session) {
           reg_name <- input$heritage_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -4216,7 +3363,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -4226,6 +3373,7 @@ server <- function(input, output, session) {
           reg_name <- input$heritage_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -4241,7 +3389,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$heritage_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -4250,6 +3398,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -4264,7 +3413,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -4323,9 +3472,26 @@ server <- function(input, output, session) {
         selected = HERITAGE_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
-      update_drilldown_map(input$heritage_select, df_list, "heritage_map")
-      generate_region_text(input$heritage_select, df_list)
-      shinyjs::html(id = 'heritage_region_text', html =  generate_region_text(input$heritage_select, df_list))
+      #update_drilldown_map(input$heritage_select, df_list, "heritage_map")
+      # if (!is.null(input$heritage_currLevel)) {
+      # if (input$heritage_currLevel==0) {
+      #   #browser()
+      # # output$heritage_chart <- NULL
+      # # output$heritage_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
+      # # })
+      #   # highchartProxy('heritage_chart') %>%
+      #   # hcpxy_redraw()
+      # }
+      # }
+      
+      
+      #shinyjs::html(id = 'heritage_region_headline_text', html=generate_region_headline_text(input$heritage_select, df_list))
+      #shinyjs::html(id = 'heritage_region_summary_text', html=generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank))
+      
+      
+      #shinyjs::html(id = 'heritage_borough_text', html=generate_borough_text(input$heritage_select, df_list))
+      #shinyjs::html(id = 'heritage_region_text', html =  generate_region_text(input$heritage_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
@@ -4337,11 +3503,32 @@ server <- function(input, output, session) {
         session, "heritage_select",
         selected = HERITAGE_QUESTIONS[current + 1]
       )
+      #input$heritage_currLevel <- 1
       #update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
-      update_drilldown_map(input$heritage_select, df_list, "heritage_map")
-      shinyjs::html(id = 'heritage_region_text', html = generate_region_text(input$heritage_select, df_list))
+      #update_drilldown_map(input$heritage_select, df_list, "heritage_map")
+      #browser()
+      # if (!is.null(input$heritage_currLevel)) {
+      # if (input$heritage_currLevel==0) {
+      # #browser()
+      # # output$heritage_chart <- NULL
+      # # output$heritage_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
+      # # })
+      #   highchartProxy('heritage_chart') %>%
+      #   hcpxy_redraw()
+      # }#
+      # }
+      
+      
+      #shinyjs::html(id = 'heritage_region_headline_text', html=generate_region_headline_text(input$heritage_select, df_list))
+      #shinyjs::html(id = 'heritage_region_summary_text', html=generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank))
+      
+      
+      
+      #shinyjs::html(id = 'heritage_borough_text', html=generate_borough_text(input$heritage_select, df_list))
+      
     }
-  }, ignoreInit=T, ignoreNULL=T, priority=2
+  }, ignoreInit=T, ignoreNULL=T, priority=4
   )
   
   # 
@@ -4362,598 +3549,82 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$heritage_compOps, input$heritage_currLevel, input$heritage_select), {
-    
-    # drillup event bug!!!
-    # https://github.com/blacklabel/custom_events/issues/139
-    
-    
-    
-    print(paste0('Current drilldown level: ',input$heritage_currLevel))
-    # print(input$heritage_currLevel)
-    question <- as.numeric(input$heritage_select)
-    # print(question)
-    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, num_resp, color, drilldown_central)
-    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
-    df_borough <- df_list[[question ]][['borough']][['dataframe']]
-    if ('error'%in%input$heritage_compOps & 'mean'%ni%input$heritage_compOps) { #delay(110)
-      #browser()
-      if (is.null(input$heritage_currLevel)) {
-        #browser()
-        #browser()
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+  # Need to separate out
+  
+  
+  
+  observeEvent(input$heritage_select, {
+    if (!is.null(input$heritage_currLevel)) { 
+      if (input$heritage_currLevel==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#heritage_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$heritage_currLevel==0) { # drill level
-        #browser()
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'London',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-             
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00'',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else { # top level
-        #browser()
-        
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#heritage_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else if ('mean'%in%input$heritage_compOps & 'error'%ni%input$heritage_compOps) {
-      #browser()
-      if (is.null(input$heritage_currLevel)) {
-        #browser()
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        # delay(0,
-        #       shinyjs::runjs(
-        #         paste0(
-        #           "
-        #         var chart = $('#heritage_chart').highcharts();
-        #           chart.yAxis[0].update({plotLines:
-        #             [{
-        #               value:",mean(df_region_central$prop_resp),",
-        #               color:'#d82222',
-        #               zIndex:99,
-        #               label: {
-        #                 text: 'England',
-        #                 verticalAlign: 'top',
-        #                 textAlign: 'center',
-        #                 rotation:0,
-        #                 y:-4,
-        #                 style: {
-        #                     color:'#d82222',
-        #                     fontWeight: 'normal',
-        #                     fontSize: '1.35vh'
-        #                 }
-        #               }
-        #             }]
-        #           });
-        #         console.log(chart);
-        #      "
-        #         )
-        #       )
-        # )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+    if (!is.null(input$heritage_currLevelMap)) { 
+      if (input$heritage_currLevelMap==0) {
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#heritage_map').highcharts();
+            chart.drillUp();
+            "
+          )
         )
-      }
-      else if (input$heritage_currLevel==0) { # Borough level
-        #browser()
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$heritage_currLevel==1) { # top level
-        #browser()
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else {
-        #   update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#heritage_chart').highcharts();
-        #             chart.yAxis[0].update({plotLines:
-        #               [{
-        #                 value:",mean(df_region_central$prop_resp),",
-        #                 color:'#d82222',
-        #                 zIndex:99,
-        #                 label: {
-        #                   text: 'England',
-        #           verticalAlign: 'top',
-        #           textAlign: 'center',
-        #           rotation:0,
-        #           y:-4,
-        #           style: {
-        #               color:'#d82222',
-        #               fontWeight: 'normal'
-        #           }
-        #           
-        #                 }
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#heritage_chart').highcharts();
-        #             chart.yAxis[0].update({plotBands:
-        #               [{
-        #                 from:0,
-        #                 to:0,
-        #                 color:'#d822221F',
-        #                 zIndex:98
-        # 
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-      }
-      
-    }
-    
-    else if ('mean'%in%input$heritage_compOps & 'error'%in%input$heritage_compOps) {
-      if (is.null(input$heritage_currLevel)) {
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$heritage_currLevel==0) {
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-      }
-      else{
-        update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
+        shinyjs::runjs(
+          paste0(
+            "
+            var chart = $('#heritage_chart').highcharts();
+            chart.drillUp();
+            "
+          )
         )
       }
     }
-    else {
-      update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#heritage_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      
-      #browser()
-    }
-  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  }, priority=8)  
+  
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$heritage_select, input$heritage_currLevel), { #input$heritage_compOps, input$heritage_currLevel,
+    update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+    update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+    update_drilldown_map(input$heritage_select, df_list, "heritage_map", QUESTION_LIST, bounds_region, bounds_borough)
+  }, ignoreInit=T, ignoreNULL=F, priority=0)
+  
+  
+  observeEvent(c(input$heritage_compOps), { #, input$heritage_currLevel
+    update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+  }, ignoreInit=F, ignoreNULL=F, priority=3)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -4964,7 +3635,7 @@ server <- function(input, output, session) {
       req(input$heritage_currLevel)
       selected <- input$heritage_compOps
       if (input$heritage_currLevel==0) {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "heritage_compOps",
           choices=c(
             'London mean'='mean',
@@ -4975,7 +3646,7 @@ server <- function(input, output, session) {
         )
       }
       else {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "heritage_compOps",
           choices=c(
             'England mean'='mean',
@@ -4987,7 +3658,7 @@ server <- function(input, output, session) {
       }
       
       observeEvent(c(input$heritage_select), {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "heritage_compOps",
           choices=c(
             'England mean'='mean',
@@ -5087,13 +3758,1135 @@ server <- function(input, output, session) {
   observeEvent(reactiveVal__countFromToHeritage$countTo, {
     countupProxy("countUp-heritage") %>% 
       countup_update(reactiveVal__countFromToHeritage$countTo)
-  })
+  }, priority=8)
   
   
+  #' output$heritage_previous_btn <- renderUI({
+  #'   # tooltip(
+  #'   actionButton(
+  #'     "heritage_previous", 
+  #'     "Previous question",
+  #'     icon=icon("backward")
+  #'   )
+  #'   #,
+  #'   #'A fucking message'
+  #'   #)
+  #' })
+  #' output$heritage_next_btn <- renderUI({
+  #'   actionButton(
+  #'     "heritage_next", 
+  #'     "Next question",
+  #'     icon=icon("forward")
+  #'   )
+  #' })
+  #' 
+  #' 
+  #' output$heritage_title_chart <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$heritage_select)]][['region']][['title']]))
+  #' })
+  #' output$heritage_title_map <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$heritage_select)]][['region']][['title']]))
+  #' })
+  #' output$heritage_subtitle_chart <- renderText({
+  #'   if (is.null(input$heritage_currLevel)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$heritage_currLevel==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' output$heritage_subtitle_map <- renderText({
+  #'   if (is.null(input$heritage_currLevelMap)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$heritage_currLevelMap==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' 
+  #' 
+  #' 
+  #' output$heritage_chart <- renderHighchart({
+  #'   generate_drilldown_chart(input$heritage_select, df_list, 'heritage', shinybrowser::get_height())
+  #' })
+  #' output$heritage_map <- renderHighchart({
+  #'   generate_drilldown_map(input$heritage_select, df_list, 'heritage', QUESTION_LIST, bounds_region, bounds_borough)
+  #' })
+  #' 
+  #' 
+  #' reactive__heritage_select <- reactive({req(input$heritage_select)})
+  #' reactive__mouseOver_heritage <- reactiveValues()
+  #' observeEvent(c(input$heritage_tab, input$heritage_chart_mouseOver$name,input$heritage_currLevel, input$heritage_map_mouseOver,input$heritage_currLevelMap, input$heritage_select), {
+  #'   observeEvent(c(input$heritage_tab, input$heritage_select, input$heritage_currLevel, input$heritage_currLevelMap), {
+  #'     reg_name <- 'London'
+  #'     reg_val <-
+  #'       df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'       mutate(prop_resp=round(prop_resp,1)) %>%
+  #'       select(region, prop_resp) %>%
+  #'       filter(region=='London') %>%
+  #'       select(prop_resp) %>%
+  #'       pull(1)
+  #'     eng_val <-
+  #'       df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'       mutate(mean = round(mean(prop_resp),1)) %>%
+  #'       filter(region=='London') %>%
+  #'       select(mean) %>%
+  #'       pull(1)
+  #'     reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'     reg_rank <-
+  #'       df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'       select(region, prop_resp, rank_direction) %>%
+  #'       mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'       filter(region=='London') %>%
+  #'       select(rank) %>%
+  #'       pull(1)
+  #'     
+  #'   }, ignoreInit=T, ignoreNULL=T)
+  #'   if (input$heritage_tab=='chart') {
+  #'     if(is.null(input$heritage_chart_mouseOver$name)) {
+  #'       #browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'       #browser()
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       
+  #'       if (is.null(input$heritage_currLevel)) {
+  #'         reg_name <- input$heritage_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'       }
+  #'       else if (input$heritage_currLevel==1) {
+  #'         reg_name <- input$heritage_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$heritage_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         # TODO TRY HERE!!!!!!!!
+  #'         #browser()
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   if (input$heritage_tab=='map') {
+  #'     if(is.null(input$heritage_map_mouseOver)) {
+  #'       # browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       if (is.null(input$heritage_currLevelMap)) {
+  #'         #browser()
+  #'         reg_name <- input$heritage_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else if (input$heritage_currLevelMap==1) {
+  #'         #browser()
+  #'         reg_name <- input$heritage_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$heritage_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   reactive__mouseOver_heritage$reg_name <- reg_name
+  #'   reactive__mouseOver_heritage$reg_val <- reg_val
+  #'   reactive__mouseOver_heritage$reg_eng_dif <- reg_eng_dif
+  #'   reactive__mouseOver_heritage$reg_rank <- reg_rank
+  #'   # browser()
+  #'   # print('yo')
+  #' }, ignoreNULL=F, ignoreInit=F
+  #' )
+  #' 
+  #' 
+  #' output$heritage_region_headline_text <- renderUI({
+  #'   generate_region_headline_text(input$heritage_select, df_list)
+  #' })
+  #' output$heritage_region_summary_text <- renderUI({
+  #'   generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank)
+  #' })
+  #' 
+  #' output$heritage_borough_text <- renderUI({
+  #'   generate_borough_text(input$heritage_select, df_list)
+  #' })
+  #' 
+  #' 
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$heritage_select, {
+  #'   if (input$heritage_select!=HERITAGE_QUESTIONS[1]) {
+  #'     shinyjs::show('heritage_previous_btn')
+  #'   }
+  #'   if (input$heritage_select==HERITAGE_QUESTIONS[1]) {
+  #'     shinyjs::hide('heritage_previous_btn')
+  #'   }
+  #'   if (input$heritage_select!=HERITAGE_QUESTIONS[length(HERITAGE_QUESTIONS)]) {
+  #'     shinyjs::show('heritage_next_btn')
+  #'   }
+  #'   if (input$heritage_select==HERITAGE_QUESTIONS[length(HERITAGE_QUESTIONS)])  { 
+  #'     shinyjs::hide('heritage_next_btn')
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$heritage_previous, {
+  #'   current <- which(HERITAGE_QUESTIONS == input$heritage_select)
+  #'   if(current > 1) {
+  #'     updateSelectInput(
+  #'       session, "heritage_select",
+  #'       selected = HERITAGE_QUESTIONS[current - 1]
+  #'     )
+  #'     #update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
+  #'     update_drilldown_map(input$heritage_select, df_list, "heritage_map")
+  #'     generate_region_text(input$heritage_select, df_list)
+  #'     shinyjs::html(id = 'heritage_region_text', html =  generate_region_text(input$heritage_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' # 
+  #' observeEvent(input$heritage_next, {
+  #'   current <- which(HERITAGE_QUESTIONS == input$heritage_select)
+  #'   if(current < length(HERITAGE_QUESTIONS)){
+  #'     updateSelectInput(
+  #'       session, "heritage_select",
+  #'       selected = HERITAGE_QUESTIONS[current + 1]
+  #'     )
+  #'     #update_drilldown_chart(input$heritage_select, df_list, "heritage_chart") 
+  #'     update_drilldown_map(input$heritage_select, df_list, "heritage_map")
+  #'     shinyjs::html(id = 'heritage_region_text', html = generate_region_text(input$heritage_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' 
+  #' # 
+  #' # observeEvent(c(input$heritage_currLevel,input$heritage_currLevelMap), {
+  #' #   if (is.null(input$heritage_currLevel)) {
+  #' #     updateTextOutput(session, 'heritage_subtitle_text')
+  #' #   }
+  #' #    if (is.null(input$heritage_currLevelMap)) {
+  #' #      updateTextOutput(session, 'heritage_subtitle_text')
+  #' #    }
+  #' #   
+  #' #   input$heritage_currLevel
+  #' #   
+  #' # })
+  #' 
+  #' observeEvent(input$heritage_currLevel, {
+  #'   print('level change')
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$heritage_compOps, input$heritage_currLevel, input$heritage_select), {
+  #'   
+  #'   # drillup event bug!!!
+  #'   # https://github.com/blacklabel/custom_events/issues/139
+  #'   
+  #'   
+  #'   
+  #'   print(paste0('Current drilldown level: ',input$heritage_currLevel))
+  #'   # print(input$heritage_currLevel)
+  #'   question <- as.numeric(input$heritage_select)
+  #'   # print(question)
+  #'   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, num_resp, color, drilldown_central)
+  #'   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
+  #'   df_borough <- df_list[[question ]][['borough']][['dataframe']]
+  #'   if ('error'%in%input$heritage_compOps & 'mean'%ni%input$heritage_compOps) { #delay(110)
+  #'     #browser()
+  #'     if (is.null(input$heritage_currLevel)) {
+  #'       #browser()
+  #'       #browser()
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$heritage_currLevel==0) { # drill level
+  #'       #browser()
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'London',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'            
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00'',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else { # top level
+  #'       #browser()
+  #'       
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else if ('mean'%in%input$heritage_compOps & 'error'%ni%input$heritage_compOps) {
+  #'     #browser()
+  #'     if (is.null(input$heritage_currLevel)) {
+  #'       #browser()
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       # delay(0,
+  #'       #       shinyjs::runjs(
+  #'       #         paste0(
+  #'       #           "
+  #'       #         var chart = $('#heritage_chart').highcharts();
+  #'       #           chart.yAxis[0].update({plotLines:
+  #'       #             [{
+  #'       #               value:",mean(df_region_central$prop_resp),",
+  #'       #               color:'#d82222',
+  #'       #               zIndex:99,
+  #'       #               label: {
+  #'       #                 text: 'England',
+  #'       #                 verticalAlign: 'top',
+  #'       #                 textAlign: 'center',
+  #'       #                 rotation:0,
+  #'       #                 y:-4,
+  #'       #                 style: {
+  #'       #                     color:'#d82222',
+  #'       #                     fontWeight: 'normal',
+  #'       #                     fontSize: '1.35vh'
+  #'       #                 }
+  #'       #               }
+  #'       #             }]
+  #'       #           });
+  #'       #         console.log(chart);
+  #'       #      "
+  #'       #         )
+  #'       #       )
+  #'       # )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$heritage_currLevel==0) { # Borough level
+  #'       #browser()
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$heritage_currLevel==1) { # top level
+  #'       #browser()
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else {
+  #'       #   update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#heritage_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotLines:
+  #'       #               [{
+  #'       #                 value:",mean(df_region_central$prop_resp),",
+  #'       #                 color:'#d82222',
+  #'       #                 zIndex:99,
+  #'       #                 label: {
+  #'       #                   text: 'England',
+  #'       #           verticalAlign: 'top',
+  #'       #           textAlign: 'center',
+  #'       #           rotation:0,
+  #'       #           y:-4,
+  #'       #           style: {
+  #'       #               color:'#d82222',
+  #'       #               fontWeight: 'normal'
+  #'       #           }
+  #'       #           
+  #'       #                 }
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#heritage_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotBands:
+  #'       #               [{
+  #'       #                 from:0,
+  #'       #                 to:0,
+  #'       #                 color:'#d822221F',
+  #'       #                 zIndex:98
+  #'       # 
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'     }
+  #'     
+  #'   }
+  #'   
+  #'   else if ('mean'%in%input$heritage_compOps & 'error'%in%input$heritage_compOps) {
+  #'     if (is.null(input$heritage_currLevel)) {
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$heritage_currLevel==0) {
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'     }
+  #'     else{
+  #'       update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else {
+  #'     update_drilldown_chart(input$heritage_select, df_list, "heritage_chart")
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#heritage_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     
+  #'     #browser()
+  #'   }
+  #' }, ignoreInit=F, ignoreNULL=F, priority=0)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(
+  #'   c(input$heritage_currLevel), {
+  #'     
+  #'     #browser()
+  #'     req(input$heritage_currLevel)
+  #'     selected <- input$heritage_compOps
+  #'     if (input$heritage_currLevel==0) {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "heritage_compOps",
+  #'         choices=c(
+  #'           'London mean'='mean',
+  #'           'London error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     else {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "heritage_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     
+  #'     observeEvent(c(input$heritage_select), {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "heritage_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'       
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-4)
+  #'   }, ignoreInit=T, ignoreNULL=F, priority=-3
+  #' )
+  #' 
+  #' observe({
+  #'   print(input$heritage_tab)
+  #' })
+  #' 
+  #' observe({
+  #'   print(paste0('my level =', input$heritage_currLevelMap))
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$heritage_currLevel, input$heritage_currLevelMap, input$heritage_tab), {
+  #'   
+  #'   req(input$heritage_tab) # still don't really understand req() but is required 
+  #'   #browser()
+  #'   if (input$heritage_tab=='chart') {
+  #'     req(input$heritage_currLevel)
+  #'     #browser()
+  #'     if (input$heritage_currLevel==0) {
+  #'       shinyjs::show('heritage-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('heritage-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$heritage_select, input$heritage_tab), {
+  #'       shinyjs::hide('heritage-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   else {
+  #'     #browser()
+  #'     #delay(5000,
+  #'     req(input$heritage_currLevelMap)
+  #'     if (input$heritage_currLevelMap==0) {
+  #'       shinyjs::show('heritage-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('heritage-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$heritage_select, input$heritage_tab), {
+  #'       shinyjs::hide('heritage-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T, ignoreNULL=T, priority=-1
+  #' )
+  #' 
+  #' 
+  #' reactive__countFromToHeritage <- reactive({
+  #'   question <- as.numeric(input$heritage_select)
+  #'   df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, color, drilldown_central)
+  #'   countTo <- df_region$prop_resp[df_region$region=='London']
+  #' })
+  #' 
+  #' reactiveVal__countFromToHeritage <-  reactiveValues(countFrom=0, countTo=0)
+  #' 
+  #' observeEvent( 
+  #'   reactive__countFromToHeritage(),{
+  #'     reactiveVal__countFromToHeritage$countFrom <- reactiveVal__countFromToHeritage$countTo; 
+  #'     #print(reactiveVal__countFromTo$countFrom)
+  #'     reactiveVal__countFromToHeritage$countTo <- reactive__countFromToHeritage()
+  #'     #print(reactiveVal__countFromTo$countTo)
+  #'   }
+  #' )
+  #' 
+  #' reactive__countToHeritage <- reactive({req(reactive__countFromToHeritage());  reactive__countFromToHeritage(); reactiveVal__countFromToHeritage$countTo})
+  #' reactive__countFromHeritage <- reactive({req(reactive__countFromToHeritage()); reactive__countFromToHeritage(); reactiveVal__countFromToHeritage$countFrom})
+  #' 
+  #' 
+  #' output$countTo <- renderPrint({reactive__countTo()})
+  #' output$countFrom <- renderPrint({ reactive__countFrom()})
+  #' 
+  #' 
+  #' observeEvent(
+  #'   input$heritage_select,once=T, ignoreNULL=F, ignoreInit=F, {
+  #'     insertUI(
+  #'       selector = "#countUp-ui-heritage",
+  #'       where = "afterEnd",
+  #'       ui = div(generate_countUp(reactiveVal__countFromToHeritage$countTo, reactiveVal__countFromToHeritage$countFrom, 'heritage'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+  #'     )
+  #'   }
+  #' )
+  #' 
+  #' observeEvent(reactiveVal__countFromToHeritage$countTo, {
+  #'   countupProxy("countUp-heritage") %>% 
+  #'     countup_update(reactiveVal__countFromToHeritage$countTo)
+  #' })
+  #' 
+  #' 
   
   #=============================================================================
   # Sport Server
   #=============================================================================
+  
   
   output$sport_previous_btn <- renderUI({
     # tooltip(
@@ -5121,15 +4914,11 @@ server <- function(input, output, session) {
   output$sport_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
   })
+  outputOptions(output, "sport_title_map", suspendWhenHidden = FALSE)
+  
   output$sport_subtitle_chart <- renderText({
     if (is.null(input$sport_currLevel)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$sport_currLevel==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
+      print(paste("Drilldown functionality is not available since Borough-level data has not been published"))
     }
   })
   output$sport_subtitle_map <- renderText({
@@ -5143,15 +4932,17 @@ server <- function(input, output, session) {
       print(paste("Click to drilldown into London by Borough"))
     }
   })
+  outputOptions(output, "sport_subtitle_map", suspendWhenHidden = FALSE)
   
   
   
   output$sport_chart <- renderHighchart({
-    generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
+    generate_drilldown_chart(SPORT_QUESTIONS[1], df_list, 'sport', shinybrowser::get_height())
   })
   output$sport_map <- renderHighchart({
-    generate_drilldown_map(input$sport_select, df_list, 'sport', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(SPORT_QUESTIONS[1], df_list, 'sport', QUESTION_LIST, bounds_region, bounds_borough)
   })
+  outputOptions(output, "sport_map", suspendWhenHidden = FALSE)
   
   
   reactive__sport_select <- reactive({req(input$sport_select)})
@@ -5161,6 +4952,7 @@ server <- function(input, output, session) {
       reg_name <- 'London'
       reg_val <-
         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         select(region, prop_resp) %>%
         filter(region=='London') %>%
         select(prop_resp) %>%
@@ -5175,7 +4967,7 @@ server <- function(input, output, session) {
       reg_rank <-
         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
         select(region, prop_resp, rank_direction) %>%
-        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -5187,6 +4979,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -5201,7 +4994,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -5214,6 +5007,7 @@ server <- function(input, output, session) {
           reg_name <- input$sport_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -5229,7 +5023,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -5239,6 +5033,7 @@ server <- function(input, output, session) {
           reg_name <- input$sport_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -5254,7 +5049,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$sport_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -5265,6 +5060,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -5279,7 +5075,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -5292,6 +5088,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -5306,7 +5103,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -5318,6 +5115,7 @@ server <- function(input, output, session) {
           reg_name <- input$sport_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -5333,7 +5131,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -5343,6 +5141,7 @@ server <- function(input, output, session) {
           reg_name <- input$sport_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -5358,7 +5157,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$sport_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -5367,6 +5166,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -5381,7 +5181,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -5405,10 +5205,10 @@ server <- function(input, output, session) {
     generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank)
   })
   
-  output$sport_borough_text <- renderUI({
-    generate_borough_text(input$sport_select, df_list)
-  })
-  
+  # output$sport_borough_text <- renderUI({
+  #   generate_borough_text(input$sport_select, df_list)
+  # })
+  # 
   
   
   
@@ -5441,8 +5241,27 @@ server <- function(input, output, session) {
       )
       #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
       #update_drilldown_map(input$sport_select, df_list, "sport_map")
-      generate_region_text(input$sport_select, df_list)
-      shinyjs::html(id = 'sport_region_text', html =  generate_region_text(input$sport_select, df_list))
+      # if (!is.null(input$sport_currLevel)) {
+      # if (input$sport_currLevel==0) {
+      #   #browser()
+      # # output$sport_chart <- NULL
+      # # output$sport_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
+      # # })
+      #   # highchartProxy('sport_chart') %>%
+      #   # hcpxy_redraw()
+      # }
+      # }
+      
+      
+      
+      #shinyjs::html(id = 'sport_region_headline_text', html=generate_region_headline_text(input$sport_select, df_list))
+      #shinyjs::html(id = 'sport_region_summary_text', html=generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank))
+      
+      
+      
+      #shinyjs::html(id = 'sport_borough_text', html=generate_borough_text(input$sport_select, df_list))
+      #shinyjs::html(id = 'sport_region_text', html =  generate_region_text(input$sport_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
@@ -5454,11 +5273,32 @@ server <- function(input, output, session) {
         session, "sport_select",
         selected = SPORT_QUESTIONS[current + 1]
       )
+      #input$sport_currLevel <- 1
       #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
       #update_drilldown_map(input$sport_select, df_list, "sport_map")
-      shinyjs::html(id = 'sport_region_text', html = generate_region_text(input$sport_select, df_list))
+      #browser()
+      # if (!is.null(input$sport_currLevel)) {
+      # if (input$sport_currLevel==0) {
+      # #browser()
+      # # output$sport_chart <- NULL
+      # # output$sport_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
+      # # })
+      #   highchartProxy('sport_chart') %>%
+      #   hcpxy_redraw()
+      # }#
+      # }
+      
+      
+      #shinyjs::html(id = 'sport_region_headline_text', html=generate_region_headline_text(input$sport_select, df_list))
+      #shinyjs::html(id = 'sport_region_summary_text', html=generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank))
+      
+      
+      
+      #shinyjs::html(id = 'sport_borough_text', html=generate_borough_text(input$sport_select, df_list))
+      
     }
-  }, ignoreInit=T, ignoreNULL=T, priority=2
+  }, ignoreInit=T, ignoreNULL=T, priority=4
   )
   
   # 
@@ -5479,598 +5319,51 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$sport_compOps, input$sport_currLevel, input$sport_select), {
-    
-    # drillup event bug!!!
-    # https://github.com/blacklabel/custom_events/issues/139
-    
-    
-    
-    print(paste0('Current drilldown level: ',input$sport_currLevel))
-    # print(input$sport_currLevel)
-    question <- as.numeric(input$sport_select)
-    # print(question)
-    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, num_resp, color, drilldown_central)
-    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
-    df_borough <- df_list[[question ]][['borough']][['dataframe']]
-    if ('error'%in%input$sport_compOps & 'mean'%ni%input$sport_compOps) { #delay(110)
-      #browser()
-      if (is.null(input$sport_currLevel)) {
-        #browser()
-        #browser()
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$sport_currLevel==0) { # drill level
-        #browser()
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'London',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-             
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00'',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else { # top level
-        #browser()
-        
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-    }
-    else if ('mean'%in%input$sport_compOps & 'error'%ni%input$sport_compOps) {
-      #browser()
-      if (is.null(input$sport_currLevel)) {
-        #browser()
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        # delay(0,
-        #       shinyjs::runjs(
-        #         paste0(
-        #           "
-        #         var chart = $('#sport_chart').highcharts();
-        #           chart.yAxis[0].update({plotLines:
-        #             [{
-        #               value:",mean(df_region_central$prop_resp),",
-        #               color:'#d82222',
-        #               zIndex:99,
-        #               label: {
-        #                 text: 'England',
-        #                 verticalAlign: 'top',
-        #                 textAlign: 'center',
-        #                 rotation:0,
-        #                 y:-4,
-        #                 style: {
-        #                     color:'#d82222',
-        #                     fontWeight: 'normal',
-        #                     fontSize: '1.35vh'
-        #                 }
-        #               }
-        #             }]
-        #           });
-        #         console.log(chart);
-        #      "
-        #         )
-        #       )
-        # )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$sport_currLevel==0) { # Borough level
-        #browser()
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$sport_currLevel==1) { # top level
-        #browser()
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else {
-        #   update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#sport_chart').highcharts();
-        #             chart.yAxis[0].update({plotLines:
-        #               [{
-        #                 value:",mean(df_region_central$prop_resp),",
-        #                 color:'#d82222',
-        #                 zIndex:99,
-        #                 label: {
-        #                   text: 'England',
-        #           verticalAlign: 'top',
-        #           textAlign: 'center',
-        #           rotation:0,
-        #           y:-4,
-        #           style: {
-        #               color:'#d82222',
-        #               fontWeight: 'normal'
-        #           }
-        #           
-        #                 }
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#sport_chart').highcharts();
-        #             chart.yAxis[0].update({plotBands:
-        #               [{
-        #                 from:0,
-        #                 to:0,
-        #                 color:'#d822221F',
-        #                 zIndex:98
-        # 
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-      }
-      
-    }
-    
-    else if ('mean'%in%input$sport_compOps & 'error'%in%input$sport_compOps) {
-      if (is.null(input$sport_currLevel)) {
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$sport_currLevel==0) {
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-      }
-      else{
-        update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-    }
-    else {
-      update_drilldown_chart(input$sport_select, df_list, "sport_chart")
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#sport_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      
-      #browser()
-    }
-  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  # Need to separate out
+  
+  
+  
+  # observeEvent(input$sport_select, {
+  #   if (!is.null(input$sport_currLevel)) { 
+  #     if (input$sport_currLevel==0) {
+  #       shinyjs::runjs(
+  #         paste0(
+  #           "
+  #           var chart = $('#sport_chart').highcharts();
+  #           chart.drillUp();
+  #           "
+  #         )
+  #       )
+  #     }
+  #   }
+  #   if (!is.null(input$sport_currLevelMap)) { 
+  #     if (input$sport_currLevelMap==0) {
+  #       shinyjs::runjs(
+  #         paste0(
+  #           "
+  #           var chart = $('#sport_map').highcharts();
+  #           chart.drillUp();
+  #           "
+  #         )
+  #       )
+  #     }
+  #   }
+  #   
+  # }, priority=2)  
+  
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$sport_select), { #input$sport_compOps, input$sport_currLevel,
+    update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+    update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+    update_drilldown_map(input$sport_select, df_list, "sport_map", QUESTION_LIST, bounds_region, bounds_borough)
+  }, ignoreInit=T, ignoreNULL=F, priority=0)
+  
+  
+  observeEvent(c(input$sport_compOps, input$sport_currLevel), { #input$sport_compOps, input$sport_currLevel,
+    update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+  }, ignoreInit=F, ignoreNULL=F, priority=3)
+  
   
   
   
@@ -6081,7 +5374,7 @@ server <- function(input, output, session) {
       req(input$sport_currLevel)
       selected <- input$sport_compOps
       if (input$sport_currLevel==0) {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "sport_compOps",
           choices=c(
             'London mean'='mean',
@@ -6092,7 +5385,7 @@ server <- function(input, output, session) {
         )
       }
       else {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "sport_compOps",
           choices=c(
             'England mean'='mean',
@@ -6104,7 +5397,7 @@ server <- function(input, output, session) {
       }
       
       observeEvent(c(input$sport_select), {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "sport_compOps",
           choices=c(
             'England mean'='mean',
@@ -6204,13 +5497,1135 @@ server <- function(input, output, session) {
   observeEvent(reactiveVal__countFromToSport$countTo, {
     countupProxy("countUp-sport") %>% 
       countup_update(reactiveVal__countFromToSport$countTo)
-  })
+  }, priority=8)
   
-  
+  #' output$sport_previous_btn <- renderUI({
+  #'   # tooltip(
+  #'   actionButton(
+  #'     "sport_previous", 
+  #'     "Previous question",
+  #'     icon=icon("backward")
+  #'   )
+  #'   #,
+  #'   #'A fucking message'
+  #'   #)
+  #' })
+  #' output$sport_next_btn <- renderUI({
+  #'   actionButton(
+  #'     "sport_next", 
+  #'     "Next question",
+  #'     icon=icon("forward")
+  #'   )
+  #' })
+  #' 
+  #' 
+  #' output$sport_title_chart <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
+  #' })
+  #' output$sport_title_map <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$sport_select)]][['region']][['title']]))
+  #' })
+  #' output$sport_subtitle_chart <- renderText({
+  #'   if (is.null(input$sport_currLevel)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$sport_currLevel==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' output$sport_subtitle_map <- renderText({
+  #'   if (is.null(input$sport_currLevelMap)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$sport_currLevelMap==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' 
+  #' 
+  #' 
+  #' output$sport_chart <- renderHighchart({
+  #'   generate_drilldown_chart(input$sport_select, df_list, 'sport', shinybrowser::get_height())
+  #' })
+  #' output$sport_map <- renderHighchart({
+  #'   generate_drilldown_map(input$sport_select, df_list, 'sport', QUESTION_LIST, bounds_region, bounds_borough)
+  #' })
+  #' 
+  #' 
+  #' reactive__sport_select <- reactive({req(input$sport_select)})
+  #' reactive__mouseOver_sport <- reactiveValues()
+  #' observeEvent(c(input$sport_tab, input$sport_chart_mouseOver$name,input$sport_currLevel, input$sport_map_mouseOver,input$sport_currLevelMap, input$sport_select), {
+  #'   observeEvent(c(input$sport_tab, input$sport_select, input$sport_currLevel, input$sport_currLevelMap), {
+  #'     reg_name <- 'London'
+  #'     reg_val <-
+  #'       df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'       mutate(prop_resp=round(prop_resp,1)) %>%
+  #'       select(region, prop_resp) %>%
+  #'       filter(region=='London') %>%
+  #'       select(prop_resp) %>%
+  #'       pull(1)
+  #'     eng_val <-
+  #'       df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'       mutate(mean = round(mean(prop_resp),1)) %>%
+  #'       filter(region=='London') %>%
+  #'       select(mean) %>%
+  #'       pull(1)
+  #'     reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'     reg_rank <-
+  #'       df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'       select(region, prop_resp, rank_direction) %>%
+  #'       mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'       filter(region=='London') %>%
+  #'       select(rank) %>%
+  #'       pull(1)
+  #'     
+  #'   }, ignoreInit=T, ignoreNULL=T)
+  #'   if (input$sport_tab=='chart') {
+  #'     if(is.null(input$sport_chart_mouseOver$name)) {
+  #'       #browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'       #browser()
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       
+  #'       if (is.null(input$sport_currLevel)) {
+  #'         reg_name <- input$sport_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'       }
+  #'       else if (input$sport_currLevel==1) {
+  #'         reg_name <- input$sport_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$sport_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         # TODO TRY HERE!!!!!!!!
+  #'         #browser()
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   if (input$sport_tab=='map') {
+  #'     if(is.null(input$sport_map_mouseOver)) {
+  #'       # browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       if (is.null(input$sport_currLevelMap)) {
+  #'         #browser()
+  #'         reg_name <- input$sport_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else if (input$sport_currLevelMap==1) {
+  #'         #browser()
+  #'         reg_name <- input$sport_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$sport_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   reactive__mouseOver_sport$reg_name <- reg_name
+  #'   reactive__mouseOver_sport$reg_val <- reg_val
+  #'   reactive__mouseOver_sport$reg_eng_dif <- reg_eng_dif
+  #'   reactive__mouseOver_sport$reg_rank <- reg_rank
+  #'   # browser()
+  #'   # print('yo')
+  #' }, ignoreNULL=F, ignoreInit=F
+  #' )
+  #' 
+  #' 
+  #' output$sport_region_headline_text <- renderUI({
+  #'   generate_region_headline_text(input$sport_select, df_list)
+  #' })
+  #' output$sport_region_summary_text <- renderUI({
+  #'   generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank)
+  #' })
+  #' 
+  #' output$sport_borough_text <- renderUI({
+  #'   generate_borough_text(input$sport_select, df_list)
+  #' })
+  #' 
+  #' 
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$sport_select, {
+  #'   if (input$sport_select!=SPORT_QUESTIONS[1]) {
+  #'     shinyjs::show('sport_previous_btn')
+  #'   }
+  #'   if (input$sport_select==SPORT_QUESTIONS[1]) {
+  #'     shinyjs::hide('sport_previous_btn')
+  #'   }
+  #'   if (input$sport_select!=SPORT_QUESTIONS[length(SPORT_QUESTIONS)]) {
+  #'     shinyjs::show('sport_next_btn')
+  #'   }
+  #'   if (input$sport_select==SPORT_QUESTIONS[length(SPORT_QUESTIONS)])  { 
+  #'     shinyjs::hide('sport_next_btn')
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$sport_previous, {
+  #'   current <- which(SPORT_QUESTIONS == input$sport_select)
+  #'   if(current > 1) {
+  #'     updateSelectInput(
+  #'       session, "sport_select",
+  #'       selected = SPORT_QUESTIONS[current - 1]
+  #'     )
+  #'     #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
+  #'     #update_drilldown_map(input$sport_select, df_list, "sport_map")
+  #'     generate_region_text(input$sport_select, df_list)
+  #'     shinyjs::html(id = 'sport_region_text', html =  generate_region_text(input$sport_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' # 
+  #' observeEvent(input$sport_next, {
+  #'   current <- which(SPORT_QUESTIONS == input$sport_select)
+  #'   if(current < length(SPORT_QUESTIONS)){
+  #'     updateSelectInput(
+  #'       session, "sport_select",
+  #'       selected = SPORT_QUESTIONS[current + 1]
+  #'     )
+  #'     #update_drilldown_chart(input$sport_select, df_list, "sport_chart") 
+  #'     #update_drilldown_map(input$sport_select, df_list, "sport_map")
+  #'     shinyjs::html(id = 'sport_region_text', html = generate_region_text(input$sport_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' 
+  #' # 
+  #' # observeEvent(c(input$sport_currLevel,input$sport_currLevelMap), {
+  #' #   if (is.null(input$sport_currLevel)) {
+  #' #     updateTextOutput(session, 'sport_subtitle_text')
+  #' #   }
+  #' #    if (is.null(input$sport_currLevelMap)) {
+  #' #      updateTextOutput(session, 'sport_subtitle_text')
+  #' #    }
+  #' #   
+  #' #   input$sport_currLevel
+  #' #   
+  #' # })
+  #' 
+  #' observeEvent(input$sport_currLevel, {
+  #'   print('level change')
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$sport_compOps, input$sport_currLevel, input$sport_select), {
+  #'   
+  #'   # drillup event bug!!!
+  #'   # https://github.com/blacklabel/custom_events/issues/139
+  #'   
+  #'   
+  #'   
+  #'   print(paste0('Current drilldown level: ',input$sport_currLevel))
+  #'   # print(input$sport_currLevel)
+  #'   question <- as.numeric(input$sport_select)
+  #'   # print(question)
+  #'   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, num_resp, color, drilldown_central)
+  #'   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
+  #'   df_borough <- df_list[[question ]][['borough']][['dataframe']]
+  #'   if ('error'%in%input$sport_compOps & 'mean'%ni%input$sport_compOps) { #delay(110)
+  #'     #browser()
+  #'     if (is.null(input$sport_currLevel)) {
+  #'       #browser()
+  #'       #browser()
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$sport_currLevel==0) { # drill level
+  #'       #browser()
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'London',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'            
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00'',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else { # top level
+  #'       #browser()
+  #'       
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else if ('mean'%in%input$sport_compOps & 'error'%ni%input$sport_compOps) {
+  #'     #browser()
+  #'     if (is.null(input$sport_currLevel)) {
+  #'       #browser()
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       # delay(0,
+  #'       #       shinyjs::runjs(
+  #'       #         paste0(
+  #'       #           "
+  #'       #         var chart = $('#sport_chart').highcharts();
+  #'       #           chart.yAxis[0].update({plotLines:
+  #'       #             [{
+  #'       #               value:",mean(df_region_central$prop_resp),",
+  #'       #               color:'#d82222',
+  #'       #               zIndex:99,
+  #'       #               label: {
+  #'       #                 text: 'England',
+  #'       #                 verticalAlign: 'top',
+  #'       #                 textAlign: 'center',
+  #'       #                 rotation:0,
+  #'       #                 y:-4,
+  #'       #                 style: {
+  #'       #                     color:'#d82222',
+  #'       #                     fontWeight: 'normal',
+  #'       #                     fontSize: '1.35vh'
+  #'       #                 }
+  #'       #               }
+  #'       #             }]
+  #'       #           });
+  #'       #         console.log(chart);
+  #'       #      "
+  #'       #         )
+  #'       #       )
+  #'       # )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$sport_currLevel==0) { # Borough level
+  #'       #browser()
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$sport_currLevel==1) { # top level
+  #'       #browser()
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else {
+  #'       #   update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#sport_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotLines:
+  #'       #               [{
+  #'       #                 value:",mean(df_region_central$prop_resp),",
+  #'       #                 color:'#d82222',
+  #'       #                 zIndex:99,
+  #'       #                 label: {
+  #'       #                   text: 'England',
+  #'       #           verticalAlign: 'top',
+  #'       #           textAlign: 'center',
+  #'       #           rotation:0,
+  #'       #           y:-4,
+  #'       #           style: {
+  #'       #               color:'#d82222',
+  #'       #               fontWeight: 'normal'
+  #'       #           }
+  #'       #           
+  #'       #                 }
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#sport_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotBands:
+  #'       #               [{
+  #'       #                 from:0,
+  #'       #                 to:0,
+  #'       #                 color:'#d822221F',
+  #'       #                 zIndex:98
+  #'       # 
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'     }
+  #'     
+  #'   }
+  #'   
+  #'   else if ('mean'%in%input$sport_compOps & 'error'%in%input$sport_compOps) {
+  #'     if (is.null(input$sport_currLevel)) {
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$sport_currLevel==0) {
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'     }
+  #'     else{
+  #'       update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else {
+  #'     update_drilldown_chart(input$sport_select, df_list, "sport_chart")
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#sport_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     
+  #'     #browser()
+  #'   }
+  #' }, ignoreInit=F, ignoreNULL=F, priority=0)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(
+  #'   c(input$sport_currLevel), {
+  #'     
+  #'     #browser()
+  #'     req(input$sport_currLevel)
+  #'     selected <- input$sport_compOps
+  #'     if (input$sport_currLevel==0) {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "sport_compOps",
+  #'         choices=c(
+  #'           'London mean'='mean',
+  #'           'London error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     else {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "sport_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     
+  #'     observeEvent(c(input$sport_select), {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "sport_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'       
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-4)
+  #'   }, ignoreInit=T, ignoreNULL=F, priority=-3
+  #' )
+  #' 
+  #' observe({
+  #'   print(input$sport_tab)
+  #' })
+  #' 
+  #' observe({
+  #'   print(paste0('my level =', input$sport_currLevelMap))
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$sport_currLevel, input$sport_currLevelMap, input$sport_tab), {
+  #'   
+  #'   req(input$sport_tab) # still don't really understand req() but is required 
+  #'   #browser()
+  #'   if (input$sport_tab=='chart') {
+  #'     req(input$sport_currLevel)
+  #'     #browser()
+  #'     if (input$sport_currLevel==0) {
+  #'       shinyjs::show('sport-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('sport-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$sport_select, input$sport_tab), {
+  #'       shinyjs::hide('sport-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   else {
+  #'     #browser()
+  #'     #delay(5000,
+  #'     req(input$sport_currLevelMap)
+  #'     if (input$sport_currLevelMap==0) {
+  #'       shinyjs::show('sport-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('sport-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$sport_select, input$sport_tab), {
+  #'       shinyjs::hide('sport-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T, ignoreNULL=T, priority=-1
+  #' )
+  #' 
+  #' 
+  #' reactive__countFromToSport <- reactive({
+  #'   question <- as.numeric(input$sport_select)
+  #'   df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, color, drilldown_central)
+  #'   countTo <- df_region$prop_resp[df_region$region=='London']
+  #' })
+  #' 
+  #' reactiveVal__countFromToSport <-  reactiveValues(countFrom=0, countTo=0)
+  #' 
+  #' observeEvent( 
+  #'   reactive__countFromToSport(),{
+  #'     reactiveVal__countFromToSport$countFrom <- reactiveVal__countFromToSport$countTo; 
+  #'     #print(reactiveVal__countFromTo$countFrom)
+  #'     reactiveVal__countFromToSport$countTo <- reactive__countFromToSport()
+  #'     #print(reactiveVal__countFromTo$countTo)
+  #'   }
+  #' )
+  #' 
+  #' reactive__countToSport <- reactive({req(reactive__countFromToSport());  reactive__countFromToSport(); reactiveVal__countFromToSport$countTo})
+  #' reactive__countFromSport <- reactive({req(reactive__countFromToSport()); reactive__countFromToSport(); reactiveVal__countFromToSport$countFrom})
+  #' 
+  #' 
+  #' output$countTo <- renderPrint({reactive__countTo()})
+  #' output$countFrom <- renderPrint({ reactive__countFrom()})
+  #' 
+  #' 
+  #' observeEvent(
+  #'   input$sport_select,once=T, ignoreNULL=F, ignoreInit=F, {
+  #'     insertUI(
+  #'       selector = "#countUp-ui-sport",
+  #'       where = "afterEnd",
+  #'       ui = div(generate_countUp(reactiveVal__countFromToSport$countTo, reactiveVal__countFromToSport$countFrom, 'sport'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+  #'     )
+  #'   }
+  #' )
+  #' 
+  #' observeEvent(reactiveVal__countFromToSport$countTo, {
+  #'   countupProxy("countUp-sport") %>% 
+  #'     countup_update(reactiveVal__countFromToSport$countTo)
+  #' })
+  #' 
+  #' 
   
   #=============================================================================
   # Tourism Server
   #=============================================================================
+  
+  
   
   output$tourism_previous_btn <- renderUI({
     # tooltip(
@@ -6238,15 +6653,11 @@ server <- function(input, output, session) {
   output$tourism_title_map <- renderText({
     print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
   })
+  outputOptions(output, "tourism_title_map", suspendWhenHidden = FALSE)
+  
   output$tourism_subtitle_chart <- renderText({
     if (is.null(input$tourism_currLevel)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$tourism_currLevel==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
+      print(paste("Drilldown functionality is not available since Borough-level data has not been published"))
     }
   })
   output$tourism_subtitle_map <- renderText({
@@ -6260,15 +6671,17 @@ server <- function(input, output, session) {
       print(paste("Click to drilldown into London by Borough"))
     }
   })
+  outputOptions(output, "tourism_subtitle_map", suspendWhenHidden = FALSE)
   
   
   
   output$tourism_chart <- renderHighchart({
-    generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
+    generate_drilldown_chart(TOURISM_QUESTIONS[1], df_list, 'tourism', shinybrowser::get_height())
   })
   output$tourism_map <- renderHighchart({
-    generate_drilldown_map(input$tourism_select, df_list, 'tourism', QUESTION_LIST, bounds_region, bounds_borough)
+    generate_drilldown_map(TOURISM_QUESTIONS[1], df_list, 'tourism', QUESTION_LIST, bounds_region, bounds_borough)
   })
+  outputOptions(output, "tourism_map", suspendWhenHidden = FALSE)
   
   
   reactive__tourism_select <- reactive({req(input$tourism_select)})
@@ -6278,6 +6691,7 @@ server <- function(input, output, session) {
       reg_name <- 'London'
       reg_val <-
         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         select(region, prop_resp) %>%
         filter(region=='London') %>%
         select(prop_resp) %>%
@@ -6292,7 +6706,7 @@ server <- function(input, output, session) {
       reg_rank <-
         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
         select(region, prop_resp, rank_direction) %>%
-        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+        mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
         filter(region=='London') %>%
         select(rank) %>%
         pull(1)
@@ -6304,6 +6718,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -6318,7 +6733,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -6331,6 +6746,7 @@ server <- function(input, output, session) {
           reg_name <- input$tourism_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -6346,7 +6762,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -6356,6 +6772,7 @@ server <- function(input, output, session) {
           reg_name <- input$tourism_chart_mouseOver$name
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(prop_resp) %>%
@@ -6371,7 +6788,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$tourism_chart_mouseOver$name) %>%
             select(rank) %>%
             pull(1)
@@ -6382,6 +6799,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -6396,7 +6814,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -6409,6 +6827,7 @@ server <- function(input, output, session) {
         reg_name <- 'London'
         reg_val <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           select(region, prop_resp) %>%
           filter(region=='London') %>%
           select(prop_resp) %>%
@@ -6423,7 +6842,7 @@ server <- function(input, output, session) {
         reg_rank <-
           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
           select(region, prop_resp, rank_direction) %>%
-          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+          mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
           filter(region=='London') %>%
           select(rank) %>%
           pull(1)
@@ -6435,6 +6854,7 @@ server <- function(input, output, session) {
           reg_name <- input$tourism_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -6450,7 +6870,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -6460,6 +6880,7 @@ server <- function(input, output, session) {
           reg_name <- input$tourism_map_mouseOver
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(prop_resp) %>%
@@ -6475,7 +6896,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region==input$tourism_map_mouseOver) %>%
             select(rank) %>%
             pull(1)
@@ -6484,6 +6905,7 @@ server <- function(input, output, session) {
           reg_name <- 'London'
           reg_val <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             select(region, prop_resp) %>%
             filter(region=='London') %>%
             select(prop_resp) %>%
@@ -6498,7 +6920,7 @@ server <- function(input, output, session) {
           reg_rank <-
             df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
             select(region, prop_resp, rank_direction) %>%
-            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(prop_resp), ties.method='min')), T~scales::ordinal(rank(prop_resp, ties.method='min')))) %>%
+            mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
             filter(region=='London') %>%
             select(rank) %>%
             pull(1)
@@ -6522,10 +6944,10 @@ server <- function(input, output, session) {
     generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank)
   })
   
-  output$tourism_borough_text <- renderUI({
-    generate_borough_text(input$tourism_select, df_list)
-  })
-  
+  # output$tourism_borough_text <- renderUI({
+  #   generate_borough_text(input$tourism_select, df_list)
+  # })
+  # 
   
   
   
@@ -6557,9 +6979,27 @@ server <- function(input, output, session) {
         selected = TOURISM_QUESTIONS[current - 1]
       )
       #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
-      update_drilldown_map(input$tourism_select, df_list, "tourism_map")
-      generate_region_text(input$tourism_select, df_list)
-      shinyjs::html(id = 'tourism_region_text', html =  generate_region_text(input$tourism_select, df_list))
+      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+      # if (!is.null(input$tourism_currLevel)) {
+      # if (input$tourism_currLevel==0) {
+      #   #browser()
+      # # output$tourism_chart <- NULL
+      # # output$tourism_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
+      # # })
+      #   # highchartProxy('tourism_chart') %>%
+      #   # hcpxy_redraw()
+      # }
+      # }
+      
+      
+      #shinyjs::html(id = 'tourism_region_headline_text', html=generate_region_headline_text(input$tourism_select, df_list))
+      #shinyjs::html(id = 'tourism_region_summary_text', html=generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank))
+      
+      
+      
+      #shinyjs::html(id = 'tourism_borough_text', html=generate_borough_text(input$tourism_select, df_list))
+      #shinyjs::html(id = 'tourism_region_text', html =  generate_region_text(input$tourism_select, df_list))
     }
   }, ignoreInit=T, ignoreNULL=T, priority=2
   )
@@ -6571,11 +7011,34 @@ server <- function(input, output, session) {
         session, "tourism_select",
         selected = TOURISM_QUESTIONS[current + 1]
       )
+      #input$tourism_currLevel <- 1
       #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
-      update_drilldown_map(input$tourism_select, df_list, "tourism_map")
-      shinyjs::html(id = 'tourism_region_text', html = generate_region_text(input$tourism_select, df_list))
+      #update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+      #browser()
+      # if (!is.null(input$tourism_currLevel)) {
+      # if (input$tourism_currLevel==0) {
+      # #browser()
+      # # output$tourism_chart <- NULL
+      # # output$tourism_chart <- renderHighchart({
+      # #   generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
+      # # })
+      #   highchartProxy('tourism_chart') %>%
+      #   hcpxy_redraw()
+      # }#
+      # }
+      
+      
+      
+      #shinyjs::html(id = 'tourism_region_headline_text', html=generate_region_headline_text(input$tourism_select, df_list))
+      #shinyjs::html(id = 'tourism_region_summary_text', html=generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank))
+      
+      
+      
+      
+      #shinyjs::html(id = 'tourism_borough_text', html=generate_borough_text(input$tourism_select, df_list))
+      
     }
-  }, ignoreInit=T, ignoreNULL=T, priority=2
+  }, ignoreInit=T, ignoreNULL=T, priority=4
   )
   
   # 
@@ -6596,599 +7059,52 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(c(input$tourism_compOps, input$tourism_currLevel, input$tourism_select), {
-    
-    # drillup event bug!!!
-    # https://github.com/blacklabel/custom_events/issues/139
-    
-    
-    
-    print(paste0('Current drilldown level: ',input$tourism_currLevel))
-    # print(input$tourism_currLevel)
-    question <- as.numeric(input$tourism_select)
-    # print(question)
-    df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp, num_resp, color, drilldown_central)
-    df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
-      select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
-    df_borough <- df_list[[question ]][['borough']][['dataframe']]
-    if ('error'%in%input$tourism_compOps & 'mean'%ni%input$tourism_compOps) { #delay(110)
-      #browser()
-      if (is.null(input$tourism_currLevel)) {
-        #browser()
-        #browser()
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$tourism_currLevel==0) { # drill level
-        #browser()
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'London',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-             
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00'',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else { # top level
-        #browser()
-        
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98,
-                      label: {
-                        text: 'England',
-                        verticalAlign: 'top',
-                        textAlign: 'center',
-                        rotation:0,
-                        y:-4,
-                        style: {
-                            color:'#d82222',
-                            fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                        }
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-    }
-    else if ('mean'%in%input$tourism_compOps & 'error'%ni%input$tourism_compOps) {
-      #browser()
-      if (is.null(input$tourism_currLevel)) {
-        #browser()
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        # delay(0,
-        #       shinyjs::runjs(
-        #         paste0(
-        #           "
-        #         var chart = $('#tourism_chart').highcharts();
-        #           chart.yAxis[0].update({plotLines:
-        #             [{
-        #               value:",mean(df_region_central$prop_resp),",
-        #               color:'#d82222',
-        #               zIndex:99,
-        #               label: {
-        #                 text: 'England',
-        #                 verticalAlign: 'top',
-        #                 textAlign: 'center',
-        #                 rotation:0,
-        #                 y:-4,
-        #                 style: {
-        #                     color:'#d82222',
-        #                     fontWeight: 'normal',
-        #                     fontSize: '1.35vh'
-        #                 }
-        #               }
-        #             }]
-        #           });
-        #         console.log(chart);
-        #      "
-        #         )
-        #       )
-        # )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$tourism_currLevel==0) { # Borough level
-        #browser()
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$tourism_currLevel==1) { # top level
-        #browser()
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else {
-        #   update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#tourism_chart').highcharts();
-        #             chart.yAxis[0].update({plotLines:
-        #               [{
-        #                 value:",mean(df_region_central$prop_resp),",
-        #                 color:'#d82222',
-        #                 zIndex:99,
-        #                 label: {
-        #                   text: 'England',
-        #           verticalAlign: 'top',
-        #           textAlign: 'center',
-        #           rotation:0,
-        #           y:-4,
-        #           style: {
-        #               color:'#d82222',
-        #               fontWeight: 'normal'
-        #           }
-        #           
-        #                 }
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-        #   delay(300,
-        #         shinyjs::runjs(
-        #           paste0(
-        #             "
-        #           var chart = $('#tourism_chart').highcharts();
-        #             chart.yAxis[0].update({plotBands:
-        #               [{
-        #                 from:0,
-        #                 to:0,
-        #                 color:'#d822221F',
-        #                 zIndex:98
-        # 
-        #               }]
-        #             });
-        #           console.log(chart);
-        #        "
-        #           )
-        #         )
-        #   )
-      }
-      
-    }
-    
-    else if ('mean'%in%input$tourism_compOps & 'error'%in%input$tourism_compOps) {
-      if (is.null(input$tourism_currLevel)) {
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-      else if (input$tourism_currLevel==0) {
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_borough$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'London',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_borough$prop_resp_lb),",
-                      to:",mean(df_borough$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        
-      }
-      else{
-        update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:",mean(df_region_central$prop_resp),",
-                      color:'#d82222',
-                      zIndex:99,
-                      label: {
-                        text: 'England',
-                verticalAlign: 'top',
-                textAlign: 'center',
-                rotation:0,
-                y:-4,
-                style: {
-                    color:'#d82222',
-                    fontWeight: 'normal',
-                            fontSize: '1.35vh'
-                }
-                
-                      }
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-        delay(300,
-              shinyjs::runjs(
-                paste0(
-                  "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:",mean(df_region_error$prop_resp_lb),",
-                      to:",mean(df_region_error$prop_resp_ub),",
-                      color:'#d822221F',
-                      zIndex:98
-                    }]
-                  });
-                console.log(chart);
-             "
-                )
-              )
-        )
-      }
-    }
-    else {
-      update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotBands:
-                    [{
-                      from:0,
-                      to:0,
-                      color:'#d822221F',
-                      zIndex:98
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      delay(300,
-            shinyjs::runjs(
-              "
-                var chart = $('#tourism_chart').highcharts();
-                  chart.yAxis[0].update({plotLines:
-                    [{
-                      value:0,
-                      color:'#ffffff00',
-                      zIndex:99
-
-                    }]
-                  });
-                console.log(chart);
-             "
-            )
-      )
-      
-      #browser()
-    }
-  }, ignoreInit=F, ignoreNULL=F, priority=0)
+  # Need to separate out
   
+  
+  
+  # observeEvent(input$tourism_select, {
+  #   if (!is.null(input$tourism_currLevel)) { 
+  #     if (input$tourism_currLevel==0) {
+  #       shinyjs::runjs(
+  #         paste0(
+  #           "
+  #           var chart = $('#tourism_chart').highcharts();
+  #           chart.drillUp();
+  #           "
+  #         )
+  #       )
+  #     }
+  #   }
+  #   if (!is.null(input$tourism_currLevelMap)) { 
+  #     if (input$tourism_currLevelMap==0) {
+  #       shinyjs::runjs(
+  #         paste0(
+  #           "
+  #           var chart = $('#tourism_map').highcharts();
+  #           chart.drillUp();
+  #           "
+  #         )
+  #       )
+  #     }
+  #   }
+  #   
+  # }, priority=2)  
+  
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$tourism_select), { #input$tourism_compOps, input$tourism_currLevel,
+    update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+    update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+    update_drilldown_map(input$tourism_select, df_list, "tourism_map", QUESTION_LIST, bounds_region, bounds_borough)
+  }, ignoreInit=T, ignoreNULL=F, priority=0)
+  
+  
+  observeEvent(c(input$tourism_compOps, input$tourism_currLevel), { #input$tourism_compOps, input$tourism_currLevel,
+    update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+  }, ignoreInit=F, ignoreNULL=F, priority=3)
   
   
   observeEvent(
@@ -7198,7 +7114,7 @@ server <- function(input, output, session) {
       req(input$tourism_currLevel)
       selected <- input$tourism_compOps
       if (input$tourism_currLevel==0) {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "tourism_compOps",
           choices=c(
             'London mean'='mean',
@@ -7209,7 +7125,7 @@ server <- function(input, output, session) {
         )
       }
       else {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "tourism_compOps",
           choices=c(
             'England mean'='mean',
@@ -7221,7 +7137,7 @@ server <- function(input, output, session) {
       }
       
       observeEvent(c(input$tourism_select), {
-        updateAwesomeCheckboxGroup(
+        updatePrettyCheckboxGroup(
           session, "tourism_compOps",
           choices=c(
             'England mean'='mean',
@@ -7321,8 +7237,1128 @@ server <- function(input, output, session) {
   observeEvent(reactiveVal__countFromToTourism$countTo, {
     countupProxy("countUp-tourism") %>% 
       countup_update(reactiveVal__countFromToTourism$countTo)
-  })
+  }, priority=8)
   
+  #' output$tourism_previous_btn <- renderUI({
+  #'   # tooltip(
+  #'   actionButton(
+  #'     "tourism_previous", 
+  #'     "Previous question",
+  #'     icon=icon("backward")
+  #'   )
+  #'   #,
+  #'   #'A fucking message'
+  #'   #)
+  #' })
+  #' output$tourism_next_btn <- renderUI({
+  #'   actionButton(
+  #'     "tourism_next", 
+  #'     "Next question",
+  #'     icon=icon("forward")
+  #'   )
+  #' })
+  #' 
+  #' 
+  #' output$tourism_title_chart <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
+  #' })
+  #' output$tourism_title_map <- renderText({
+  #'   print(paste(df_list[[as.numeric(input$tourism_select)]][['region']][['title']]))
+  #' })
+  #' output$tourism_subtitle_chart <- renderText({
+  #'   if (is.null(input$tourism_currLevel)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$tourism_currLevel==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' output$tourism_subtitle_map <- renderText({
+  #'   if (is.null(input$tourism_currLevelMap)) {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #'   else if (input$tourism_currLevelMap==0) {
+  #'     print(paste("Click 'Back to Regions' to drillup" ))
+  #'   }
+  #'   else {
+  #'     print(paste("Click to drilldown into London by Borough"))
+  #'   }
+  #' })
+  #' 
+  #' 
+  #' 
+  #' output$tourism_chart <- renderHighchart({
+  #'   generate_drilldown_chart(input$tourism_select, df_list, 'tourism', shinybrowser::get_height())
+  #' })
+  #' output$tourism_map <- renderHighchart({
+  #'   generate_drilldown_map(input$tourism_select, df_list, 'tourism', QUESTION_LIST, bounds_region, bounds_borough)
+  #' })
+  #' 
+  #' 
+  #' reactive__tourism_select <- reactive({req(input$tourism_select)})
+  #' reactive__mouseOver_tourism <- reactiveValues()
+  #' observeEvent(c(input$tourism_tab, input$tourism_chart_mouseOver$name,input$tourism_currLevel, input$tourism_map_mouseOver,input$tourism_currLevelMap, input$tourism_select), {
+  #'   observeEvent(c(input$tourism_tab, input$tourism_select, input$tourism_currLevel, input$tourism_currLevelMap), {
+  #'     reg_name <- 'London'
+  #'     reg_val <-
+  #'       df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'       mutate(prop_resp=round(prop_resp,1)) %>%
+  #'       select(region, prop_resp) %>%
+  #'       filter(region=='London') %>%
+  #'       select(prop_resp) %>%
+  #'       pull(1)
+  #'     eng_val <-
+  #'       df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'       mutate(mean = round(mean(prop_resp),1)) %>%
+  #'       filter(region=='London') %>%
+  #'       select(mean) %>%
+  #'       pull(1)
+  #'     reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'     reg_rank <-
+  #'       df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'       select(region, prop_resp, rank_direction) %>%
+  #'       mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'       filter(region=='London') %>%
+  #'       select(rank) %>%
+  #'       pull(1)
+  #'     
+  #'   }, ignoreInit=T, ignoreNULL=T)
+  #'   if (input$tourism_tab=='chart') {
+  #'     if(is.null(input$tourism_chart_mouseOver$name)) {
+  #'       #browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'       #browser()
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       
+  #'       if (is.null(input$tourism_currLevel)) {
+  #'         reg_name <- input$tourism_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'       }
+  #'       else if (input$tourism_currLevel==1) {
+  #'         reg_name <- input$tourism_chart_mouseOver$name
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$tourism_chart_mouseOver$name) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'         # TODO TRY HERE!!!!!!!!
+  #'         #browser()
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   if (input$tourism_tab=='map') {
+  #'     if(is.null(input$tourism_map_mouseOver)) {
+  #'       # browser()
+  #'       reg_name <- 'London'
+  #'       reg_val <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         mutate(prop_resp=round(prop_resp,1)) %>%
+  #'         select(region, prop_resp) %>%
+  #'         filter(region=='London') %>%
+  #'         select(prop_resp) %>%
+  #'         pull(1)
+  #'       eng_val <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         mutate(mean = round(mean(prop_resp),1)) %>%
+  #'         filter(region=='London') %>%
+  #'         select(mean) %>%
+  #'         pull(1)
+  #'       reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'       reg_rank <-
+  #'         df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'         select(region, prop_resp, rank_direction) %>%
+  #'         mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'         filter(region=='London') %>%
+  #'         select(rank) %>%
+  #'         pull(1)
+  #'     }
+  #'     # On mouseOver
+  #'     else {
+  #'       if (is.null(input$tourism_currLevelMap)) {
+  #'         #browser()
+  #'         reg_name <- input$tourism_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else if (input$tourism_currLevelMap==1) {
+  #'         #browser()
+  #'         reg_name <- input$tourism_map_mouseOver
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         #browser()
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region==input$tourism_map_mouseOver) %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'       else {
+  #'         reg_name <- 'London'
+  #'         reg_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(prop_resp=round(prop_resp,1)) %>%
+  #'           select(region, prop_resp) %>%
+  #'           filter(region=='London') %>%
+  #'           select(prop_resp) %>%
+  #'           pull(1)
+  #'         eng_val <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           mutate(mean = round(mean(prop_resp),1)) %>%
+  #'           filter(region=='London') %>%
+  #'           select(mean) %>%
+  #'           pull(1)
+  #'         reg_eng_dif <- round(reg_val - eng_val ,1)
+  #'         reg_rank <-
+  #'           df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
+  #'           select(region, prop_resp, rank_direction) %>%
+  #'           mutate(rank = case_when(rank_direction=='D'~scales::ordinal(rank(desc(round(prop_resp,1)), ties.method='min')), T~scales::ordinal(rank(round(prop_resp,1), ties.method='min')))) %>%
+  #'           filter(region=='London') %>%
+  #'           select(rank) %>%
+  #'           pull(1)
+  #'       }
+  #'     }
+  #'   }
+  #'   reactive__mouseOver_tourism$reg_name <- reg_name
+  #'   reactive__mouseOver_tourism$reg_val <- reg_val
+  #'   reactive__mouseOver_tourism$reg_eng_dif <- reg_eng_dif
+  #'   reactive__mouseOver_tourism$reg_rank <- reg_rank
+  #'   # browser()
+  #'   # print('yo')
+  #' }, ignoreNULL=F, ignoreInit=F
+  #' )
+  #' 
+  #' 
+  #' output$tourism_region_headline_text <- renderUI({
+  #'   generate_region_headline_text(input$tourism_select, df_list)
+  #' })
+  #' output$tourism_region_summary_text <- renderUI({
+  #'   generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank)
+  #' })
+  #' 
+  #' output$tourism_borough_text <- renderUI({
+  #'   generate_borough_text(input$tourism_select, df_list)
+  #' })
+  #' 
+  #' 
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$tourism_select, {
+  #'   if (input$tourism_select!=TOURISM_QUESTIONS[1]) {
+  #'     shinyjs::show('tourism_previous_btn')
+  #'   }
+  #'   if (input$tourism_select==TOURISM_QUESTIONS[1]) {
+  #'     shinyjs::hide('tourism_previous_btn')
+  #'   }
+  #'   if (input$tourism_select!=TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)]) {
+  #'     shinyjs::show('tourism_next_btn')
+  #'   }
+  #'   if (input$tourism_select==TOURISM_QUESTIONS[length(TOURISM_QUESTIONS)])  { 
+  #'     shinyjs::hide('tourism_next_btn')
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(input$tourism_previous, {
+  #'   current <- which(TOURISM_QUESTIONS == input$tourism_select)
+  #'   if(current > 1) {
+  #'     updateSelectInput(
+  #'       session, "tourism_select",
+  #'       selected = TOURISM_QUESTIONS[current - 1]
+  #'     )
+  #'     #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
+  #'     update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+  #'     generate_region_text(input$tourism_select, df_list)
+  #'     shinyjs::html(id = 'tourism_region_text', html =  generate_region_text(input$tourism_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' # 
+  #' observeEvent(input$tourism_next, {
+  #'   current <- which(TOURISM_QUESTIONS == input$tourism_select)
+  #'   if(current < length(TOURISM_QUESTIONS)){
+  #'     updateSelectInput(
+  #'       session, "tourism_select",
+  #'       selected = TOURISM_QUESTIONS[current + 1]
+  #'     )
+  #'     #update_drilldown_chart(input$tourism_select, df_list, "tourism_chart") 
+  #'     update_drilldown_map(input$tourism_select, df_list, "tourism_map")
+  #'     shinyjs::html(id = 'tourism_region_text', html = generate_region_text(input$tourism_select, df_list))
+  #'   }
+  #' }, ignoreInit=T, ignoreNULL=T, priority=2
+  #' )
+  #' 
+  #' # 
+  #' # observeEvent(c(input$tourism_currLevel,input$tourism_currLevelMap), {
+  #' #   if (is.null(input$tourism_currLevel)) {
+  #' #     updateTextOutput(session, 'tourism_subtitle_text')
+  #' #   }
+  #' #    if (is.null(input$tourism_currLevelMap)) {
+  #' #      updateTextOutput(session, 'tourism_subtitle_text')
+  #' #    }
+  #' #   
+  #' #   input$tourism_currLevel
+  #' #   
+  #' # })
+  #' 
+  #' observeEvent(input$tourism_currLevel, {
+  #'   print('level change')
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$tourism_compOps, input$tourism_currLevel, input$tourism_select), {
+  #'   
+  #'   # drillup event bug!!!
+  #'   # https://github.com/blacklabel/custom_events/issues/139
+  #'   
+  #'   
+  #'   
+  #'   print(paste0('Current drilldown level: ',input$tourism_currLevel))
+  #'   # print(input$tourism_currLevel)
+  #'   question <- as.numeric(input$tourism_select)
+  #'   # print(question)
+  #'   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, num_resp, color, drilldown_central)
+  #'   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp_lb, num_resp, prop_resp_ub, drilldown_error)
+  #'   df_borough <- df_list[[question ]][['borough']][['dataframe']]
+  #'   if ('error'%in%input$tourism_compOps & 'mean'%ni%input$tourism_compOps) { #delay(110)
+  #'     #browser()
+  #'     if (is.null(input$tourism_currLevel)) {
+  #'       #browser()
+  #'       #browser()
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$tourism_currLevel==0) { # drill level
+  #'       #browser()
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'London',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'            
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00'',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else { # top level
+  #'       #browser()
+  #'       
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98,
+  #'                     label: {
+  #'                       text: 'England',
+  #'                       verticalAlign: 'top',
+  #'                       textAlign: 'center',
+  #'                       rotation:0,
+  #'                       y:-4,
+  #'                       style: {
+  #'                           color:'#d82222',
+  #'                           fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'                       }
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else if ('mean'%in%input$tourism_compOps & 'error'%ni%input$tourism_compOps) {
+  #'     #browser()
+  #'     if (is.null(input$tourism_currLevel)) {
+  #'       #browser()
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       # delay(0,
+  #'       #       shinyjs::runjs(
+  #'       #         paste0(
+  #'       #           "
+  #'       #         var chart = $('#tourism_chart').highcharts();
+  #'       #           chart.yAxis[0].update({plotLines:
+  #'       #             [{
+  #'       #               value:",mean(df_region_central$prop_resp),",
+  #'       #               color:'#d82222',
+  #'       #               zIndex:99,
+  #'       #               label: {
+  #'       #                 text: 'England',
+  #'       #                 verticalAlign: 'top',
+  #'       #                 textAlign: 'center',
+  #'       #                 rotation:0,
+  #'       #                 y:-4,
+  #'       #                 style: {
+  #'       #                     color:'#d82222',
+  #'       #                     fontWeight: 'normal',
+  #'       #                     fontSize: '1.35vh'
+  #'       #                 }
+  #'       #               }
+  #'       #             }]
+  #'       #           });
+  #'       #         console.log(chart);
+  #'       #      "
+  #'       #         )
+  #'       #       )
+  #'       # )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$tourism_currLevel==0) { # Borough level
+  #'       #browser()
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$tourism_currLevel==1) { # top level
+  #'       #browser()
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else {
+  #'       #   update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#tourism_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotLines:
+  #'       #               [{
+  #'       #                 value:",mean(df_region_central$prop_resp),",
+  #'       #                 color:'#d82222',
+  #'       #                 zIndex:99,
+  #'       #                 label: {
+  #'       #                   text: 'England',
+  #'       #           verticalAlign: 'top',
+  #'       #           textAlign: 'center',
+  #'       #           rotation:0,
+  #'       #           y:-4,
+  #'       #           style: {
+  #'       #               color:'#d82222',
+  #'       #               fontWeight: 'normal'
+  #'       #           }
+  #'       #           
+  #'       #                 }
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'       #   delay(300,
+  #'       #         shinyjs::runjs(
+  #'       #           paste0(
+  #'       #             "
+  #'       #           var chart = $('#tourism_chart').highcharts();
+  #'       #             chart.yAxis[0].update({plotBands:
+  #'       #               [{
+  #'       #                 from:0,
+  #'       #                 to:0,
+  #'       #                 color:'#d822221F',
+  #'       #                 zIndex:98
+  #'       # 
+  #'       #               }]
+  #'       #             });
+  #'       #           console.log(chart);
+  #'       #        "
+  #'       #           )
+  #'       #         )
+  #'       #   )
+  #'     }
+  #'     
+  #'   }
+  #'   
+  #'   else if ('mean'%in%input$tourism_compOps & 'error'%in%input$tourism_compOps) {
+  #'     if (is.null(input$tourism_currLevel)) {
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'     else if (input$tourism_currLevel==0) {
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_borough$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'London',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_borough$prop_resp_lb),",
+  #'                     to:",mean(df_borough$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       
+  #'     }
+  #'     else{
+  #'       update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:",mean(df_region_central$prop_resp),",
+  #'                     color:'#d82222',
+  #'                     zIndex:99,
+  #'                     label: {
+  #'                       text: 'England',
+  #'               verticalAlign: 'top',
+  #'               textAlign: 'center',
+  #'               rotation:0,
+  #'               y:-4,
+  #'               style: {
+  #'                   color:'#d82222',
+  #'                   fontWeight: 'normal',
+  #'                           fontSize: '1.35vh'
+  #'               }
+  #'               
+  #'                     }
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'       delay(300,
+  #'             shinyjs::runjs(
+  #'               paste0(
+  #'                 "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:",mean(df_region_error$prop_resp_lb),",
+  #'                     to:",mean(df_region_error$prop_resp_ub),",
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'               )
+  #'             )
+  #'       )
+  #'     }
+  #'   }
+  #'   else {
+  #'     update_drilldown_chart(input$tourism_select, df_list, "tourism_chart")
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotBands:
+  #'                   [{
+  #'                     from:0,
+  #'                     to:0,
+  #'                     color:'#d822221F',
+  #'                     zIndex:98
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     delay(300,
+  #'           shinyjs::runjs(
+  #'             "
+  #'               var chart = $('#tourism_chart').highcharts();
+  #'                 chart.yAxis[0].update({plotLines:
+  #'                   [{
+  #'                     value:0,
+  #'                     color:'#ffffff00',
+  #'                     zIndex:99
+  #' 
+  #'                   }]
+  #'                 });
+  #'               console.log(chart);
+  #'            "
+  #'           )
+  #'     )
+  #'     
+  #'     #browser()
+  #'   }
+  #' }, ignoreInit=F, ignoreNULL=F, priority=0)
+  #' 
+  #' 
+  #' 
+  #' observeEvent(
+  #'   c(input$tourism_currLevel), {
+  #'     
+  #'     #browser()
+  #'     req(input$tourism_currLevel)
+  #'     selected <- input$tourism_compOps
+  #'     if (input$tourism_currLevel==0) {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "tourism_compOps",
+  #'         choices=c(
+  #'           'London mean'='mean',
+  #'           'London error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     else {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "tourism_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'     }
+  #'     
+  #'     observeEvent(c(input$tourism_select), {
+  #'       updatePrettyCheckboxGroup(
+  #'         session, "tourism_compOps",
+  #'         choices=c(
+  #'           'England mean'='mean',
+  #'           'England error (95% CI)'='error'
+  #'         ),
+  #'         selected=selected,
+  #'         inline=T
+  #'       )
+  #'       
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-4)
+  #'   }, ignoreInit=T, ignoreNULL=F, priority=-3
+  #' )
+  #' 
+  #' observe({
+  #'   print(input$tourism_tab)
+  #' })
+  #' 
+  #' observe({
+  #'   print(paste0('my level =', input$tourism_currLevelMap))
+  #' })
+  #' 
+  #' 
+  #' observeEvent(c(input$tourism_currLevel, input$tourism_currLevelMap, input$tourism_tab), {
+  #'   
+  #'   req(input$tourism_tab) # still don't really understand req() but is required 
+  #'   #browser()
+  #'   if (input$tourism_tab=='chart') {
+  #'     req(input$tourism_currLevel)
+  #'     #browser()
+  #'     if (input$tourism_currLevel==0) {
+  #'       shinyjs::show('tourism-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('tourism-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$tourism_select, input$tourism_tab), {
+  #'       shinyjs::hide('tourism-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   else {
+  #'     #browser()
+  #'     #delay(5000,
+  #'     req(input$tourism_currLevelMap)
+  #'     if (input$tourism_currLevelMap==0) {
+  #'       shinyjs::show('tourism-text-drilldown')
+  #'     }
+  #'     else  {
+  #'       shinyjs::hide('tourism-text-drilldown')
+  #'     }
+  #'     observeEvent(c(input$tourism_select, input$tourism_tab), {
+  #'       shinyjs::hide('tourism-text-drilldown')
+  #'     }, ignoreInit=T, ignoreNULL=T, priority=-2)
+  #'   }
+  #'   
+  #'   
+  #' }, ignoreInit=T, ignoreNULL=T, priority=-1
+  #' )
+  #' 
+  #' 
+  #' reactive__countFromToTourism <- reactive({
+  #'   question <- as.numeric(input$tourism_select)
+  #'   df_region <- df_list[[question ]][['region']][['dataframe']] %>%
+  #'     select(region, prop_resp, color, drilldown_central)
+  #'   countTo <- df_region$prop_resp[df_region$region=='London']
+  #' })
+  #' 
+  #' reactiveVal__countFromToTourism <-  reactiveValues(countFrom=0, countTo=0)
+  #' 
+  #' observeEvent( 
+  #'   reactive__countFromToTourism(),{
+  #'     reactiveVal__countFromToTourism$countFrom <- reactiveVal__countFromToTourism$countTo; 
+  #'     #print(reactiveVal__countFromTo$countFrom)
+  #'     reactiveVal__countFromToTourism$countTo <- reactive__countFromToTourism()
+  #'     #print(reactiveVal__countFromTo$countTo)
+  #'   }
+  #' )
+  #' 
+  #' reactive__countToTourism <- reactive({req(reactive__countFromToTourism());  reactive__countFromToTourism(); reactiveVal__countFromToTourism$countTo})
+  #' reactive__countFromTourism <- reactive({req(reactive__countFromToTourism()); reactive__countFromToTourism(); reactiveVal__countFromToTourism$countFrom})
+  #' 
+  #' 
+  #' output$countTo <- renderPrint({reactive__countTo()})
+  #' output$countFrom <- renderPrint({ reactive__countFrom()})
+  #' 
+  #' 
+  #' observeEvent(
+  #'   input$tourism_select,once=T, ignoreNULL=F, ignoreInit=F, {
+  #'     insertUI(
+  #'       selector = "#countUp-ui-tourism",
+  #'       where = "afterEnd",
+  #'       ui = div(generate_countUp(reactiveVal__countFromToTourism$countTo, reactiveVal__countFromToTourism$countFrom, 'tourism'),style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;")
+  #'     )
+  #'   }
+  #' )
+  #' 
+  #' observeEvent(reactiveVal__countFromToTourism$countTo, {
+  #'   countupProxy("countUp-tourism") %>% 
+  #'     countup_update(reactiveVal__countFromToTourism$countTo)
+  #' })
+  #' 
    
 }
 

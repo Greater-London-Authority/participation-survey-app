@@ -5,9 +5,9 @@ account: matthew-tibbles-gla
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13510028
-bundleId: 9678340
+bundleId: 9866317
 url: https://matthew-tibbles-gla.shinyapps.io/participation-survey-gla-alpha/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: app/app.R|participation_markdown.html|participation_markdown.Rmd|plots/partic_borough_example.svg|plots/partic_region_example.svg|README.md|renv.lock|shiny-components/next1.R|other|toignore
+ignoredFiles: app/app.R|app-deploy-working.R|app-other.R|footer2.html|header2.html|participation_markdown.html|participation_markdown.Rmd|plots/partic_borough_example.svg|plots/partic_region_example.svg|README.md|renv.lock|server/heritage_server.R|shiny-components/next1.R|other|toignore
