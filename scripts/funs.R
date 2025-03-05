@@ -489,10 +489,10 @@ generate_region_frame <- function(survey_path, release_year, question, rank_dire
     )
   }
   #title <- paste0('<span style="color:',pal[1],'">', question[['theme']],'</span>')
-  subtitle <- paste0(sub(".*: ", "", gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))))
+  title <- paste0(sub(".*: ", "", gsub(r"{\s*\[[^\)]+\]}","", paste0(question[['theme']],': ',gsub(r"{\s*\([^\)]+\)}","",df[1, 'Question'])))))
   # Define colour palette
   pal <- gla_pal(gla_theme = "default", palette_type = "highlight", n = c(1, 1), main_colours=question[['color']])
-  df_region <- df %>% 
+  df_select <- df %>% 
     select(
       level=Question,
       region=`Response Breakdown`,
@@ -500,7 +500,9 @@ generate_region_frame <- function(survey_path, release_year, question, rank_dire
       prop_resp_lb=paste0('Percentage of respondents ',gsub('_', '/', release_year), ' Lower estimate'),
       prop_resp_ub=paste0('Percentage of respondents ',gsub('_', '/', release_year), ' Upper estimate'),
       num_resp=paste0(gsub('_', '/', release_year), ' No. of respondents')
-    ) %>%
+    ) 
+  
+  df_region <- df_select %>%
     filter(grepl('ITL1', level)) %>%
     mutate(color = case_when(region=='London'~pal[1], T~pal[2])) %>%
     mutate(across(contains('resp'),~ as.numeric(as.character(.x)))) %>%
@@ -510,10 +512,15 @@ generate_region_frame <- function(survey_path, release_year, question, rank_dire
     mutate(num_resp = format(round(as.numeric(num_resp), 0), nsmall=0, big.mark=",")) %>%
     mutate(`rank_direction`=rank_direction)
   
+  df_region_summary <- df_select %>%
+    filter(row_number()==1) %>%
+    mutate(level='summary') %>%
+    select(-region)
+  
   # create drilldown_central and drilldown_error as london-central and london-error, or "" 
   # entirely where Question_lisrt drilldown is 0
   
-  return(list('dataframe'=df_region, 'title'=subtitle))
+  return(list('dataframe'=df_region, 'summary'=df_region_summary, 'title'=title))
   
 }
 
@@ -709,13 +716,15 @@ generate_headline_chart <- function(df_headline, browser_height) {
       buttons=list(
         contextButton=list(
           menuItems=c(
-            'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+            'viewFullscreen', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
           ),
           symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
           height=40,
           width=48,
           symbolSize=36,
-          symbolX=60,
+          x=50,
+          y=80,
+          symbolX=50,
           symbolY=20,
           symbolStrokeWidth=2
           
@@ -784,9 +793,10 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
   question <- as.numeric(question)
   df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp, color, drilldown_central, num_resp)  %>% mutate(id=region)
-    #rename(fname=num_resp)
   df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp_lb, prop_resp_ub, drilldown_error, num_resp) %>% mutate(id=region)
+  df_region_summary <- df_list[[question ]][['region']][['summary']]
+  
     #rename(fname=num_resp)
   subtitle <-  df_list[[question ]][['region']][['title']]
   # if (rlang::has_name( df_list[[question]][['borough']], 'dataframe')==T) {
@@ -886,7 +896,7 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         ,
         plotLines=list(
           list(
-            value=mean(df_region_central$prop_resp),
+            value=df_region_summary$prop_resp[1],
             color='#d82222',
             zIndex=99,
             label=list(
@@ -926,7 +936,7 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         # )
       ) %>%
       hc_drilldown(
-        allowPointDrilldown=T,
+        allowPointDrilldown=F,
         breadcrumbs=list(
           showFullPath=F,
           useHTML=T,
@@ -958,9 +968,9 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
             #pointWidth=(browser_height/19)*0.272,
             data = list_parse2(
               data.frame(
-                'borough'=df_borough$borough,
-                'prop_resp'=round(df_borough$prop_resp,1),
-                'num_resp'=df_borough$num_resp
+                borough=df_borough$borough,
+                prop_resp=round(df_borough$prop_resp,1),
+                num_resp=df_borough$num_resp
               )
               #d
             )
@@ -986,10 +996,10 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
             data=list_parse2(
               #d2
               data.frame(
-                'borough'=df_borough$borough,
-                'prop_resp_lb'=round(df_borough$prop_resp_lb,1),
-                'prop_resp_ub'=round(df_borough$prop_resp_ub,1),
-                'number'=as.numeric(df_borough$num_resp)
+                borough=df_borough$borough,
+                prop_resp_lb=round(df_borough$prop_resp_lb,1),
+                prop_resp_ub=round(df_borough$prop_resp_ub,1)#,
+                #'number'=as.numeric(df_borough$num_resp)
               )
             )
             #,
@@ -1085,7 +1095,7 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
             height=40,
             width=48,
             symbolSize=36,
-            symbolX=60,
+            symbolX=50,
             symbolY=20,
             symbolStrokeWidth=2
           )
@@ -1295,7 +1305,7 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         ,
         plotLines=list(
           list(
-            value=mean(df_region_central$prop_resp),
+            value=df_region_summary$prop_resp[1],
             color='#d82222',
             zIndex=99,
             label=list(
@@ -1409,13 +1419,13 @@ generate_drilldown_chart <- function(question, df_list, theme, browser_height) {
         buttons=list(
           contextButton=list(
             menuItems=c(
-              'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+              'viewFullscreen',  'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
             ),
             symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
             height=40,
             width=48,
             symbolSize=36,
-            symbolX=60,
+            symbolX=50,
             symbolY=20,
             symbolStrokeWidth=2
             # theme=list(
@@ -1762,8 +1772,7 @@ update_drilldown_chart <- function(question, df_list, chart, comp_ops, curr_leve
                 data.frame(
                   borough=df_borough$borough,
                   prop_resp_lb=round(df_borough$prop_resp_lb,1),
-                  prop_resp_ub=round(df_borough$prop_resp_ub,1),
-                  num_resp=df_borough$num_resp
+                  prop_resp_ub=round(df_borough$prop_resp_ub,1)
                   
                 )
               )
@@ -2369,16 +2378,19 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
   #browser()
   `%ni%` <- Negate(`%in%`)
   question <- as.numeric(question)
-  df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, num_resp, color, drilldown_central) %>% mutate(id=region)
-  df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)  %>% mutate(id=region)
-  subtitle <-  df_list[[question ]][['region']][['title']]
-  df_borough <- df_list[[question ]][['borough']][['dataframe']] 
-  #max_borough <- max(df_borough$prop_resp_ub)
-  ldn_index <- which(df_region_central$region=='London')-1
-  ldn_color <- unique(df_region_central$color[df_region_central$color!='#cccccc'])
-  reg_index <- c(0:8)[c(0:8) !=ldn_index]
+  df_region_summary <- df_list[[question ]][['region']][['summary']]
+  
+  
+  # df_region_central <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #   select(region, prop_resp, num_resp, color, drilldown_central) %>% mutate(id=region)
+  # df_region_error <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #   select(region, prop_resp_lb, prop_resp_ub, num_resp, drilldown_error)  %>% mutate(id=region)
+  # subtitle <-  df_list[[question ]][['region']][['title']]
+  df_borough <- df_list[[question ]][['borough']][['dataframe']]
+  # #max_borough <- max(df_borough$prop_resp_ub)
+  # ldn_index <- which(df_region_central$region=='London')-1
+  # ldn_color <- unique(df_region_central$color[df_region_central$color!='#cccccc'])
+  # reg_index <- c(0:8)[c(0:8) !=ldn_index]
   
   if (is.null(curr_level)) {
     #browser()
@@ -2389,7 +2401,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
         yAxis=list(
           plotLines=list(
             list(
-              value=mean(df_region_central$prop_resp),
+              value=df_region_summary$prop_resp[1],
               color='#d82222',
               zIndex=99,
               label=list(
@@ -2408,8 +2420,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
           ),
           plotBands=list(
             list(
-              from=mean(df_region_error$prop_resp_lb),
-              to=mean(df_region_error$prop_resp_ub),
+              from=df_region_summary$prop_resp_lb[1],
+              to=df_region_summary$prop_resp_ub[1],
               color='#d8222200',
               zIndex=98,
               label=list(
@@ -2426,7 +2438,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
         yAxis=list(
           plotLines=list(
             list(
-              value=mean(df_region_central$prop_resp),
+              value=df_region_summary$prop_resp[1],
               color='#d8222200',
               zIndex=99,
               label=list(
@@ -2436,8 +2448,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
           ),
           plotBands=list(
             list(
-              from=mean(df_region_error$prop_resp_lb),
-              to=mean(df_region_error$prop_resp_ub),
+              from=df_region_summary$prop_resp_lb[1],
+              to=df_region_summary$prop_resp_ub[1],
               color='#d822221F',
               zIndex=98,
               label=list(
@@ -2463,7 +2475,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
         yAxis=list(
           plotLines=list(
             list(
-              value=mean(df_region_central$prop_resp),
+              value=df_region_summary$prop_resp[1],
               color='#d82222',
               zIndex=99,
               label=list(
@@ -2482,8 +2494,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
           ),
           plotBands=list(
             list(
-              from=mean(df_region_error$prop_resp_lb),
-              to=mean(df_region_error$prop_resp_ub),
+              from=df_region_summary$prop_resp_lb[1],
+              to=df_region_summary$prop_resp_ub[1],
               color='#d822221F',
               zIndex=98,
               label=list(
@@ -2500,7 +2512,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
         yAxis=list(
           plotLines=list(
             list(
-              value=mean(df_region_central$prop_resp),
+              value=df_region_summary$prop_resp[1],
               color='#d8222200',
               zIndex=99,
               label=list(
@@ -2510,8 +2522,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
           ),
           plotBands=list(
             list(
-              from=mean(df_region_error$prop_resp_lb),
-              to=mean(df_region_error$prop_resp_ub),
+              from=df_region_summary$prop_resp_lb[1],
+              to=df_region_summary$prop_resp_ub[1],
               color='#d8222200',
               zIndex=98,
               label=list(
@@ -2533,7 +2545,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
             yAxis=list(
               plotLines=list(
                 list(
-                  value=mean(df_region_central$prop_resp),
+                  value=df_region_summary$prop_resp[1],
                   color='#d82222',
                   zIndex=99,
                   label=list(
@@ -2552,8 +2564,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
               ),
               plotBands=list(
                 list(
-                  from=mean(df_region_error$prop_resp_lb),
-                  to=mean(df_region_error$prop_resp_ub),
+                  from=df_region_summary$prop_resp_lb[1],
+                  to=df_region_summary$prop_resp_ub[1],
                   color='#d8222200',
                   zIndex=98,
                   label=list(
@@ -2570,7 +2582,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
             yAxis=list(
               plotLines=list(
                 list(
-                  value=mean(df_region_central$prop_resp),
+                  value=df_region_summary$prop_resp[1],
                   color='#d8222200',
                   zIndex=99,
                   label=list(
@@ -2580,8 +2592,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
               ),
               plotBands=list(
                 list(
-                  from=mean(df_region_error$prop_resp_lb),
-                  to=mean(df_region_error$prop_resp_ub),
+                  from=df_region_summary$prop_resp_lb[1],
+                  to=df_region_summary$prop_resp_ub[1],
                   color='#d822221F',
                   zIndex=98,
                   label=list(
@@ -2607,7 +2619,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
             yAxis=list(
               plotLines=list(
                 list(
-                  value=mean(df_region_central$prop_resp),
+                  value=df_region_summary$prop_resp[1],
                   color='#d82222',
                   zIndex=99,
                   label=list(
@@ -2626,8 +2638,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
               ),
               plotBands=list(
                 list(
-                  from=mean(df_region_error$prop_resp_lb),
-                  to=mean(df_region_error$prop_resp_ub),
+                  from=df_region_summary$prop_resp_lb[1],
+                  to=df_region_summary$prop_resp_ub[1],
                   color='#d822221F',
                   zIndex=98,
                   label=list(
@@ -2644,7 +2656,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
             yAxis=list(
               plotLines=list(
                 list(
-                  value=mean(df_region_central$prop_resp),
+                  value=df_region_summary$prop_resp[1],
                   color='#d8222200',
                   zIndex=99,
                   label=list(
@@ -2654,8 +2666,8 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
               ),
               plotBands=list(
                 list(
-                  from=mean(df_region_error$prop_resp_lb),
-                  to=mean(df_region_error$prop_resp_ub),
+                  from=df_region_summary$prop_resp_lb[1],
+                  to=df_region_summary$prop_resp_ub[1],
                   color='#d8222200',
                   zIndex=98,
                   label=list(
@@ -2670,7 +2682,7 @@ update_drilldown_chart_summary <- function(question, df_list, chart, comp_ops, c
   
   else {
     proxy <- highchartProxy(chart)
-      if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
+    if ('mean'%in%comp_ops & 'error'%ni%comp_ops) {
         proxy <- proxy %>%
           hcpxy_update(
             yAxis=list(
@@ -3060,7 +3072,7 @@ generate_drilldown_map <- function(question, df_list, theme, question_list, boun
       buttons=list(
         contextButton=list(
           menuItems=c(
-            'viewFullscreen', 'viewData', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG', 'separator', 'downloadCSV'
+            'viewFullscreen', 'separator',  'downloadPNG', 'downloadJPEG', 'downloadSVG'
           ),
           symbol="url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNy4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjUgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZmlsbD0iIzliOWI5YiIgZD0iTTI4OCAzMmMwLTE3LjctMTQuMy0zMi0zMi0zMnMtMzIgMTQuMy0zMiAzMmwwIDI0Mi43LTczLjQtNzMuNGMtMTIuNS0xMi41LTMyLjgtMTIuNS00NS4zIDBzLTEyLjUgMzIuOCAwIDQ1LjNsMTI4IDEyOGMxMi41IDEyLjUgMzIuOCAxMi41IDQ1LjMgMGwxMjgtMTI4YzEyLjUtMTIuNSAxMi41LTMyLjggMC00NS4zcy0zMi44LTEyLjUtNDUuMyAwTDI4OCAyNzQuNyAyODggMzJ6TTY0IDM1MmMtMzUuMyAwLTY0IDI4LjctNjQgNjRsMCAzMmMwIDM1LjMgMjguNyA2NCA2NCA2NGwzODQgMGMzNS4zIDAgNjQtMjguNyA2NC02NGwwLTMyYzAtMzUuMy0yOC43LTY0LTY0LTY0bC0xMDEuNSAwLTQ1LjMgNDUuM2MtMjUgMjUtNjUuNSAyNS05MC41IDBMMTY1LjUgMzUyIDY0IDM1MnptMzY4IDU2YTI0IDI0IDAgMSAxIDAgNDggMjQgMjQgMCAxIDEgMC00OHoiLz48L3N2Zz4=)",
           height=40,
@@ -3296,9 +3308,8 @@ generate_countUp <- function(count_to, count_from, theme) {
 
 generate_region_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
   
-  #browser()
-  
-  
+
+
   question <- as.numeric(question)
   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
     select(region, prop_resp, color, drilldown_central)
@@ -3365,12 +3376,12 @@ generate_region_headline_text <- function(question, df_list) {
 }
 
 
-generate_region_summary_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
-  
+generate_region_summary_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__england_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
+  #browser()
   question <- as.numeric(question)
-  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, color, drilldown_central)
-  eng_mean <- round(mean(df_region$prop_resp),1)
+  # df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+  #   select(region, prop_resp, color, drilldown_central)
+  #eng_mean <- round(mean(df_region$prop_resp),1)
   #browser()
   eng_ldn_dif_text <- 
     ifelse(reactive__region_dif>0, paste0(abs(reactive__region_dif), ' points more than'),
@@ -3383,7 +3394,7 @@ generate_region_summary_text <- function(question, df_list, drill_level=NULL, re
       <div style='height:-1vh'></div>
       <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
       <ul>
-      <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
+      <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",reactive__england_val,"%</li>
       <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
       </ul>
       </span>

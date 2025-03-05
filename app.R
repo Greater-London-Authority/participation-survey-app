@@ -99,8 +99,6 @@ THEMES <- c('arts', 'libraries', 'heritage', 'sport', 'tourism')
 # RANKING ASC/DESC LIST
 
 #'[____________________________________________________________________________]
-
-
 bounds_region <- geojsonio::geojson_read(BOUNDS_REGION_PATH, what = "list")
 bounds_borough <- geojsonio::geojson_read(BOUNDS_BOROUGH_PATH, what = "list")
 options("scipen"=100, "digits"=4)
@@ -108,7 +106,7 @@ options("scipen"=100, "digits"=4)
 df_list <- lapply(
   #1:length(QUESTION_LIST[['region']][['code']]), function(q) {
   REGION_QUESTION_NUM, function(q) {
-    df_region <- generate_region_frame(
+    region <- generate_region_frame(
       SURVEY_PATH, 
       RELEASE_YEAR,
       list('code'=QUESTION_LIST[['region']][['code']][[q]],'theme'=QUESTION_LIST[['region']][['theme']][q], 'color'=QUESTION_LIST[['region']][['color']][q]),
@@ -116,22 +114,22 @@ df_list <- lapply(
     )
     
     if (QUESTION_LIST[['borough']][['code']][[q]]!="") {
-      df_region[['dataframe']] <- df_region[['dataframe']] %>%
+      region[['dataframe']] <- region[['dataframe']] %>%
         mutate(
           drilldown_central = case_when(region=='London'~'london-central'),
           drilldown_error = case_when(region=='London'~'london-error')
         )
-      df_borough <- generate_borough_frame(
+      borough <- generate_borough_frame(
         SURVEY_PATH, 
         RELEASE_YEAR,
         list('code'=QUESTION_LIST[['borough']][['code']][[q]],'theme'=QUESTION_LIST[['borough']][['theme']][q], 'color'=QUESTION_LIST[['borough']][['color']][q])
       )
-      return(list('region'=df_region, 'borough'=df_borough))
+      return(list('region'=region, 'borough'=borough))
     }
     else {
-      df_region[['dataframe']]$drilldown_central <- ''
-      df_region[['dataframe']]$drilldown_error <- ''
-      return(list('region'=df_region))
+      region[['dataframe']]$drilldown_central <- ''
+      region[['dataframe']]$drilldown_error <- ''
+      return(list('region'=region))
     }
   }
 )
@@ -159,6 +157,79 @@ ui <- fluidPage(
   #=============================================================================
   # Contents UI
   #=============================================================================
+  # div(style="height:100vh; background-color: #ffffff",
+  #   div(style="height: 50vh;",
+  #   span(style="color:#353D42; background-color:#ffffff00; font-size:456%;  padding-left:2vw"Background</h1>   
+  #   <div class="row">
+  #   <div class="column left">
+  #   <img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIxMDAwIiBoZWlnaHQ9IjEwMDAiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGRlc2M+Q3JlYXRlZCB3aXRoIEZhYnJpYy5qcyAzLjUuMDwvZGVzYz4NCjxkZWZzPg0KPC9kZWZzPg0KPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPg0KPGcgdHJhbnNmb3JtPSJtYXRyaXgoLTI3LjQ3MDYgMCAwIC0yNy40NzA2IDY2OS44NTI4IDc1Mi4yNjQ2KSIgaWQ9Ijc3MzA4Ij4NCjxwYXRoIHN0eWxlPSJzdHJva2U6IG5vbmU7IHN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogbm9uZTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS1kYXNob2Zmc2V0OiAwOyBzdHJva2UtbGluZWpvaW46IG1pdGVyOyBzdHJva2UtbWl0ZXJsaW1pdDogNDsgaXMtY3VzdG9tLWZvbnQ6IG5vbmU7IGZvbnQtZmlsZS11cmw6IG5vbmU7IGZpbGw6IHJnYigwLDAsMCk7IGZpbGwtcnVsZTogbm9uemVybzsgb3BhY2l0eTogMTsiIHZlY3Rvci1lZmZlY3Q9Im5vbi1zY2FsaW5nLXN0cm9rZSIgdHJhbnNmb3JtPSIgdHJhbnNsYXRlKC0xMiwgLTEyKSIgZD0iTSAxOS4wOTIgNi44NjMgYyAtMS41MDQgMi4zMSAtMS43NzkgNC40NSAtMS42ODEgNS42ODggYyA2LjEzMiAtMC4xMDEgNS42OTYgNi40NDkgMS4zOSA2LjQ0OSBjIC0xLjgzIDAgLTMuODAxIC0xLjMzOCAtMy44MDEgLTQuMjc1IGMgMCAtMi43MjQgMS40MTIgLTUuODQ1IDQuMDkyIC03Ljg2MiB6IG0gLTEzIDAgYyAtMS41MDQgMi4zMSAtMS43NzkgNC40NSAtMS42ODEgNS42ODggYyA2LjEzMiAtMC4xMDEgNS42OTYgNi40NDkgMS4zOSA2LjQ0OSBjIC0xLjgzIDAgLTMuODAxIC0xLjMzOCAtMy44MDEgLTQuMjc1IGMgMCAtMi43MjQgMS40MTIgLTUuODQ1IDQuMDkyIC03Ljg2MiB6IG0gMTYuOTA4IC0zLjg2MyBjIC02LjEwOCAxLjIwNiAtMTAgNi41ODQgLTEwIDExLjcyNSBjIDAgMy45NyAyLjc4NiA2LjI3NSA1LjgwMSA2LjI3NSBjIDIuNjE1IDAgNS4xOTkgLTEuNzk3IDUuMTk5IC00Ljk3OSBjIDAgLTIuNjAxIC0xLjkwNSAtNC43NTcgLTQuMzk2IC01LjE0OSBjIDAuMjE3IC0yLjAwNCAyLjE2NSAtNC45MTEgNC4zOCAtNS43NDYgbCAtMC45ODQgLTIuMTI2IHogbSAtMTMgMCBjIC02LjEwOCAxLjIwNiAtMTAgNi41ODQgLTEwIDExLjcyNSBjIDAgMy45NyAyLjc4NiA2LjI3NSA1LjgwMSA2LjI3NSBjIDIuNjE1IDAgNS4xOTkgLTEuNzk3IDUuMTk5IC00Ljk3OSBjIDAgLTIuNjAxIC0xLjkwNSAtNC43NTcgLTQuMzk2IC01LjE0OSBjIDAuMjE3IC0yLjAwNCAyLjE2NSAtNC45MTEgNC4zOCAtNS43NDYgbCAtMC45ODQgLTIuMTI2IHoiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPg0KPC9nPg0KPGcgdHJhbnNmb3JtPSJtYXRyaXgoMjcuNDM2NyAwIDAgMjcuNDM2NyAzMjkuNzQwNCAyNDcuNDMwMykiIGlkPSIyMzQ3NzIiPg0KPHBhdGggc3R5bGU9InN0cm9rZTogbm9uZTsgc3Ryb2tlLXdpZHRoOiAxOyBzdHJva2UtZGFzaGFycmF5OiBub25lOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLWRhc2hvZmZzZXQ6IDA7IHN0cm9rZS1saW5lam9pbjogbWl0ZXI7IHN0cm9rZS1taXRlcmxpbWl0OiA0OyBpcy1jdXN0b20tZm9udDogbm9uZTsgZm9udC1maWxlLXVybDogbm9uZTsgZmlsbDogcmdiKDAsMCwwKTsgZmlsbC1ydWxlOiBub256ZXJvOyBvcGFjaXR5OiAxOyIgdmVjdG9yLWVmZmVjdD0ibm9uLXNjYWxpbmctc3Ryb2tlIiB0cmFuc2Zvcm09IiB0cmFuc2xhdGUoLTEyLCAtMTIpIiBkPSJNIDE5LjA5MiA2Ljg2MyBjIC0xLjUwNCAyLjMxIC0xLjc3OSA0LjQ1IC0xLjY4MSA1LjY4OCBjIDYuMTMyIC0wLjEwMSA1LjY5NiA2LjQ0OSAxLjM5IDYuNDQ5IGMgLTEuODMgMCAtMy44MDEgLTEuMzM4IC0zLjgwMSAtNC4yNzUgYyAwIC0yLjcyNCAxLjQxMiAtNS44NDUgNC4wOTIgLTcuODYyIHogbSAtMTMgMCBjIC0xLjUwNCAyLjMxIC0xLjc3OSA0LjQ1IC0xLjY4MSA1LjY4OCBjIDYuMTMyIC0wLjEwMSA1LjY5NiA2LjQ0OSAxLjM5IDYuNDQ5IGMgLTEuODMgMCAtMy44MDEgLTEuMzM4IC0zLjgwMSAtNC4yNzUgYyAwIC0yLjcyNCAxLjQxMiAtNS44NDUgNC4wOTIgLTcuODYyIHogbSAxNi45MDggLTMuODYzIGMgLTYuMTA4IDEuMjA2IC0xMCA2LjU4NCAtMTAgMTEuNzI1IGMgMCAzLjk3IDIuNzg2IDYuMjc1IDUuODAxIDYuMjc1IGMgMi42MTUgMCA1LjE5OSAtMS43OTcgNS4xOTkgLTQuOTc5IGMgMCAtMi42MDEgLTEuOTA1IC00Ljc1NyAtNC4zOTYgLTUuMTQ5IGMgMC4yMTcgLTIuMDA0IDIuMTY1IC00LjkxMSA0LjM4IC01Ljc0NiBsIC0wLjk4NCAtMi4xMjYgeiBtIC0xMyAwIGMgLTYuMTA4IDEuMjA2IC0xMCA2LjU4NCAtMTAgMTEuNzI1IGMgMCAzLjk3IDIuNzg2IDYuMjc1IDUuODAxIDYuMjc1IGMgMi42MTUgMCA1LjE5OSAtMS43OTcgNS4xOTkgLTQuOTc5IGMgMCAtMi42MDEgLTEuOTA1IC00Ljc1NyAtNC4zOTYgLTUuMTQ5IGMgMC4yMTcgLTIuMDA0IDIuMTY1IC00LjkxMSA0LjM4IC01Ljc0NiBsIC0wLjk4NCAtMi4xMjYgeiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+DQo8L2c+DQo8L3N2Zz4=" alt="Quote" style="width:15vw;height:10vh; margin-top: 5vh;">
+  #   </div>
+  #   <div class="column right">
+  #   <div id="background-info-tabs"></div>
+  #   </div>
+  #   </div>
+  #   </div>
+  #   <div style="height:50vh; background-color: #353D42; margin-left:-1.2vw; margin-right:-1.2vw">
+  #   <div style="height: -2.5vh;"> </div>
+  #   <div align='right' style="color:#ffffff; background-color:#ffffff00; font-size:456%;  padding-right:2vw; position:relative; top:-5vh;">Contents</div>
+  #   <div style="height: 2.5vh;"> </div>
+  #   <div class='flexrow-container' style="display: flex;height: 33.8vh;padding: 1em;color: white;outline: none; align-items: flex-end;">
+  #   <div class="flexrow-box">
+  #   <a href='#headlines_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#353D42; margin-top: 4vh;">
+  #   <i class="fa-solid fa-chart-simple fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Headlines</p>
+  #   </a>
+  #   </div>
+  #   <div class="flexrow-box">
+  #   <a href='#arts_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#6da7de; margin-top: 4vh;">
+  #   <i class="fa-solid fa-masks-theater fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Arts</p>
+  #   </a>
+  #   </div>
+  #   <div class="flexrow-box">
+  #   <a href='#libraries_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#ff38ba; margin-top: 4vh;">
+  #   <i class="fa-solid fa-book-open fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Libraries</p>
+  #   </a>
+  #   </div>
+  #   <div class="flexrow-box">
+  #   <a href='#heritage_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#5ea15d; margin-top: 4vh;">
+  #   <i class="fa-solid fa-building-columns fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Heritage</p>
+  #   </a>     
+  #   </div>
+  #   <div class="flexrow-box">
+  #   <a href='#sport_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#d82222; margin-top: 4vh;">
+  #   <i class="fa-solid fa-person-biking fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Sport</p>
+  #   </a>
+  #   </div>
+  #   <div class="flexrow-box">
+  #   <a href='#tourism_ui' style="text-decoration: none;">
+  #   <div class="icon-box bounce" style="background:#eb861e; margin-top: 4vh;">
+  #   <i class="fa-solid fa-mountain-sun fa-2x"></i>
+  #   </div>
+  #   <p style="color:#353D42; text-align: center; height:10vh; line-height:10vh; margin-top: 2vh;">Tourism</p>
+  #   </a>
+  #   </div>
+  #   </div>
+  #   </div>
+  #   </div>
+  #   
+  #   
+  # 
+  
+  
   div(id='contents_ui',
       includeHTML('contents.html')
   ),
@@ -1611,11 +1682,11 @@ ui <- fluidPage(
         )
       )
   ),
+  div(style='height:10vh'),
   #=============================================================================
   # Header UI
   #=============================================================================
   div(id='footer_ui',
-      div(style='height:10vh'),
       includeHTML('footer-new.html')
   ),
   
@@ -1688,7 +1759,7 @@ server <- function(input, output, session) {
   -ms-transform: translateY(-58%);
   -webkit-transform: translateY(-58%);
   transform: translateY(-58%);">
-              The 2023/24 <i>Participation Survey</i> was commissioned by the Department for 
+              The <i>Participation Survey 2023/24</i> was commissioned by the Department for 
               Culture, Media and Sport (DCMS) to provide data on "adult participation in DCMS sectors across
               England". The <i>Participation Survey</i> serves as a successor to the <i>Taking Part Survey</i>,
               which ran for 16 continuous years, with its final publication in 2019/20.
@@ -1701,7 +1772,7 @@ server <- function(input, output, session) {
   transform: translateY(-58%);">
                Like its successor, the <i>Participation Survey</i> is designed to "deliver a nationally representative sample of adults (aged 16 years and over)". However, while the
                <i>Taking Part Survey</i> relied exclusively on data obtained from face-to-face interviews,
-               the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire.
+               the <i>Participation Survey</i> is based on a "push to web" data collection model, where "[r]espondents take part either online or by completing a paper questionaire".
              </h4>
              <h4 style="font-size:2vh; break-after:column;
   position: relative;
@@ -1719,7 +1790,7 @@ server <- function(input, output, session) {
   -ms-transform: translateY(-58%);
   -webkit-transform: translateY(-58%);
   transform: translateY(-58%);">
-               Overall, the key takeaway for the GLA is that the 2023/24 <i>Participation Survey</i> provides a uniquely rich source of information
+               Overall, the key takeaway for the GLA is that the <i>Participation Survey 2023/24</i> provides a uniquely rich source of information
                on adult participation at the level of both Region and Borough.</i>
              </h4>
           </div>
@@ -1766,7 +1837,7 @@ server <- function(input, output, session) {
   -ms-transform: translateY(-58%);
   -webkit-transform: translateY(-58%);
   transform: translateY(-58%);'>
-  This tool provides a London-focused overview of the main findings from the Participation Survey 2023/24 using the annual data tables, which can be accessed <a href='https://www.gov.uk/government/statistics/participation-survey-2023-24-annual-publication' target='_blank'>here</a>. The tool presents findings from across five DCMS sectors, namely: Arts, Libraries, Heritage, Sport and Tourism (Heritage contains the measures on Museums and Galleries).
+  This tool provides a London-focused overview of the main findings from the <i>Participation Survey 2023/24</i> using the annual data tables, which can be accessed <a href='https://www.gov.uk/government/statistics/participation-survey-2023-24-annual-publication' target='_blank'>here</a>. The tool presents findings from across five DCMS sectors, namely: Arts, Libraries, Heritage, Sport and Tourism (Heritage contains the measures on Museums and Galleries).
             </h4>
              <h4 style='font-size:2vh; break-after:column;
   position: relative;
@@ -1782,7 +1853,7 @@ server <- function(input, output, session) {
   -ms-transform: translateY(-58%);
   -webkit-transform: translateY(-58%);
   transform: translateY(-58%);'>
-     The default 'Chart view' presents findings using a simple bar chart. The alternate 'Map view' presents the same information using a choropleth map. You can also download an image of the chart or map in multiple formats, as well as export the underlying data to Excel spreadsheet or CSV. 
+     The default 'Chart view' presents findings using a simple bar chart. The alternate 'Map view' presents the same information using a choropleth map. You can also download an image of the chart or map in multiple formats, as well as export the underlying data to CSV. 
              </h4>
              <h4 style='font-size:2vh; break-after:column;
   position: relative;
@@ -1903,10 +1974,11 @@ server <- function(input, output, session) {
         select(prop_resp) %>%
         pull(1)
       eng_val <-
-        df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region=='London') %>%
-        select(mean) %>%
+        df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+        # mutate(mean = round(mean(prop_resp),1)) %>%
+        # filter(region=='London') %>%
+        select(prop_resp) %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
@@ -1930,11 +2002,10 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
-          pull(1)
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
+            pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
@@ -1958,10 +2029,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$arts_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -1984,11 +2054,10 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$arts_chart_mouseOver$name) %>%
-            select(mean) %>%
-            pull(1)
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+              select(prop_resp) %>%
+              mutate(prop_resp=round(prop_resp,1)) %>%
+              pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2011,11 +2080,10 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
-            pull(1)
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+              select(prop_resp) %>%
+              mutate(prop_resp=round(prop_resp,1)) %>%
+              pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
             df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
@@ -2039,11 +2107,10 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
-          pull(1)
+          df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
+            pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
           df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
@@ -2066,11 +2133,10 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$arts_map_mouseOver) %>%
-            select(mean) %>%
-            pull(1)
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+              select(prop_resp) %>%
+              mutate(prop_resp=round(prop_resp,1)) %>%
+              pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2092,11 +2158,10 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$arts_map_mouseOver) %>%
-            select(mean) %>%
-            pull(1)
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+              select(prop_resp) %>%
+              mutate(prop_resp=round(prop_resp,1)) %>%
+              pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2117,10 +2182,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__arts_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__arts_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2135,6 +2199,7 @@ server <- function(input, output, session) {
     }
     reactive__mouseOver_arts$reg_name <- reg_name
     reactive__mouseOver_arts$reg_val <- reg_val
+    reactive__mouseOver_arts$eng_val <- eng_val
     reactive__mouseOver_arts$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_arts$reg_rank <- reg_rank
     # browser()
@@ -2147,7 +2212,7 @@ server <- function(input, output, session) {
     generate_region_headline_text(input$arts_select, df_list)
   })
   output$arts_region_summary_text <- renderUI({
-    generate_region_summary_text(input$arts_select, df_list, input$arts_currLevel, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank)
+    generate_region_summary_text(input$arts_select, df_list, input$arts_currLevel, reactive__mouseOver_arts$reg_name,  reactive__mouseOver_arts$reg_val, reactive__mouseOver_arts$eng_val, reactive__mouseOver_arts$reg_eng_dif, reactive__mouseOver_arts$reg_rank)
   })
   
   output$arts_borough_text <- renderUI({
@@ -2266,6 +2331,7 @@ server <- function(input, output, session) {
   
   
   
+  
   observeEvent(input$arts_select, {
     if (!is.null(input$arts_currLevel)) { 
       if (input$arts_currLevel==0) {
@@ -2309,12 +2375,40 @@ server <- function(input, output, session) {
     }
   }, priority=8)  
   
+
+  
+  
+  
   # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
   # Plus have the drill up jumper above
   observeEvent(c(input$arts_select, input$arts_currLevel), { #input$arts_compOps, input$arts_currLevel,
-    update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
-    update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
-    update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+    #browser()
+    if (is.null(input$arts_currLevel)==T) {
+      update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps)
+      update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps)
+      update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    #browser()
+    else if (input$arts_currLevel==1) {
+      update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+      #browser()
+      update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+      update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    # else if (input$arts_currLevel==0) {
+    #   #browser()
+    #   
+    # }
+    else {
+      update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps)
+      update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, input$arts_currLevel)
+    }
+    # observeEvent(input$arts_currLevel, {
+    #   #browser()
+    #   update_drilldown_chart(input$arts_select, df_list, "arts_chart", input$arts_compOps, 1)
+    #   update_drilldown_chart_summary(input$arts_select, df_list, "arts_chart", input$arts_compOps, 1)
+    #   update_drilldown_map(input$arts_select, df_list, "arts_map", QUESTION_LIST, bounds_region, bounds_borough)
+    # }, ignoreInit=T, ignoreNULL=T)
   }, ignoreInit=T, ignoreNULL=F, priority=0)
   
   
@@ -2557,10 +2651,9 @@ server <- function(input, output, session) {
         select(prop_resp) %>%
         pull(1)
       eng_val <-
-        df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region=='London') %>%
-        select(mean) %>%
+        df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+        select(prop_resp) %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
@@ -2584,10 +2677,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -2612,10 +2704,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$libraries_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -2638,10 +2729,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$libraries_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -2665,10 +2755,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2693,10 +2782,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -2720,10 +2808,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$libraries_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -2746,10 +2833,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$libraries_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -2771,10 +2857,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__libraries_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__libraries_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -2789,6 +2874,7 @@ server <- function(input, output, session) {
     }
     reactive__mouseOver_libraries$reg_name <- reg_name
     reactive__mouseOver_libraries$reg_val <- reg_val
+    reactive__mouseOver_libraries$eng_val <- eng_val
     reactive__mouseOver_libraries$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_libraries$reg_rank <- reg_rank
     # browser()
@@ -2801,7 +2887,7 @@ server <- function(input, output, session) {
     generate_region_headline_text(input$libraries_select, df_list)
   })
   output$libraries_region_summary_text <- renderUI({
-    generate_region_summary_text(input$libraries_select, df_list, input$libraries_currLevel, reactive__mouseOver_libraries$reg_name,  reactive__mouseOver_libraries$reg_val, reactive__mouseOver_libraries$reg_eng_dif, reactive__mouseOver_libraries$reg_rank)
+    generate_region_summary_text(input$libraries_select, df_list, input$libraries_currLevel, reactive__mouseOver_libraries$reg_name,  reactive__mouseOver_libraries$reg_val, reactive__mouseOver_libraries$eng_val, reactive__mouseOver_libraries$reg_eng_dif, reactive__mouseOver_libraries$reg_rank)
   })
   
   output$libraries_borough_text <- renderUI({
@@ -2963,12 +3049,37 @@ server <- function(input, output, session) {
   
   # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
   # Plus have the drill up jumper above
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
   observeEvent(c(input$libraries_select, input$libraries_currLevel), { #input$libraries_compOps, input$libraries_currLevel,
-    update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
-    update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
-    update_drilldown_map(input$libraries_select, df_list, "libraries_map", QUESTION_LIST, bounds_region, bounds_borough)
+    #browser()
+    if (is.null(input$libraries_currLevel)==T) {
+      update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps)
+      update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps)
+      update_drilldown_map(input$libraries_select, df_list, "libraries_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    #browser()
+    else if (input$libraries_currLevel==1) {
+      update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+      #browser()
+      update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+      update_drilldown_map(input$libraries_select, df_list, "libraries_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    # else if (input$libraries_currLevel==0) {
+    #   #browser()
+    #   
+    # }
+    else {
+      update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps)
+      update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
+    }
+    # observeEvent(input$libraries_currLevel, {
+    #   #browser()
+    #   update_drilldown_chart(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, 1)
+    #   update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, 1)
+    #   update_drilldown_map(input$libraries_select, df_list, "libraries_map", QUESTION_LIST, bounds_region, bounds_borough)
+    # }, ignoreInit=T, ignoreNULL=T)
   }, ignoreInit=T, ignoreNULL=F, priority=0)
-  
   
   observeEvent(c(input$libraries_compOps), { #, input$libraries_currLevel
     update_drilldown_chart_summary(input$libraries_select, df_list, "libraries_chart", input$libraries_compOps, input$libraries_currLevel)
@@ -3190,10 +3301,9 @@ server <- function(input, output, session) {
         select(prop_resp) %>%
         pull(1)
       eng_val <-
-        df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region=='London') %>%
-        select(mean) %>%
+        df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+        select(prop_resp) %>%
+        mutate(prop_resp=round(prop_resp,1)) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
@@ -3217,10 +3327,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -3245,10 +3354,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$heritage_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -3271,10 +3379,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$heritage_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -3298,10 +3405,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -3326,10 +3432,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(prop_resp,1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -3353,10 +3458,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$heritage_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -3379,10 +3483,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$heritage_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -3404,10 +3507,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__heritage_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__heritage_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(prop_resp,1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -3422,6 +3524,7 @@ server <- function(input, output, session) {
     }
     reactive__mouseOver_heritage$reg_name <- reg_name
     reactive__mouseOver_heritage$reg_val <- reg_val
+    reactive__mouseOver_heritage$eng_val <- eng_val
     reactive__mouseOver_heritage$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_heritage$reg_rank <- reg_rank
     # browser()
@@ -3434,7 +3537,7 @@ server <- function(input, output, session) {
     generate_region_headline_text(input$heritage_select, df_list)
   })
   output$heritage_region_summary_text <- renderUI({
-    generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank)
+    generate_region_summary_text(input$heritage_select, df_list, input$heritage_currLevel, reactive__mouseOver_heritage$reg_name,  reactive__mouseOver_heritage$reg_val, reactive__mouseOver_heritage$eng_val, reactive__mouseOver_heritage$reg_eng_dif, reactive__mouseOver_heritage$reg_rank)
   })
   
   output$heritage_borough_text <- renderUI({
@@ -3598,10 +3701,36 @@ server <- function(input, output, session) {
   
   # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
   # Plus have the drill up jumper above
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
   observeEvent(c(input$heritage_select, input$heritage_currLevel), { #input$heritage_compOps, input$heritage_currLevel,
-    update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
-    update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
-    update_drilldown_map(input$heritage_select, df_list, "heritage_map", QUESTION_LIST, bounds_region, bounds_borough)
+    #browser()
+    if (is.null(input$heritage_currLevel)==T) {
+      update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps)
+      update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps)
+      update_drilldown_map(input$heritage_select, df_list, "heritage_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    #browser()
+    else if (input$heritage_currLevel==1) {
+      update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+      #browser()
+      update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+      update_drilldown_map(input$heritage_select, df_list, "heritage_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    # else if (input$heritage_currLevel==0) {
+    #   #browser()
+    #   
+    # }
+    else {
+      update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps)
+      update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, input$heritage_currLevel)
+    }
+    # observeEvent(input$heritage_currLevel, {
+    #   #browser()
+    #   update_drilldown_chart(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, 1)
+    #   update_drilldown_chart_summary(input$heritage_select, df_list, "heritage_chart", input$heritage_compOps, 1)
+    #   update_drilldown_map(input$heritage_select, df_list, "heritage_map", QUESTION_LIST, bounds_region, bounds_borough)
+    # }, ignoreInit=T, ignoreNULL=T)
   }, ignoreInit=T, ignoreNULL=F, priority=0)
   
   
@@ -4922,16 +5051,21 @@ server <- function(input, output, session) {
     }
   })
   output$sport_subtitle_map <- renderText({
-    if (is.null(input$sport_currLevelMap)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$sport_currLevelMap==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
+    if (is.null(input$sport_currLevel)) {
+      print(paste("Drilldown functionality is not available since Borough-level data has not been published"))
     }
   })
+  # output$sport_subtitle_map <- renderText({
+  #   if (is.null(input$sport_currLevelMap)) {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  #   else if (input$sport_currLevelMap==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
   outputOptions(output, "sport_subtitle_map", suspendWhenHidden = FALSE)
   
   
@@ -4958,10 +5092,9 @@ server <- function(input, output, session) {
         select(prop_resp) %>%
         pull(1)
       eng_val <-
-        df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region=='London') %>%
-        select(mean) %>%
+        df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+        select(prop_resp) %>%
+        mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
@@ -4985,10 +5118,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -5013,10 +5145,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$sport_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -5039,10 +5170,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$sport_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -5066,10 +5196,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -5094,10 +5223,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -5121,10 +5249,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$sport_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -5147,10 +5274,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$sport_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -5172,10 +5298,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__sport_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__sport_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -5190,6 +5315,7 @@ server <- function(input, output, session) {
     }
     reactive__mouseOver_sport$reg_name <- reg_name
     reactive__mouseOver_sport$reg_val <- reg_val
+    reactive__mouseOver_sport$eng_val <- eng_val
     reactive__mouseOver_sport$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_sport$reg_rank <- reg_rank
     # browser()
@@ -5202,7 +5328,7 @@ server <- function(input, output, session) {
     generate_region_headline_text(input$sport_select, df_list)
   })
   output$sport_region_summary_text <- renderUI({
-    generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank)
+    generate_region_summary_text(input$sport_select, df_list, input$sport_currLevel, reactive__mouseOver_sport$reg_name,  reactive__mouseOver_sport$reg_val, reactive__mouseOver_sport$eng_val, reactive__mouseOver_sport$reg_eng_dif, reactive__mouseOver_sport$reg_rank)
   })
   
   # output$sport_borough_text <- renderUI({
@@ -5353,10 +5479,36 @@ server <- function(input, output, session) {
   
   # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
   # Plus have the drill up jumper above
-  observeEvent(c(input$sport_select), { #input$sport_compOps, input$sport_currLevel,
-    update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
-    update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
-    update_drilldown_map(input$sport_select, df_list, "sport_map", QUESTION_LIST, bounds_region, bounds_borough)
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$sport_select, input$sport_currLevel), { #input$sport_compOps, input$sport_currLevel,
+    #browser()
+    if (is.null(input$sport_currLevel)==T) {
+      update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps)
+      update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps)
+      update_drilldown_map(input$sport_select, df_list, "sport_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    #browser()
+    else if (input$sport_currLevel==1) {
+      update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+      #browser()
+      update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+      update_drilldown_map(input$sport_select, df_list, "sport_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    # else if (input$sport_currLevel==0) {
+    #   #browser()
+    #   
+    # }
+    else {
+      update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps)
+      update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, input$sport_currLevel)
+    }
+    # observeEvent(input$sport_currLevel, {
+    #   #browser()
+    #   update_drilldown_chart(input$sport_select, df_list, "sport_chart", input$sport_compOps, 1)
+    #   update_drilldown_chart_summary(input$sport_select, df_list, "sport_chart", input$sport_compOps, 1)
+    #   update_drilldown_map(input$sport_select, df_list, "sport_map", QUESTION_LIST, bounds_region, bounds_borough)
+    # }, ignoreInit=T, ignoreNULL=T)
   }, ignoreInit=T, ignoreNULL=F, priority=0)
   
   
@@ -6660,17 +6812,23 @@ server <- function(input, output, session) {
       print(paste("Drilldown functionality is not available since Borough-level data has not been published"))
     }
   })
+  
   output$tourism_subtitle_map <- renderText({
-    if (is.null(input$tourism_currLevelMap)) {
-      print(paste("Click to drilldown into London by Borough"))
-    }
-    else if (input$tourism_currLevelMap==0) {
-      print(paste("Click 'Back to Regions' to drillup" ))
-    }
-    else {
-      print(paste("Click to drilldown into London by Borough"))
+    if (is.null(input$tourism_currLevel)) {
+      print(paste("Drilldown functionality is not available since Borough-level data has not been published"))
     }
   })
+  # output$tourism_subtitle_map <- renderText({
+  #   if (is.null(input$tourism_currLevelMap)) {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  #   else if (input$tourism_currLevelMap==0) {
+  #     print(paste("Click 'Back to Regions' to drillup" ))
+  #   }
+  #   else {
+  #     print(paste("Click to drilldown into London by Borough"))
+  #   }
+  # })
   outputOptions(output, "tourism_subtitle_map", suspendWhenHidden = FALSE)
   
   
@@ -6697,10 +6855,9 @@ server <- function(input, output, session) {
         select(prop_resp) %>%
         pull(1)
       eng_val <-
-        df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-        mutate(mean = round(mean(prop_resp),1)) %>%
-        filter(region=='London') %>%
-        select(mean) %>%
+        df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+        select(prop_resp) %>%
+        mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
         pull(1)
       reg_eng_dif <- round(reg_val - eng_val ,1)
       reg_rank <-
@@ -6724,10 +6881,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -6752,10 +6908,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$tourism_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -6778,10 +6933,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$tourism_chart_mouseOver$name) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -6805,10 +6959,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -6833,10 +6986,9 @@ server <- function(input, output, session) {
           select(prop_resp) %>%
           pull(1)
         eng_val <-
-          df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-          mutate(mean = round(mean(prop_resp),1)) %>%
-          filter(region=='London') %>%
-          select(mean) %>%
+          df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+          select(prop_resp) %>%
+          mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
           pull(1)
         reg_eng_dif <- round(reg_val - eng_val ,1)
         reg_rank <-
@@ -6860,10 +7012,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$tourism_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -6886,10 +7037,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region==input$tourism_map_mouseOver) %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           #browser()
           reg_eng_dif <- round(reg_val - eng_val ,1)
@@ -6911,10 +7061,9 @@ server <- function(input, output, session) {
             select(prop_resp) %>%
             pull(1)
           eng_val <-
-            df_list[[as.numeric(reactive__tourism_select())]][['region']][['dataframe']] %>%
-            mutate(mean = round(mean(prop_resp),1)) %>%
-            filter(region=='London') %>%
-            select(mean) %>%
+            df_list[[as.numeric(reactive__tourism_select())]][['region']][['summary']] %>%
+            select(prop_resp) %>%
+            mutate(prop_resp=round(as.numeric(as.character(prop_resp)),1)) %>%
             pull(1)
           reg_eng_dif <- round(reg_val - eng_val ,1)
           reg_rank <-
@@ -6929,6 +7078,7 @@ server <- function(input, output, session) {
     }
     reactive__mouseOver_tourism$reg_name <- reg_name
     reactive__mouseOver_tourism$reg_val <- reg_val
+    reactive__mouseOver_tourism$eng_val <- eng_val
     reactive__mouseOver_tourism$reg_eng_dif <- reg_eng_dif
     reactive__mouseOver_tourism$reg_rank <- reg_rank
     # browser()
@@ -6941,7 +7091,7 @@ server <- function(input, output, session) {
     generate_region_headline_text(input$tourism_select, df_list)
   })
   output$tourism_region_summary_text <- renderUI({
-    generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank)
+    generate_region_summary_text(input$tourism_select, df_list, input$tourism_currLevel, reactive__mouseOver_tourism$reg_name,  reactive__mouseOver_tourism$reg_val, reactive__mouseOver_tourism$eng_val, reactive__mouseOver_tourism$reg_eng_dif, reactive__mouseOver_tourism$reg_rank)
   })
   
   # output$tourism_borough_text <- renderUI({
@@ -7095,12 +7245,37 @@ server <- function(input, output, session) {
   # Plus have the drill up jumper above
   # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
   # Plus have the drill up jumper above
-  observeEvent(c(input$tourism_select), { #input$tourism_compOps, input$tourism_currLevel,
-    update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
-    update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
-    update_drilldown_map(input$tourism_select, df_list, "tourism_map", QUESTION_LIST, bounds_region, bounds_borough)
+  # Can remove  basically all the conditional ifs, since the logic is now stored infctuoin
+  # Plus have the drill up jumper above
+  observeEvent(c(input$tourism_select, input$tourism_currLevel), { #input$tourism_compOps, input$tourism_currLevel,
+    #browser()
+    if (is.null(input$tourism_currLevel)==T) {
+      update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps)
+      update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps)
+      update_drilldown_map(input$tourism_select, df_list, "tourism_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    #browser()
+    else if (input$tourism_currLevel==1) {
+      update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+      #browser()
+      update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+      update_drilldown_map(input$tourism_select, df_list, "tourism_map", QUESTION_LIST, bounds_region, bounds_borough)
+    }
+    # else if (input$tourism_currLevel==0) {
+    #   #browser()
+    #   
+    # }
+    else {
+      update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps)
+      update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
+    }
+    # observeEvent(input$tourism_currLevel, {
+    #   #browser()
+    #   update_drilldown_chart(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, 1)
+    #   update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, 1)
+    #   update_drilldown_map(input$tourism_select, df_list, "tourism_map", QUESTION_LIST, bounds_region, bounds_borough)
+    # }, ignoreInit=T, ignoreNULL=T)
   }, ignoreInit=T, ignoreNULL=F, priority=0)
-  
   
   observeEvent(c(input$tourism_compOps, input$tourism_currLevel), { #input$tourism_compOps, input$tourism_currLevel,
     update_drilldown_chart_summary(input$tourism_select, df_list, "tourism_chart", input$tourism_compOps, input$tourism_currLevel)
