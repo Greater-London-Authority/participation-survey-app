@@ -601,6 +601,7 @@ generate_headline_frame <- function(df_list, region_question_num, themes) {
 
 generate_headline_chart <- function(df_headline, browser_height) {
 
+  #browser()
   highchart() %>%
     hc_add_series(
       name='',
@@ -722,10 +723,9 @@ generate_headline_chart <- function(df_headline, browser_height) {
           height=40,
           width=48,
           symbolSize=36,
-          x=50,
-          y=80,
           symbolX=50,
-          symbolY=20,
+          symbolY=15,
+          
           symbolStrokeWidth=2
           
         )
@@ -769,7 +769,8 @@ generate_headline_chart <- function(df_headline, browser_height) {
     hc_chart(
       spacingBottom= browser_height/12, # needs to be adjusted
       spacingTop=20,
-      backgroundColor='#ffffff'
+      backgroundColor='#ffffff',
+      marginRight=browser_height/12
     ) #%>%
     #hc_plotOptions(
       # dataLabels=list(
@@ -3306,57 +3307,77 @@ generate_countUp <- function(count_to, count_from, theme) {
 
 
 
-generate_region_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
-  
-
-
-  question <- as.numeric(question)
-  df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
-    select(region, prop_resp, color, drilldown_central)
-  question_text <- paste(
-    tolower(substr(df_list[[question ]][['region']][['title']], 1, 1)), 
-    substr(df_list[[question ]][['region']][['title']], 2, nchar(df_list[[question ]][['region']][['title']])), sep="")
-  
-  #browser()
-  eng_mean <- round(mean(df_region$prop_resp),1)
-  eng_ldn_dif_text <- 
-    ifelse(reactive__region_dif>0, paste0(abs(reactive__region_dif), ' points more than'),
-      ifelse(reactive__region_dif<0, paste0(abs(reactive__region_dif), ' points less than'),
-        'the same as'
-      )
-    )
-
-  
-  headline <- paste0(
-    #HTML(paste0('<span style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;">',df_region$prop_resp[df_region$region=='London'],'%</span><br><span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>')),
-    HTML('<span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>'),
-    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
-    HTML('<hr width="90%" color="#ffffff" />')
-  )
-
-  list <- HTML(
-    paste0(
-      "
-      <div style='height:-1vh'></div>
-      <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
-      <ul>
-      <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
-      <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
-      </ul>
-      </span>
-      "
-    )
-  )
-  if(is.null(reactive__region_name)) {
-    return(HTML(headline))
-  }
-  # Else show loader
-  else {
-    return(HTML(paste0(headline,list)))
-  }
-
-}
-
+# generate_region_text <- function(question, df_list, drill_level=NULL, reactive__region_name=NULL,  reactive__region_val=NULL, reactive__region_dif=NULL, reactive__region_rank=NULL) {
+#   
+# 
+# 
+#   question <- as.numeric(question)
+#   df_region <- df_list[[question ]][['region']][['dataframe']] %>% 
+#     select(region, prop_resp, color, drilldown_central)
+#   question_text <- paste(
+#     tolower(substr(df_list[[question ]][['region']][['title']], 1, 1)), 
+#     substr(df_list[[question ]][['region']][['title']], 2, nchar(df_list[[question ]][['region']][['title']])), sep="")
+#   
+#   #browser()
+#   eng_mean <- round(mean(df_region$prop_resp),1)
+#   eng_ldn_dif_text <- 
+#     ifelse(reactive__region_dif>0, paste0(abs(reactive__region_dif), ' points more than'),
+#       ifelse(reactive__region_dif<0, paste0(abs(reactive__region_dif), ' points less than'),
+#         'the same as'
+#       )
+#     )
+# 
+#   
+#   headline <- paste0(
+#     #HTML(paste0('<span style="color:#ffffff; font-size:4.8vw; line-height:4.8vw;">',df_region$prop_resp[df_region$region=='London'],'%</span><br><span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>')),
+#     HTML(
+#       '
+#       <div class="section-text-title-l1">
+#         <p>of Londoners</p>
+#       </div>
+#       '
+#     ),
+#     HTML(
+#       paste(
+#         '
+#         <div class="section-text-title-l2">
+#           <p>',strwrap(gsub(' \\(%)','', paste0(question_text,'</p><br>')), width=100),'</p>
+#         </div>
+#         ',
+#         collapse = "<br>"
+#         
+#       )
+#     ),
+#     
+#     
+#     
+#     #HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
+#     HTML('<hr width="90%" color="#ffffff" />')
+#   )
+# 
+#   list <- HTML(
+#     paste0(
+#       "
+#       <div style='height:-1vh'></div>
+#       <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
+#       <ul>
+#       <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",eng_mean,"%</li>
+#       <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
+#       </ul>
+#       </span>
+#       "
+#     )
+#   )
+#   if(is.null(reactive__region_name)) {
+#     return(HTML(headline))
+#   }
+#   # Else show loader
+#   else {
+#     return(HTML(paste0(headline,list)))
+#   }
+# 
+# }
+# 
 
 generate_region_headline_text <- function(question, df_list) {
   
@@ -3367,9 +3388,32 @@ generate_region_headline_text <- function(question, df_list) {
   )
   #browser()
   headline <- paste0(
-    HTML('<span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>'),
-    HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
-    HTML('<hr width="90%" color="#ffffff" />')
+    HTML(
+      '
+      <div class="section-text-title-l1">
+        <p>of Londoners</p>
+      </div>
+      '
+    ),
+    HTML(
+      paste(
+        '
+        <div class="section-text-title-l2">
+          <p>',strwrap(gsub(' \\(%)','', paste0(question_text,'</p><br>')), width=100),'</p>
+        </div>
+        ',
+        collapse = "<br>"
+        
+      )
+    ),
+    # HTML('<span style="color:#ffffff; font-size:2.8vw;  line-height:2.8vw;">of Londoners</span><br>'),
+    # HTML(paste('<span style="color: #ffffff;font-size:1.4vw;line-height:1.4vw;">',strwrap(gsub(' \\(%)','', paste0(question_text,'</span><br>')), width=100),collapse = "<br>")),
+    
+    HTML(
+      '
+      <hr class="section-text-title-seperator" />
+      '
+    )
   )
   return(HTML(headline))
   
@@ -3391,8 +3435,7 @@ generate_region_summary_text <- function(question, df_list, drill_level=NULL, re
   list <- HTML(
     paste0(
       "
-      <div style='height:-1vh'></div>
-      <span style='color:#ffffff;font-size:1.15vw; line-height:1.25vw;'>
+      <span class='section-text-summary'>
       <ul>
       <li>The regional average in ",reactive__region_name," is ",reactive__region_val,"%, which is ",eng_ldn_dif_text," the England average of ",reactive__england_val,"%</li>
       <li>This ranks ",reactive__region_name," ",reactive__region_rank," out of England's 9 regions</li>
@@ -3437,7 +3480,7 @@ generate_borough_text <- function(question, df_list) {
   list <- HTML(
     paste0(
       "
-      <span style='color:#ffffff;font-size:1.15vw; line-height:1.15vw;'>
+      <span class='section-text-summary'>
       <ul>
       <li>The two boroughs that score the highest are ", high1_name, " and ", high2_name ,", at ", high1_val,"% and ",high2_val,"% respectively</li>
       <li>The two boroughs that score the lowest are ", low1_name, " and ", low2_name ,", at ", low1_val,"% and ",low2_val,"% respectively</li>
