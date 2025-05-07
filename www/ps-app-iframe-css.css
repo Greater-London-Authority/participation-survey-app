@@ -1,0 +1,18 @@
+@media only screen and (max-width: 1400px) {
+.appframe {
+position:absolute;
+top:-1vh;
+left:-23.5vh;
+width:100vw;
+height:99vh;
+}
+}
+@media only screen and (min-width: 1401px) {
+.appframe {
+position:absolute;
+top:-1vh;
+left:-35vh;
+width:100vw;
+height:99vh;
+}
+}
